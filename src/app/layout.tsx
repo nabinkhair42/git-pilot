@@ -50,10 +50,10 @@ export const metadata: Metadata = {
       "Browse and manage Git repositories with a clean visual UI. View commits, branches, tags, and diffs — locally or via GitHub.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/online-mode-dark.png",
         width: 1200,
         height: 630,
-        alt: "Git Commit Manager",
+        alt: "Git Commit Manager — Visual Git Client",
       },
     ],
   },
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     title: "Git Commit Manager — Visual Git Client",
     description:
       "Browse and manage Git repositories with a clean visual UI. View commits, branches, tags, and diffs.",
-    images: ["/og-image.png"],
+    images: ["/online-mode-dark.png"],
   },
   icons: {
     icon: "/favicon.svg",

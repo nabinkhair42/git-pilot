@@ -214,28 +214,109 @@
   border-color: var(--border) !important;
   background: transparent !important;
 }
-.d2h-del {
-  background-color: rgba(248, 81, 73, 0.1) !important;
-}
-.d2h-ins {
-  background-color: rgba(63, 185, 80, 0.1) !important;
-}
-.d2h-del .d2h-code-line-ctn {
-  background: transparent !important;
-}
-.d2h-ins .d2h-code-line-ctn {
-  background: transparent !important;
-}
 .d2h-info {
   background: color-mix(in srgb, var(--foreground) 3%, transparent) !important;
   color: var(--muted-foreground) !important;
   border-color: var(--border) !important;
 }
-.d2h-file-diff .d2h-del.d2h-change {
+
+/* Diff line backgrounds — light mode */
+:root .d2h-del {
+  background-color: rgba(255, 220, 220, 0.5) !important;
+}
+:root .d2h-ins {
+  background-color: rgba(200, 255, 210, 0.5) !important;
+}
+:root .d2h-del .d2h-code-line-ctn {
+  background: transparent !important;
+}
+:root .d2h-ins .d2h-code-line-ctn {
+  background: transparent !important;
+}
+:root .d2h-file-diff .d2h-del.d2h-change {
+  background-color: rgba(255, 200, 200, 0.6) !important;
+}
+:root .d2h-file-diff .d2h-ins.d2h-change {
+  background-color: rgba(180, 255, 200, 0.6) !important;
+}
+
+/* Diff line backgrounds — dark mode */
+.dark .d2h-del {
   background-color: rgba(248, 81, 73, 0.15) !important;
 }
-.d2h-file-diff .d2h-ins.d2h-change {
+.dark .d2h-ins {
   background-color: rgba(63, 185, 80, 0.15) !important;
+}
+.dark .d2h-del .d2h-code-line-ctn {
+  background: transparent !important;
+  color: var(--foreground) !important;
+}
+.dark .d2h-ins .d2h-code-line-ctn {
+  background: transparent !important;
+  color: var(--foreground) !important;
+}
+.dark .d2h-file-diff .d2h-del.d2h-change {
+  background-color: rgba(248, 81, 73, 0.22) !important;
+}
+.dark .d2h-file-diff .d2h-ins.d2h-change {
+  background-color: rgba(63, 185, 80, 0.22) !important;
+}
+
+/* Ensure all diff text uses foreground color, not library defaults */
+.d2h-del .d2h-code-line-ctn,
+.d2h-del .d2h-code-side-line,
+.d2h-ins .d2h-code-line-ctn,
+.d2h-ins .d2h-code-side-line,
+.d2h-cntx .d2h-code-line-ctn,
+.d2h-cntx .d2h-code-side-line {
+  color: var(--foreground) !important;
+  background: transparent !important;
+}
+
+/* Side-by-side specific */
+.d2h-file-side-diff .d2h-del {
+  background-color: inherit !important;
+}
+.d2h-file-side-diff .d2h-ins {
+  background-color: inherit !important;
+}
+.dark .d2h-file-side-diff .d2h-code-side-linenumber.d2h-del {
+  background-color: rgba(248, 81, 73, 0.15) !important;
+  border-color: var(--border) !important;
+}
+.dark .d2h-file-side-diff .d2h-code-side-linenumber.d2h-ins {
+  background-color: rgba(63, 185, 80, 0.15) !important;
+  border-color: var(--border) !important;
+}
+:root .d2h-file-side-diff .d2h-code-side-linenumber.d2h-del {
+  background-color: rgba(255, 220, 220, 0.5) !important;
+  border-color: var(--border) !important;
+}
+:root .d2h-file-side-diff .d2h-code-side-linenumber.d2h-ins {
+  background-color: rgba(200, 255, 210, 0.5) !important;
+  border-color: var(--border) !important;
+}
+
+/* Diff line number text */
+.d2h-del .d2h-code-linenumber,
+.d2h-ins .d2h-code-linenumber,
+.d2h-del .d2h-code-side-linenumber,
+.d2h-ins .d2h-code-side-linenumber {
+  color: var(--muted-foreground) !important;
+}
+
+/* Table borders */
+.d2h-diff-table {
+  border-collapse: collapse !important;
+}
+.d2h-diff-tbody tr td {
+  border-color: var(--border) !important;
+}
+
+/* Emptyplaceholder (side-by-side empty cell) */
+.d2h-emptyplaceholder {
+  background: color-mix(in srgb, var(--foreground) 2%, transparent) !important;
+  border-color: var(--border) !important;
 }
 
 html {
