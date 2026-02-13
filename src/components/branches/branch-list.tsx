@@ -58,8 +58,11 @@ export function BranchList() {
   }>({ open: false, name: "", force: false });
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const branches = data?.branches || [];
-  const currentBranch = branches.find((b) => b.current);
+  const allBranches = data?.branches || [];
+  const localBranches = allBranches.filter((b) => !b.isRemote);
+  const remoteBranches = allBranches.filter((b) => b.isRemote);
+  const branches = allBranches;
+  const currentBranch = localBranches.find((b) => b.current);
 
   async function handleCreate() {
     if (!newBranchName.trim()) return;
@@ -187,7 +190,15 @@ export function BranchList() {
           </div>
         ) : (
           <div>
-            {branches.map((branch, i) => (
+            {/* Local branches */}
+            {localBranches.length > 0 && (
+              <div className="px-6 pb-1 pt-4">
+                <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/60">
+                  Local
+                </p>
+              </div>
+            )}
+            {localBranches.map((branch, i) => (
               <div
                 key={branch.name}
                 className={`group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-white/[0.02] ${
@@ -274,6 +285,57 @@ export function BranchList() {
                 )}
               </div>
             ))}
+
+            {/* Remote branches */}
+            {remoteBranches.length > 0 && (
+              <>
+                <div className="px-6 pb-1 pt-4 mt-2 border-t border-border">
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/60">
+                    Remote
+                  </p>
+                </div>
+                {remoteBranches.map((branch, i) => (
+                  <div
+                    key={branch.name}
+                    className={`group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-white/[0.02] ${
+                      i !== 0 ? "border-t border-dashed border-border" : ""
+                    }`}
+                  >
+                    <div className="flex size-5 shrink-0 items-center justify-center">
+                      <GitBranch size={14} className="text-muted-foreground/50" />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-sm text-foreground/70">
+                          {branch.name}
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className="border-blue-500/30 px-1.5 py-0 text-[10px] text-blue-400"
+                        >
+                          remote
+                        </Badge>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {formatHash(branch.commit)}
+                      </span>
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleCheckout(branch.name)}
+                        className="border-white/[0.1] text-xs transition-colors hover:bg-white/[0.04]"
+                      >
+                        Checkout
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
           </div>
         )}
       </div>
@@ -335,11 +397,11 @@ export function BranchList() {
                 <SelectValue placeholder="Select branch to merge" />
               </SelectTrigger>
               <SelectContent>
-                {branches
+                {allBranches
                   .filter((b) => !b.current)
                   .map((b) => (
                     <SelectItem key={b.name} value={b.name}>
-                      {b.name}
+                      {b.name}{b.isRemote ? " (remote)" : ""}
                     </SelectItem>
                   ))}
               </SelectContent>

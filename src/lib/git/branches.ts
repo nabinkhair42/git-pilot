@@ -2,14 +2,20 @@ import type { SimpleGit } from "simple-git";
 import type { BranchInfo, OperationResult } from "./types";
 
 export async function getBranches(git: SimpleGit): Promise<BranchInfo[]> {
-  const summary = await git.branchLocal();
-  return Object.entries(summary.branches).map(([name, data]) => ({
-    name,
-    current: data.current,
-    commit: data.commit,
-    label: data.label,
-    linkedWorkTree: data.linkedWorkTree,
-  }));
+  const summary = await git.branch(["-a", "--sort=-committerdate"]);
+  return Object.entries(summary.branches)
+    .filter(([name]) => !name.includes("HEAD"))
+    .map(([name, data]) => {
+      const isRemote = name.startsWith("remotes/");
+      return {
+        name: isRemote ? name.replace(/^remotes\//, "") : name,
+        current: data.current,
+        commit: data.commit,
+        label: data.label,
+        linkedWorkTree: data.linkedWorkTree,
+        isRemote,
+      };
+    });
 }
 
 export async function createBranch(

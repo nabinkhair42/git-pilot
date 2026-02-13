@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useId } from "react";
 import { Folder, FolderGit2 } from "lucide-react";
 import { browsePath, type DirSuggestion } from "@/services/frontend/git.services";
 
@@ -27,6 +27,7 @@ export function PathInput({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
   const navigatingRef = useRef(false);
+  const listboxId = useId();
 
   const fetchSuggestions = useCallback(async (partial: string, resetIndex = true) => {
     if (!partial.startsWith("/")) {
@@ -175,22 +176,36 @@ export function PathInput({
         placeholder={placeholder}
         autoComplete="off"
         spellCheck={false}
+        role="combobox"
+        aria-expanded={open && suggestions.length > 0}
+        aria-controls={listboxId}
+        aria-autocomplete="list"
+        aria-activedescendant={
+          activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined
+        }
         className="h-11 w-full rounded-lg border border-border bg-white/[0.03] px-3 font-mono text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 disabled:opacity-50"
       />
 
       {open && suggestions.length > 0 && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-lg border border-border bg-popover shadow-lg">
-          <div ref={listRef}>
+        <div
+          className="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-lg border border-border bg-popover shadow-lg"
+        >
+          <div ref={listRef} id={listboxId} role="listbox">
             {suggestions.map((s, i) => (
               <button
                 key={s.path}
+                id={`${listboxId}-option-${i}`}
                 type="button"
+                role="option"
+                aria-selected={i === activeIndex}
+                tabIndex={-1}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => selectSuggestion(s)}
+                onMouseEnter={() => setActiveIndex(i)}
                 className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors ${
                   i === activeIndex
-                    ? "bg-white/[0.06] text-foreground"
-                    : "text-foreground/80 hover:bg-white/[0.03]"
+                    ? "bg-primary/15 text-foreground"
+                    : "text-foreground/80 hover:bg-white/[0.04]"
                 } ${i !== 0 ? "border-t border-dashed border-border" : ""}`}
               >
                 {s.isGitRepo ? (

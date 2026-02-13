@@ -35,6 +35,7 @@ export interface BranchInfo {
   commit: string;
   label: string;
   linkedWorkTree: boolean;
+  isRemote: boolean;
 }
 
 export interface RepoInfo {
