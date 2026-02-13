@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { DiffSkeleton } from "@/components/loaders/diff-skeleton";
 import { DiffViewer } from "@/components/diff/diff-viewer";
+import { PageHeader } from "@/components/shared/page-header";
 
 export function CompareView() {
   const [fromHash, setFromHash] = useState<string | null>(null);
@@ -27,15 +28,7 @@ export function CompareView() {
 
   return (
     <>
-      {/* Selectors */}
-      <div className="rail-bounded px-4 sm:px-6">
-        <div className="pb-6 pt-8">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Diff
-          </p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight">Compare Commits</h2>
-        </div>
-
+      <PageHeader label="Diff" title="Compare Commits">
         <div className="flex flex-col gap-3 pb-6 sm:flex-row sm:items-end">
           <div className="flex-1 space-y-1.5">
             <label className="text-sm text-muted-foreground">From (older)</label>
@@ -87,7 +80,7 @@ export function CompareView() {
             </SelectContent>
           </Select>
         </div>
-      </div>
+      </PageHeader>
 
       <div className="section-divider" aria-hidden="true" />
 

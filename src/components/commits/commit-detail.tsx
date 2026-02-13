@@ -38,8 +38,8 @@ export function CommitDetail({ hash }: CommitDetailProps) {
   return (
     <>
       {/* Header */}
-      <div className="rail-bounded px-6">
-        <div className="pb-6 pt-8">
+      <div className="rail-bounded px-4 sm:px-6">
+        <div className="py-4">
           <Button
             variant="ghost"
             size="sm"

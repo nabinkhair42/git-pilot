@@ -1,25 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import {
-  RotateCcw,
-  CherryIcon,
-  Undo2,
-  MoreHorizontal,
-  ChevronLeft,
-  ChevronRight,
-  Copy,
-} from "lucide-react";
-import { toast } from "sonner";
-import { useGitMutations } from "@/hooks/use-git";
-import { useRepo } from "@/hooks/use-repo";
-import { useUnifiedCommits, useUnifiedBranches } from "@/hooks/use-unified";
-import { formatRelativeDate, formatHash } from "@/lib/formatters";
-import { DEFAULT_COMMITS_PER_PAGE, RESET_MODES } from "@/config/constants";
+import { CommitListSkeleton } from "@/components/loaders/commit-list-skeleton";
+import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +14,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -37,19 +22,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { CommitListSkeleton } from "@/components/loaders/commit-list-skeleton";
-import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
+import { DEFAULT_COMMITS_PER_PAGE, RESET_MODES } from "@/config/constants";
+import { useGitMutations } from "@/hooks/use-git";
+import { useRepo } from "@/hooks/use-repo";
+import { useUnifiedBranches, useUnifiedCommits } from "@/hooks/use-unified";
+import { formatHash, formatRelativeDate } from "@/lib/formatters";
 import type { ResetMode } from "@/lib/git/types";
+import {
+  CherryIcon,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  MoreHorizontal,
+  RotateCcw,
+  Undo2,
+} from "lucide-react";
+import Link from "next/link";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
 
 export function CommitList() {
   const { repoPath, mode, githubOwner, githubRepoName } = useRepo();
-  const searchParams = useSearchParams();
   const isGitHub = mode === "github";
 
   const [page, setPage] = useState(0);

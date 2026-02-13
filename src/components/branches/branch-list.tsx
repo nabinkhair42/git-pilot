@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useGitMutations } from "@/hooks/use-git";
 import { useRepo } from "@/hooks/use-repo";
 import { useUnifiedBranches } from "@/hooks/use-unified";
+import { PageHeader } from "@/components/shared/page-header";
 import { formatHash } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -164,15 +165,10 @@ export function BranchList() {
 
   return (
     <>
-      {/* Header with actions */}
-      <div className="rail-bounded px-4 sm:px-6">
-        <div className="flex flex-col gap-4 pb-4 pt-8 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Management
-            </p>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight">Branches</h2>
-          </div>
+      <PageHeader
+        label="Management"
+        title="Branches"
+        actions={
           <div className="flex flex-wrap gap-2">
             {!isGitHub && (
               <>
@@ -196,9 +192,8 @@ export function BranchList() {
               </>
             )}
           </div>
-        </div>
-
-        {/* Search */}
+        }
+      >
         {allBranches.length > 5 && (
           <div className="pb-4">
             <Input
@@ -209,7 +204,7 @@ export function BranchList() {
             />
           </div>
         )}
-      </div>
+      </PageHeader>
 
       <div className="section-divider" aria-hidden="true" />
 

@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useGitMutations } from "@/hooks/use-git";
 import { useRepo } from "@/hooks/use-repo";
 import { useUnifiedTags } from "@/hooks/use-unified";
+import { PageHeader } from "@/components/shared/page-header";
 import { formatRelativeDate, formatHash } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -113,16 +114,11 @@ export function TagList() {
 
   return (
     <>
-      {/* Header */}
-      <div className="rail-bounded px-6">
-        <div className="flex items-end justify-between pb-4 pt-8">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Releases
-            </p>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight">Tags</h2>
-          </div>
-          {!isGitHub && (
+      <PageHeader
+        label="Releases"
+        title="Tags"
+        actions={
+          !isGitHub ? (
             <Button
               size="sm"
               onClick={() => setCreateOpen(true)}
@@ -131,10 +127,9 @@ export function TagList() {
               <Plus size={14} className="mr-1.5" />
               New Tag
             </Button>
-          )}
-        </div>
-
-        {/* Search */}
+          ) : undefined
+        }
+      >
         {tags.length > 5 && (
           <div className="pb-4">
             <Input
@@ -145,7 +140,7 @@ export function TagList() {
             />
           </div>
         )}
-      </div>
+      </PageHeader>
 
       <div className="section-divider" aria-hidden="true" />
 

@@ -15,6 +15,7 @@ import { useStashList, useGitMutations, useStatus } from "@/hooks/use-git";
 import { formatRelativeDate, formatHash } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PageHeader } from "@/components/shared/page-header";
 import {
   Dialog,
   DialogContent,
@@ -146,15 +147,10 @@ export function StashList() {
 
   return (
     <>
-      {/* Header */}
-      <div className="rail-bounded px-6">
-        <div className="flex items-end justify-between pb-4 pt-8">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Working Tree
-            </p>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight">Stashes</h2>
-          </div>
+      <PageHeader
+        label="Working Tree"
+        title="Stashes"
+        actions={
           <div className="flex gap-2">
             {stashes.length > 0 && (
               <Button
@@ -177,13 +173,14 @@ export function StashList() {
               Stash Changes
             </Button>
           </div>
-        </div>
+        }
+      >
         {!hasUncommitted && (
           <p className="pb-4 text-xs text-muted-foreground/60">
             Working tree is clean. Make some changes to stash them.
           </p>
         )}
-      </div>
+      </PageHeader>
 
       <div className="section-divider" aria-hidden="true" />
 

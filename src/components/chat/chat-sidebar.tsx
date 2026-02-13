@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useChat } from "@ai-sdk/react";
-import { ChatMessages } from "@/components/chat/chat-message";
 import { ChatInput } from "@/components/chat/chat-input";
-import { Bot, MessageSquare, X, Trash2 } from "lucide-react";
+import { ChatMessages } from "@/components/chat/chat-message";
 import { useRepo } from "@/hooks/use-repo";
 import { cn } from "@/lib/utils";
+import { useChat } from "@ai-sdk/react";
+import { Bot, MessageSquare, Trash2, X } from "lucide-react";
+import { useState } from "react";
 
 export function ChatSidebar() {
   const { repoPath, mode } = useRepo();
@@ -15,10 +15,10 @@ export function ChatSidebar() {
 
   const { messages, sendMessage, status, stop, setMessages } = useChat({
     id: "repo-chat",
-    api: "/api/chat",
-    body: {
-      repoPath,
-    },
+    // api: "/api/chat",
+    // body: {
+    //   repoPath,
+    // },
   });
 
   const handleSend = (text: string) => {
