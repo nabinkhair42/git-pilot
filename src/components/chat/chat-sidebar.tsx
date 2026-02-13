@@ -134,8 +134,8 @@ export function ChatSidebar() {
         )}
 
         {/* Footer */}
-        <div className="shrink-0 border-t border-border px-4 py-1.5">
-          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+        <div className="flex h-10 shrink-0 items-center border-t border-border px-4">
+          <div className="flex w-full items-center justify-between text-[11px] text-muted-foreground">
             <span>Tokenizer: Off</span>
             <div className="flex items-center gap-1">
               <span>Context:</span>

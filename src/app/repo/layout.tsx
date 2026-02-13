@@ -24,9 +24,11 @@ function RepoLayoutInner({ children }: { children: React.ReactNode }) {
         {/* Content column: header + scrollable main */}
         <div className="flex min-w-0 flex-1 flex-col">
           <RepoHeader />
-          <main className="min-h-0 flex-1 overflow-y-auto">
-            <div className="page-rails flex min-h-full flex-col">
-              {children}
+          <main className="flex min-h-0 flex-1 flex-col">
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <div className="page-rails flex min-h-full flex-col">
+                {children}
+              </div>
             </div>
             <SiteFooter />
           </main>
