@@ -116,13 +116,117 @@
   --sidebar-ring: oklch(0.552 0.016 285.938);
 }
 
+/* Structural Grid - Rail Lines */
+.page-rails {
+  --rail-offset: max(1rem, calc(50% - 36rem));
+  position: relative;
+  overflow-x: clip;
+}
+.page-rails::before,
+.page-rails::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+  pointer-events: none;
+  z-index: 1;
+}
+.page-rails::before { left: var(--rail-offset); }
+.page-rails::after { right: var(--rail-offset); }
+
+.rail-bounded {
+  margin-left: var(--rail-offset);
+  margin-right: var(--rail-offset);
+}
+
+.section-divider {
+  position: relative;
+  height: 1px;
+  z-index: 2;
+}
+.section-divider::before {
+  content: '';
+  position: absolute;
+  left: var(--rail-offset, max(1rem, calc(50% - 36rem)));
+  right: var(--rail-offset, max(1rem, calc(50% - 36rem)));
+  height: 1px;
+  background: var(--border);
+}
+
+.dot-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+/* diff2html overrides for dark mode */
+.d2h-wrapper {
+  --d2h-bg-color: transparent;
+  --d2h-border-color: var(--border);
+}
+.d2h-file-header {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: var(--border) !important;
+  color: var(--foreground) !important;
+}
+.d2h-file-wrapper {
+  border-color: var(--border) !important;
+  margin-bottom: 0 !important;
+}
+.d2h-code-line,
+.d2h-code-side-line {
+  color: var(--foreground) !important;
+}
+.d2h-code-linenumber {
+  color: var(--muted-foreground) !important;
+  border-color: var(--border) !important;
+  background: transparent !important;
+}
+.d2h-del {
+  background-color: rgba(248, 81, 73, 0.1) !important;
+}
+.d2h-ins {
+  background-color: rgba(63, 185, 80, 0.1) !important;
+}
+.d2h-del .d2h-code-line-ctn {
+  background: transparent !important;
+}
+.d2h-ins .d2h-code-line-ctn {
+  background: transparent !important;
+}
+.d2h-info {
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: var(--muted-foreground) !important;
+  border-color: var(--border) !important;
+}
+.d2h-file-diff .d2h-del.d2h-change {
+  background-color: rgba(248, 81, 73, 0.15) !important;
+}
+.d2h-file-diff .d2h-ins.d2h-change {
+  background-color: rgba(63, 185, 80, 0.15) !important;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4rem;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
     @apply bg-background text-foreground;
   }
 }

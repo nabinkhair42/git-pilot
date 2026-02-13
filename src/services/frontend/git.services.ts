@@ -113,3 +113,16 @@ export async function getStatus(path: string) {
     await api.get(API_ENDPOINTS.STATUS, { params: { path } })
   );
 }
+
+// Browse
+export interface DirSuggestion {
+  path: string;
+  name: string;
+  isGitRepo: boolean;
+}
+
+export async function browsePath(partial: string) {
+  return unwrap<{ suggestions: DirSuggestion[] }>(
+    await api.get(API_ENDPOINTS.BROWSE, { params: { path: partial } })
+  );
+}

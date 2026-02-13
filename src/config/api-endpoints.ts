@@ -22,4 +22,7 @@ export const API_ENDPOINTS = {
 
   // Status
   STATUS: "/git/status",
+
+  // Browse
+  BROWSE: "/git/browse",
 } as const;
