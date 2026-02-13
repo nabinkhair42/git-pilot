@@ -9,25 +9,52 @@ import {
 import { useRepoInfo, useStatus } from "@/hooks/use-git";
 import { useRepoShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useRepo } from "@/hooks/use-repo";
-import { Archive, CircleDot, GitBranch, GitCommitHorizontal, GitCompareArrows, Tag } from "lucide-react";
+import {
+  Archive,
+  CircleDot,
+  GitBranch,
+  GitCommitHorizontal,
+  GitCompareArrows,
+  Tag,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { GitManagerAppIcon } from "../icons/git-manager";
 
 const localNavItems = [
-  { label: "Commits", href: "/repo/commits", icon: GitCommitHorizontal, shortcut: "1" },
+  {
+    label: "Commits",
+    href: "/repo/commits",
+    icon: GitCommitHorizontal,
+    shortcut: "1",
+  },
   { label: "Branches", href: "/repo/branches", icon: GitBranch, shortcut: "2" },
   { label: "Tags", href: "/repo/tags", icon: Tag, shortcut: "3" },
   { label: "Stash", href: "/repo/stash", icon: Archive, shortcut: "4" },
-  { label: "Compare", href: "/repo/compare", icon: GitCompareArrows, shortcut: "5" },
+  {
+    label: "Compare",
+    href: "/repo/compare",
+    icon: GitCompareArrows,
+    shortcut: "5",
+  },
 ];
 
 // GitHub mode: no stash (no working tree)
 const githubNavItems = [
-  { label: "Commits", href: "/repo/commits", icon: GitCommitHorizontal, shortcut: "1" },
+  {
+    label: "Commits",
+    href: "/repo/commits",
+    icon: GitCommitHorizontal,
+    shortcut: "1",
+  },
   { label: "Branches", href: "/repo/branches", icon: GitBranch, shortcut: "2" },
   { label: "Tags", href: "/repo/tags", icon: Tag, shortcut: "3" },
-  { label: "Compare", href: "/repo/compare", icon: GitCompareArrows, shortcut: "4" },
+  {
+    label: "Compare",
+    href: "/repo/compare",
+    icon: GitCompareArrows,
+    shortcut: "4",
+  },
 ];
 
 export function RepoHeader() {
@@ -59,32 +86,43 @@ export function RepoHeader() {
     : (repoPath || "").split("/").pop() || repoPath || "";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6">
+    <header className="shrink-0 border-b border-border bg-background">
+      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-2 px-4 sm:gap-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <Link
             href={isGitHub ? "/?mode=github" : "/"}
             className="flex min-w-0 items-center gap-2 text-foreground transition-colors hover:text-foreground/80"
           >
             <GitManagerAppIcon className="size-4 shrink-0 sm:size-5" />
-            <span className="max-w-[120px] truncate text-sm font-semibold tracking-tight sm:max-w-[200px] sm:text-base md:max-w-none">{displayName}</span>
+            <span className="max-w-30 truncate text-sm font-semibold tracking-tight sm:max-w-50 sm:text-base md:max-w-none">
+              {displayName}
+            </span>
           </Link>
 
           {isGitHub && (
-            <Badge variant="outline" className="hidden gap-1.5 border-git-info/30 text-[10px] text-git-info sm:flex">
+            <Badge
+              variant="outline"
+              className="hidden gap-1.5 border-git-info/30 text-[10px] text-git-info sm:flex"
+            >
               GitHub
             </Badge>
           )}
 
           {!isGitHub && repoInfo && (
-            <Badge variant="secondary" className="hidden gap-1.5 font-mono text-xs sm:flex">
+            <Badge
+              variant="secondary"
+              className="hidden gap-1.5 font-mono text-xs sm:flex"
+            >
               <GitBranch size={12} />
               {repoInfo.currentBranch}
             </Badge>
           )}
 
           {!isGitHub && status && !status.isClean && (
-            <Badge variant="outline" className="hidden gap-1.5 border-git-warning/30 text-git-warning sm:flex">
+            <Badge
+              variant="outline"
+              className="hidden gap-1.5 border-git-warning/30 text-git-warning sm:flex"
+            >
               <CircleDot size={10} />
               Uncommitted
             </Badge>

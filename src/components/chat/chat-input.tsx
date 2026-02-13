@@ -1,92 +1,118 @@
 "use client";
 
-import { useState, useRef, useEffect, type KeyboardEvent } from "react";
+import type { ChatStatus } from "ai";
+import {
+  PromptInput,
+  PromptInputTextarea,
+  PromptInputFooter,
+  PromptInputTools,
+  PromptInputSubmit,
+} from "@/components/ai-elements/prompt-input";
+import {
+  ModelSelector,
+  ModelSelectorTrigger,
+  ModelSelectorContent,
+  ModelSelectorInput,
+  ModelSelectorList,
+  ModelSelectorEmpty,
+  ModelSelectorGroup,
+  ModelSelectorItem,
+  ModelSelectorLogo,
+  ModelSelectorName,
+} from "@/components/ai-elements/model-selector";
 import { Button } from "@/components/ui/button";
-import { SendHorizonal, Square, CornerDownLeft } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Infinity } from "lucide-react";
+import { useState } from "react";
+
+const MODELS = [
+  { id: "gpt-4o", name: "GPT-4o", provider: "openai" as const },
+  { id: "claude-sonnet-4-5-20250929", name: "Claude Sonnet 4.5", provider: "anthropic" as const },
+  { id: "claude-opus-4-6", name: "Claude Opus 4.6", provider: "anthropic" as const },
+  { id: "grok-3", name: "Grok 3", provider: "xai" as const },
+];
 
 interface ChatInputProps {
   onSend: (text: string) => void;
   onStop: () => void;
-  status: string;
+  status: ChatStatus;
   disabled?: boolean;
 }
 
 export function ChatInput({ onSend, onStop, status, disabled }: ChatInputProps) {
-  const [input, setInput] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [selectedModel, setSelectedModel] = useState(MODELS[0].id);
+  const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
 
-  const isStreaming = status === "streaming" || status === "submitted";
-  const canSend = input.trim().length > 0 && !isStreaming && !disabled;
-
-  // Auto-resize textarea
-  useEffect(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
-    }
-  }, [input]);
-
-  const handleSend = () => {
-    if (!canSend) return;
-    onSend(input.trim());
-    setInput("");
-    // Reset height
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
-  };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
+  const currentModel = MODELS.find((m) => m.id === selectedModel) ?? MODELS[0];
 
   return (
-    <div className="border-t bg-background p-3">
-      <div className="flex items-end gap-2 rounded-lg border bg-muted/30 px-3 py-2 focus-within:ring-1 focus-within:ring-ring">
-        <textarea
-          ref={textareaRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask about your repo..."
+    <div className="shrink-0 border-t border-border">
+      <PromptInput
+        onSubmit={(message) => {
+          if (message.text.trim()) {
+            onSend(message.text.trim());
+          }
+        }}
+      >
+        <PromptInputTextarea
+          placeholder="Ask questions about the repo"
           disabled={disabled}
-          rows={1}
-          className={cn(
-            "flex-1 resize-none bg-transparent text-sm outline-none placeholder:text-muted-foreground",
-            "max-h-[120px] min-h-[20px]",
-            disabled && "opacity-50"
-          )}
+          className="min-h-10"
         />
-        {isStreaming ? (
-          <Button
-            size="icon-xs"
-            variant="destructive"
-            onClick={onStop}
-            className="shrink-0"
-          >
-            <Square className="size-3" />
-          </Button>
-        ) : (
-          <Button
-            size="icon-xs"
-            variant={canSend ? "default" : "ghost"}
-            onClick={handleSend}
-            disabled={!canSend}
-            className="shrink-0"
-          >
-            <SendHorizonal className="size-3" />
-          </Button>
-        )}
-      </div>
-      <p className="mt-1.5 flex items-center gap-1 text-[10px] text-muted-foreground">
-        <CornerDownLeft className="size-2.5" />
-        <span>Enter to send, Shift+Enter for new line</span>
-      </p>
+        <PromptInputFooter>
+          <PromptInputTools>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1.5 px-2 text-xs text-muted-foreground"
+              type="button"
+            >
+              <Infinity className="size-3.5" />
+              Agent
+            </Button>
+
+            <ModelSelector open={modelSelectorOpen} onOpenChange={setModelSelectorOpen}>
+              <ModelSelectorTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 gap-1.5 px-2 text-xs"
+                  type="button"
+                >
+                  <ModelSelectorLogo provider={currentModel.provider} />
+                  {currentModel.name}
+                </Button>
+              </ModelSelectorTrigger>
+              <ModelSelectorContent>
+                <ModelSelectorInput placeholder="Search models..." />
+                <ModelSelectorList>
+                  <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
+                  <ModelSelectorGroup>
+                    {MODELS.map((model) => (
+                      <ModelSelectorItem
+                        key={model.id}
+                        value={model.id}
+                        onSelect={() => {
+                          setSelectedModel(model.id);
+                          setModelSelectorOpen(false);
+                        }}
+                      >
+                        <ModelSelectorLogo provider={model.provider} />
+                        <ModelSelectorName>{model.name}</ModelSelectorName>
+                      </ModelSelectorItem>
+                    ))}
+                  </ModelSelectorGroup>
+                </ModelSelectorList>
+              </ModelSelectorContent>
+            </ModelSelector>
+          </PromptInputTools>
+
+          <PromptInputSubmit
+            status={status}
+            onStop={onStop}
+            disabled={disabled}
+          />
+        </PromptInputFooter>
+      </PromptInput>
     </div>
   );
 }
