@@ -61,7 +61,7 @@ export function ConfirmationDialog({
         {typedConfirmation && (
           <div className="space-y-2 py-2">
             <p className="text-sm text-muted-foreground">
-              Type <code className="rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs text-foreground">{typedConfirmation}</code> to confirm:
+              Type <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">{typedConfirmation}</code> to confirm:
             </p>
             <Input
               value={typed}
@@ -74,7 +74,7 @@ export function ConfirmationDialog({
         )}
 
         <AlertDialogFooter>
-          <AlertDialogCancel className="border-white/[0.1] transition-colors hover:bg-white/[0.04]">
+          <AlertDialogCancel className="border-border transition-colors hover:bg-accent/60">
             Cancel
           </AlertDialogCancel>
           <Button

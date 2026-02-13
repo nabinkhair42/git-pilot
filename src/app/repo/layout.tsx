@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { RepoContext } from "@/hooks/use-repo";
 import { RepoHeader } from "@/components/repo/repo-header";
+import { SiteFooter } from "@/components/shared/site-footer";
 import type { AppMode } from "@/hooks/use-mode";
 
 function RepoLayoutInner({ children }: { children: React.ReactNode }) {
@@ -20,6 +21,7 @@ function RepoLayoutInner({ children }: { children: React.ReactNode }) {
         <div className="page-rails flex flex-1 flex-col">
           {children}
         </div>
+        <SiteFooter />
       </div>
     </RepoContext.Provider>
   );

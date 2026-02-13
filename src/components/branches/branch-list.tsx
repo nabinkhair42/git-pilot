@@ -180,7 +180,7 @@ export function BranchList() {
                   variant="outline"
                   size="sm"
                   onClick={() => setMergeOpen(true)}
-                  className="border-white/[0.1] transition-colors hover:bg-white/[0.04]"
+                  className="border-border transition-colors hover:bg-accent/60"
                 >
                   <GitMerge size={14} className="mr-1.5" />
                   Merge
@@ -205,7 +205,7 @@ export function BranchList() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Filter branches..."
-              className="h-9 max-w-xs border-border bg-white/[0.03] text-sm placeholder:text-muted-foreground/50 focus:border-primary/40 focus:ring-1 focus:ring-primary/20"
+              className="h-9 max-w-xs border-border bg-input/20 text-sm placeholder:text-muted-foreground/50 focus:border-primary/40 focus:ring-1 focus:ring-primary/20"
             />
           </div>
         )}
@@ -234,13 +234,13 @@ export function BranchList() {
             {localBranches.map((branch, i) => (
               <div
                 key={branch.name}
-                className={`group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-white/[0.02] ${
+                className={`group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-accent/50 ${
                   i !== 0 ? "border-t border-dashed border-border" : ""
                 }`}
               >
                 <div className="flex size-5 shrink-0 items-center justify-center">
                   {branch.current ? (
-                    <Check size={16} className="text-green-400" />
+                    <Check size={16} className="text-git-added" />
                   ) : (
                     <GitBranch size={14} className="text-muted-foreground" />
                   )}
@@ -254,7 +254,7 @@ export function BranchList() {
                     {branch.current && (
                       <Badge
                         variant="outline"
-                        className="border-green-500/30 px-1.5 py-0 text-[10px] text-green-400"
+                        className="border-git-added/30 px-1.5 py-0 text-[10px] text-git-added"
                       >
                         current
                       </Badge>
@@ -273,7 +273,7 @@ export function BranchList() {
                       onClick={() => handleCheckout(branch.name)}
                       isLoading={checkoutLoading === branch.name}
                       disabled={checkoutLoading !== null}
-                      className="border-white/[0.1] text-xs transition-colors hover:bg-white/[0.04]"
+                      className="border-border text-xs transition-colors hover:bg-accent/60"
                     >
                       Switch
                     </Button>
@@ -334,7 +334,7 @@ export function BranchList() {
                 {remoteBranches.map((branch, i) => (
                   <div
                     key={branch.name}
-                    className={`group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-white/[0.02] ${
+                    className={`group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-accent/50 ${
                       i !== 0 ? "border-t border-dashed border-border" : ""
                     }`}
                   >
@@ -349,7 +349,7 @@ export function BranchList() {
                         </span>
                         <Badge
                           variant="outline"
-                          className="border-blue-500/30 px-1.5 py-0 text-[10px] text-blue-400"
+                          className="border-git-info/30 px-1.5 py-0 text-[10px] text-git-info"
                         >
                           remote
                         </Badge>
@@ -367,7 +367,7 @@ export function BranchList() {
                           onClick={() => handleCheckout(branch.name)}
                           isLoading={checkoutLoading === branch.name}
                           disabled={checkoutLoading !== null}
-                          className="border-white/[0.1] text-xs transition-colors hover:bg-white/[0.04]"
+                          className="border-border text-xs transition-colors hover:bg-accent/60"
                         >
                           Checkout
                         </Button>
@@ -434,7 +434,7 @@ export function BranchList() {
             <Button
               variant="outline"
               onClick={() => setCreateOpen(false)}
-              className="border-white/[0.1] transition-colors hover:bg-white/[0.04]"
+              className="border-border transition-colors hover:bg-accent/60"
             >
               Cancel
             </Button>
@@ -464,7 +464,7 @@ export function BranchList() {
               Source branch
             </label>
             <Select value={mergeSource} onValueChange={setMergeSource}>
-              <SelectTrigger className="border-border bg-white/[0.03] font-mono text-sm">
+              <SelectTrigger className="border-border bg-input/20 font-mono text-sm">
                 <SelectValue placeholder="Select branch to merge" />
               </SelectTrigger>
               <SelectContent>
@@ -482,7 +482,7 @@ export function BranchList() {
             <Button
               variant="outline"
               onClick={() => setMergeOpen(false)}
-              className="border-white/[0.1] transition-colors hover:bg-white/[0.04]"
+              className="border-border transition-colors hover:bg-accent/60"
             >
               Cancel
             </Button>

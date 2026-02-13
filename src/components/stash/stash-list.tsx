@@ -161,7 +161,7 @@ export function StashList() {
                 variant="outline"
                 size="sm"
                 onClick={() => setClearConfirm(true)}
-                className="border-white/10 text-destructive transition-colors hover:bg-destructive/10"
+                className="border-border text-destructive transition-colors hover:bg-destructive/10"
               >
                 <Eraser size={14} className="mr-1.5" />
                 Clear All
@@ -200,7 +200,7 @@ export function StashList() {
             {stashes.map((stash, i) => (
               <div
                 key={stash.index}
-                className={`group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-white/[0.02] ${
+                className={`group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-accent/50 ${
                   i !== 0 ? "border-t border-dashed border-border" : ""
                 }`}
               >
@@ -237,7 +237,7 @@ export function StashList() {
                     onClick={() => handlePop(stash.index)}
                     isLoading={poppingIndex === stash.index}
                     disabled={applyingIndex !== null || poppingIndex !== null}
-                    className="border-white/10 text-xs transition-colors hover:bg-white/[0.04]"
+                    className="border-border text-xs transition-colors hover:bg-accent/60"
                   >
                     <ArrowUpFromLine size={12} className="mr-1" />
                     Pop
@@ -248,7 +248,7 @@ export function StashList() {
                     onClick={() => handleApply(stash.index)}
                     isLoading={applyingIndex === stash.index}
                     disabled={applyingIndex !== null || poppingIndex !== null}
-                    className="border-white/10 text-xs transition-colors hover:bg-white/[0.04]"
+                    className="border-border text-xs transition-colors hover:bg-accent/60"
                   >
                     <Play size={12} className="mr-1" />
                     Apply
@@ -308,7 +308,7 @@ export function StashList() {
             <Button
               variant="outline"
               onClick={() => setSaveOpen(false)}
-              className="border-white/10 transition-colors hover:bg-white/[0.04]"
+              className="border-border transition-colors hover:bg-accent/60"
             >
               Cancel
             </Button>

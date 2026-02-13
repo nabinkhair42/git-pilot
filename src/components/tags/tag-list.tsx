@@ -141,7 +141,7 @@ export function TagList() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Filter tags..."
-              className="h-9 max-w-xs border-border bg-white/[0.03] text-sm placeholder:text-muted-foreground/50 focus:border-primary/40 focus:ring-1 focus:ring-primary/20"
+              className="h-9 max-w-xs border-border bg-input/20 text-sm placeholder:text-muted-foreground/50 focus:border-primary/40 focus:ring-1 focus:ring-primary/20"
             />
           </div>
         )}
@@ -164,13 +164,13 @@ export function TagList() {
             {filteredTags.map((tag, i) => (
               <div
                 key={tag.name}
-                className={`group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-white/[0.02] ${
+                className={`group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-accent/50 ${
                   i !== 0 ? "border-t border-dashed border-border" : ""
                 }`}
               >
                 <div className="flex size-5 shrink-0 items-center justify-center">
                   {tag.isAnnotated ? (
-                    <BookMarked size={14} className="text-amber-400" />
+                    <BookMarked size={14} className="text-git-modified" />
                   ) : (
                     <Tag size={14} className="text-muted-foreground" />
                   )}
@@ -184,7 +184,7 @@ export function TagList() {
                     {tag.isAnnotated && (
                       <Badge
                         variant="outline"
-                        className="border-amber-500/30 px-1.5 py-0 text-[10px] text-amber-400"
+                        className="border-git-modified/30 px-1.5 py-0 text-[10px] text-git-modified"
                       >
                         annotated
                       </Badge>
@@ -221,7 +221,7 @@ export function TagList() {
                       navigator.clipboard.writeText(tag.name);
                       toast.success("Tag name copied");
                     }}
-                    className="border-white/10 text-xs opacity-0 transition-all group-hover:opacity-100 hover:bg-white/[0.04]"
+                    className="border-border text-xs opacity-0 transition-all group-hover:opacity-100 hover:bg-accent/60"
                   >
                     Copy
                   </Button>
@@ -302,7 +302,7 @@ export function TagList() {
             <Button
               variant="outline"
               onClick={() => setCreateOpen(false)}
-              className="border-white/10 transition-colors hover:bg-white/[0.04]"
+              className="border-border transition-colors hover:bg-accent/60"
             >
               Cancel
             </Button>

@@ -67,7 +67,7 @@ export function CommitDetail({ hash }: CommitDetailProps) {
             <span>&middot;</span>
             <span>{formatDate(commit.date)}</span>
             <span>&middot;</span>
-            <code className="rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-xs">
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
               {commit.abbreviatedHash}
             </code>
           </div>
@@ -77,13 +77,13 @@ export function CommitDetail({ hash }: CommitDetailProps) {
               {commit.stats.changed} file{commit.stats.changed !== 1 ? "s" : ""} changed
             </span>
             {commit.stats.insertions > 0 && (
-              <span className="flex items-center gap-1 text-green-400">
+              <span className="flex items-center gap-1 text-git-added">
                 <Plus size={12} />
                 {commit.stats.insertions}
               </span>
             )}
             {commit.stats.deletions > 0 && (
-              <span className="flex items-center gap-1 text-red-400">
+              <span className="flex items-center gap-1 text-git-deleted">
                 <Minus size={12} />
                 {commit.stats.deletions}
               </span>
@@ -105,13 +105,13 @@ export function CommitDetail({ hash }: CommitDetailProps) {
           {commit.files.map((file, i) => (
             <div
               key={file.file}
-              className={`flex items-center gap-3 px-6 py-2.5 transition-colors hover:bg-white/[0.02] ${
+              className={`flex items-center gap-3 px-6 py-2.5 transition-colors hover:bg-accent/50 ${
                 i !== 0 ? "border-t border-dashed border-border" : ""
               }`}
             >
               <Badge
                 variant="outline"
-                className={`shrink-0 border-white/[0.08] px-1.5 py-0 text-[10px] font-mono ${
+                className={`shrink-0 border-border px-1.5 py-0 text-[10px] font-mono ${
                   FILE_STATUS_COLORS[file.status] || "text-muted-foreground"
                 }`}
               >

@@ -183,7 +183,7 @@ export function PathInput({
         aria-activedescendant={
           activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined
         }
-        className="h-11 w-full rounded-lg border border-border bg-white/[0.03] px-3 font-mono text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 disabled:opacity-50"
+        className="h-11 w-full rounded-lg border border-border bg-input/20 px-3 font-mono text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/50 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 disabled:opacity-50"
       />
 
       {open && suggestions.length > 0 && (
@@ -205,11 +205,11 @@ export function PathInput({
                 className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors ${
                   i === activeIndex
                     ? "bg-primary/15 text-foreground"
-                    : "text-foreground/80 hover:bg-white/[0.04]"
+                    : "text-foreground/80 hover:bg-accent/60"
                 } ${i !== 0 ? "border-t border-dashed border-border" : ""}`}
               >
                 {s.isGitRepo ? (
-                  <FolderGit2 size={14} className="shrink-0 text-green-400" />
+                  <FolderGit2 size={14} className="shrink-0 text-git-added" />
                 ) : (
                   <Folder size={14} className="shrink-0 text-muted-foreground" />
                 )}
@@ -217,7 +217,7 @@ export function PathInput({
                   {s.path}
                 </span>
                 {s.isGitRepo && (
-                  <span className="shrink-0 rounded bg-green-500/10 px-1.5 py-0.5 text-[10px] font-medium text-green-400">
+                  <span className="shrink-0 rounded bg-git-added/10 px-1.5 py-0.5 text-[10px] font-medium text-git-added">
                     git
                   </span>
                 )}

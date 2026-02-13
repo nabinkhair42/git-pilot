@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   FolderGit2,
-  Github,
   X,
   ArrowRight,
   LogOut,
@@ -18,6 +17,7 @@ import { PathInput } from "@/components/repo/path-input";
 import { GitHubRepoPicker } from "@/components/github/repo-picker";
 import { useMode, type AppMode } from "@/hooks/use-mode";
 import { signIn, signOut, useSession } from "@/lib/auth-client";
+import { GitHub } from "../icons/github";
 
 const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === "production";
 
@@ -41,9 +41,9 @@ export function RepoSelector() {
       <section className="relative pt-24 sm:pt-32">
         <div className="mx-auto w-full max-w-6xl px-6 text-center">
           <div className="pb-8">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.04] px-4 py-1.5">
-              <FolderGit2 size={14} className="text-white/40" />
-              <span className="text-[13px] text-white/60">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-4 py-1.5">
+              <span className="size-1.5 animate-pulse rounded-full bg-foreground/40" />
+              <span className="text-[13px] text-muted-foreground">
                 {mode === "github" ? "GitHub Explorer" : "Local Git Manager"}
               </span>
             </div>
@@ -51,7 +51,7 @@ export function RepoSelector() {
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
               Git Commit Manager
             </h1>
-            <p className="mx-auto mt-4 max-w-md text-base text-muted-foreground">
+            <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-muted-foreground">
               {mode === "github"
                 ? "Browse your GitHub repositories — commits, branches, tags, and diffs."
                 : "Open any local repository to view history, manage branches, compare diffs, and perform git operations."}
@@ -60,13 +60,13 @@ export function RepoSelector() {
 
           {/* Mode switch tabs */}
           {!isProduction ? (
-            <div className="mx-auto mb-8 flex max-w-xs items-center rounded-lg border border-border bg-white/[0.02] p-1">
+            <div className="mx-auto mb-8 flex max-w-xs items-center rounded-lg border border-border bg-muted/50 p-1">
               <button
                 type="button"
                 onClick={() => setMode("local")}
                 className={`flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all ${
                   mode === "local"
-                    ? "bg-foreground text-background shadow-sm"
+                    ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -78,11 +78,11 @@ export function RepoSelector() {
                 onClick={() => setMode("github")}
                 className={`flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all ${
                   mode === "github"
-                    ? "bg-foreground text-background shadow-sm"
+                    ? "bg-background text-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Github size={14} />
+                <GitHub className="size-4" />
                 GitHub
               </button>
             </div>
@@ -171,7 +171,7 @@ function LocalModeContent() {
             {repos.map((repo, i) => (
               <div
                 key={repo}
-                className={`group flex items-center gap-3 px-6 py-4 transition-colors hover:bg-white/[0.02]
+                className={`group flex items-center gap-3 px-6 py-4 transition-colors hover:bg-accent/50
                   ${i % 2 !== 0 ? "sm:border-l sm:border-dashed sm:border-border" : ""}
                   ${i >= 2 ? "sm:border-t sm:border-dashed sm:border-border" : ""}
                   ${i >= 1 ? "max-sm:border-t max-sm:border-dashed max-sm:border-border" : ""}
@@ -223,7 +223,7 @@ function GitHubModeContent({
     return (
       <div className="mt-2">
         {/* User info bar skeleton */}
-        <div className="mx-auto mb-6 flex max-w-2xl items-center justify-between rounded-lg border border-border bg-white/[0.02] px-4 py-2.5">
+        <div className="mx-auto mb-6 flex max-w-2xl items-center justify-between rounded-lg border border-border bg-muted/30 px-4 py-2.5">
           <div className="flex items-center gap-3">
             <Skeleton className="h-7 w-7 rounded-full" />
             <Skeleton className="h-4 w-24" />
@@ -277,8 +277,7 @@ function GitHubModeContent({
           isLoading={signInLoading}
           className="h-11 gap-2 bg-foreground px-6 text-sm font-medium text-background transition-opacity hover:opacity-80"
         >
-          <Github size={16} />
-          Sign in with GitHub
+<GitHub className="size-4" />          Sign in with GitHub
         </Button>
       </div>
     );
@@ -287,7 +286,7 @@ function GitHubModeContent({
   return (
     <div className="mt-2">
       {/* User info bar */}
-      <div className="mx-auto mb-6 flex max-w-2xl items-center justify-between rounded-lg border border-border bg-white/[0.02] px-4 py-2.5">
+      <div className="mx-auto mb-6 flex max-w-2xl items-center justify-between rounded-lg border border-border bg-muted/30 px-4 py-2.5">
         <div className="flex items-center gap-3">
           {session.user.image && (
             <img

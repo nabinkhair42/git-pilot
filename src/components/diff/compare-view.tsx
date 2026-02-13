@@ -43,7 +43,7 @@ export function CompareView() {
               value={fromHash || ""}
               onValueChange={setFromHash}
             >
-              <SelectTrigger className="h-9 border-border bg-white/[0.03] font-mono text-xs">
+              <SelectTrigger className="h-9 border-border bg-input/20 font-mono text-xs">
                 <SelectValue placeholder="Select base commit" />
               </SelectTrigger>
               <SelectContent>
@@ -64,7 +64,7 @@ export function CompareView() {
               value={toHash || ""}
               onValueChange={setToHash}
             >
-              <SelectTrigger className="h-9 border-border bg-white/[0.03] font-mono text-xs">
+              <SelectTrigger className="h-9 border-border bg-input/20 font-mono text-xs">
                 <SelectValue placeholder="Select target commit" />
               </SelectTrigger>
               <SelectContent>
@@ -78,7 +78,7 @@ export function CompareView() {
           </div>
 
           <Select value={viewFormat} onValueChange={(v) => setViewFormat(v as typeof viewFormat)}>
-            <SelectTrigger className="h-9 w-auto min-w-[120px] border-border bg-white/[0.03] text-sm">
+            <SelectTrigger className="h-9 w-auto min-w-[120px] border-border bg-input/20 text-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

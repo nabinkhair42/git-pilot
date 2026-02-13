@@ -58,19 +58,30 @@ export function RepoHeader() {
     : (repoPath || "").split("/").pop() || repoPath || "";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/60 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-3">
         <div className="flex items-center gap-3">
           <Link
             href={isGitHub ? "/?mode=github" : "/"}
             className="flex items-center gap-2 text-foreground transition-colors hover:text-foreground/80"
           >
-            {isGitHub ? <Github size={18} /> : <FolderGit2 size={18} />}
+            {/* Inline logo */}
+            <svg viewBox="0 0 32 32" fill="none" className="size-5" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="6" className="fill-foreground" />
+              <g transform="translate(16,16)">
+                <line x1="0" y1="-8" x2="0" y2="8" className="stroke-background" strokeWidth="2.5" strokeLinecap="round" />
+                <line x1="0" y1="-1" x2="5.5" y2="-6" className="stroke-background" strokeWidth="2.5" strokeLinecap="round" />
+                <circle cx="0" cy="-8" r="2" className="fill-foreground stroke-background" strokeWidth="1.8" />
+                <circle cx="0" cy="-1" r="2" className="fill-foreground stroke-background" strokeWidth="1.8" />
+                <circle cx="0" cy="8" r="2" className="fill-background" />
+                <circle cx="5.5" cy="-6" r="2" className="fill-foreground stroke-background" strokeWidth="1.8" />
+              </g>
+            </svg>
             <span className="font-semibold tracking-tight">{displayName}</span>
           </Link>
 
           {isGitHub && (
-            <Badge variant="outline" className="gap-1.5 border-blue-500/30 text-blue-400 text-[10px]">
+            <Badge variant="outline" className="gap-1.5 border-git-info/30 text-git-info text-[10px]">
               GitHub
             </Badge>
           )}
@@ -83,7 +94,7 @@ export function RepoHeader() {
           )}
 
           {!isGitHub && status && !status.isClean && (
-            <Badge variant="outline" className="gap-1.5 border-yellow-500/30 text-yellow-400">
+            <Badge variant="outline" className="gap-1.5 border-git-warning/30 text-git-warning">
               <CircleDot size={10} />
               Uncommitted
             </Badge>
@@ -100,7 +111,7 @@ export function RepoHeader() {
                     href={buildHref(item.href)}
                     className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 transition-colors ${
                       active
-                        ? "bg-white/[0.06] text-foreground"
+                        ? "bg-accent text-foreground"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >

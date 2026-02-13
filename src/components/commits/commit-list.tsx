@@ -174,13 +174,13 @@ export function CommitList() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search commits..."
-              className="h-9 flex-1 border-border bg-white/[0.03] text-sm placeholder:text-muted-foreground/50 focus:border-primary/40 focus:ring-1 focus:ring-primary/20"
+              className="h-9 flex-1 border-border bg-input/20 text-sm placeholder:text-muted-foreground/50 focus:border-primary/40 focus:ring-1 focus:ring-primary/20"
             />
             <Button
               type="submit"
               variant="outline"
               size="sm"
-              className="border-white/[0.1] transition-colors hover:bg-white/[0.04]"
+              className="border-border transition-colors hover:bg-accent/60"
             >
               Search
             </Button>
@@ -191,7 +191,7 @@ export function CommitList() {
               value={branch || "__all__"}
               onValueChange={(v) => { setBranch(v === "__all__" ? undefined : v); setPage(0); }}
             >
-              <SelectTrigger className="h-9 w-auto min-w-[140px] border-border bg-white/[0.03] text-sm">
+              <SelectTrigger className="h-9 w-auto min-w-[140px] border-border bg-input/20 text-sm">
                 <SelectValue placeholder="All branches" />
               </SelectTrigger>
               <SelectContent>
@@ -222,7 +222,7 @@ export function CommitList() {
             {data?.commits.map((commit, i) => (
               <div
                 key={commit.hash}
-                className={`group flex items-start gap-4 px-6 py-4 transition-colors hover:bg-white/[0.02] ${
+                className={`group flex items-start gap-4 px-6 py-4 transition-colors hover:bg-accent/50 ${
                   i !== 0 ? "border-t border-dashed border-border" : ""
                 }`}
               >
@@ -234,7 +234,7 @@ export function CommitList() {
                         navigator.clipboard.writeText(commit.hash);
                         toast.success("Hash copied");
                       }}
-                      className="mt-0.5 flex shrink-0 items-center gap-1 rounded px-1 py-0.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-white/[0.06] hover:text-foreground"
+                      className="mt-0.5 flex shrink-0 items-center gap-1 rounded px-1 py-0.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                     >
                       {commit.abbreviatedHash}
                       <Copy size={10} className="opacity-0 transition-opacity group-hover:opacity-60" />
@@ -267,7 +267,7 @@ export function CommitList() {
                           <Badge
                             key={ref.trim()}
                             variant="outline"
-                            className="border-white/[0.08] px-1.5 py-0 text-[10px] font-mono"
+                            className="border-border px-1.5 py-0 text-[10px] font-mono"
                           >
                             {ref.trim()}
                           </Badge>
@@ -353,7 +353,7 @@ export function CommitList() {
                   size="sm"
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
-                  className="border-white/[0.1] transition-colors hover:bg-white/[0.04]"
+                  className="border-border transition-colors hover:bg-accent/60"
                 >
                   <ChevronLeft size={14} />
                   Previous
@@ -363,7 +363,7 @@ export function CommitList() {
                   size="sm"
                   onClick={() => setPage((p) => p + 1)}
                   disabled={page + 1 >= totalPages}
-                  className="border-white/[0.1] transition-colors hover:bg-white/[0.04]"
+                  className="border-border transition-colors hover:bg-accent/60"
                 >
                   Next
                   <ChevronRight size={14} />

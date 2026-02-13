@@ -119,7 +119,7 @@ export function GitHubRepoPicker() {
                 key={repo.fullName}
                 type="button"
                 onClick={() => selectRepo(repo)}
-                className="group flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors hover:bg-white/[0.03]"
+                className="group flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors hover:bg-input/20"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">

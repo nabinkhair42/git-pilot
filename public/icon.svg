@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="108" fill="#0A0A0A"/>
+  <g transform="translate(256,256)">
+    <!-- Main vertical line -->
+    <line x1="0" y1="-140" x2="0" y2="140" stroke="#FAFAFA" stroke-width="32" stroke-linecap="round"/>
+    <!-- Branch line -->
+    <line x1="0" y1="-20" x2="90" y2="-100" stroke="#FAFAFA" stroke-width="32" stroke-linecap="round"/>
+    <!-- Top commit node -->
+    <circle cx="0" cy="-140" r="28" fill="#0A0A0A" stroke="#FAFAFA" stroke-width="24"/>
+    <!-- Middle commit node -->
+    <circle cx="0" cy="-20" r="28" fill="#0A0A0A" stroke="#FAFAFA" stroke-width="24"/>
+    <!-- Bottom commit node -->
+    <circle cx="0" cy="140" r="28" fill="#FAFAFA" stroke="none"/>
+    <!-- Branch tip node -->
+    <circle cx="90" cy="-100" r="28" fill="#0A0A0A" stroke="#FAFAFA" stroke-width="24"/>
+  </g>
+</svg>

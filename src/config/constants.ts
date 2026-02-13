@@ -33,10 +33,10 @@ export const FILE_STATUS_LABELS: Record<string, string> = {
 };
 
 export const FILE_STATUS_COLORS: Record<string, string> = {
-  A: "text-green-400",
-  M: "text-yellow-400",
-  D: "text-red-400",
-  R: "text-blue-400",
-  C: "text-purple-400",
-  U: "text-orange-400",
+  A: "text-git-added",
+  M: "text-git-modified",
+  D: "text-git-deleted",
+  R: "text-git-renamed",
+  C: "text-git-info",
+  U: "text-git-warning",
 };
