@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { RepoContext } from "@/hooks/use-repo";
 import { RepoHeader } from "@/components/repo/repo-header";
 import { SiteFooter } from "@/components/shared/site-footer";
+import { ChatTrigger } from "@/components/chat/chat-trigger";
 import type { AppMode } from "@/hooks/use-mode";
 
 function RepoLayoutInner({ children }: { children: React.ReactNode }) {
@@ -23,6 +24,7 @@ function RepoLayoutInner({ children }: { children: React.ReactNode }) {
         </div>
         <SiteFooter />
       </div>
+      <ChatTrigger />
     </RepoContext.Provider>
   );
 }

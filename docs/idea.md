@@ -2,7 +2,7 @@
 
 ## What It Is
 
-A web-based GUI for managing Git repositories. Works in two modes: **Local** (connects to repos on your machine via simple-git) and **GitHub** (reads repos from your GitHub account via Octokit). Runs as a Next.js app.
+A web-based GUI for managing Git repositories. Works in two modes: **Local** (connects to repos on your machine via simple-git) and **GitHub** (reads repos from your GitHub account via Octokit). Runs as a Next.js app. Includes an AI-powered chat assistant for natural language repo exploration.
 
 ## The Problem
 
@@ -27,6 +27,8 @@ A polished dark-mode web UI that wraps Git operations with:
 - Safety tiers with appropriate confirmation dialogs (typed confirmation for destructive operations)
 - Multi-repo support via URL parameters, bookmarkable views
 - GitHub mode for read-only browsing of remote repositories with OAuth
+- **AI Chat**: Natural language repo assistant powered by GPT-4o with multi-step tool calling
+- Fully responsive design across all screen sizes
 
 ## How It Works
 
@@ -34,14 +36,17 @@ A polished dark-mode web UI that wraps Git operations with:
 
 **GitHub mode**: Sign in with GitHub OAuth. Browse your repositories, view commits, branches, tags, and diffs. Write operations are disabled (read-only). Auth managed by better-auth with Neon Postgres for session storage.
 
+**AI Chat mode**: In local mode, a sliding panel chat assistant can explore your repository autonomously. It uses 12 AI tools (10 read-only, 4 write) backed by the same git service layer. The AI chains up to 8 tool calls per response to answer complex questions like "Summarize what changed between v1.0 and v2.0".
+
 Each repo is identified by path (local) or owner/name (GitHub) in the URL, so multiple repos can be open in different tabs.
 
 ## Tech Stack
 
-- Next.js (App Router)
+- Next.js 16.1.6 (App Router)
 - TypeScript
-- Tailwind CSS v4
-- shadcn/ui components
+- React 19.2.3
+- Tailwind CSS v4 (postcss plugin, no config file)
+- shadcn/ui components (radix-ui primitives)
 - simple-git (local Git operations)
 - Octokit (GitHub API)
 - better-auth (authentication with GitHub OAuth)
@@ -50,3 +55,9 @@ Each repo is identified by path (local) or owner/name (GitHub) in the URL, so mu
 - diff2html (diff rendering)
 - axios (HTTP client)
 - zod (validation)
+- AI SDK 6 by Vercel (`ai`, `@ai-sdk/openai`, `@ai-sdk/react`)
+- react-markdown (chat message rendering)
+- date-fns (date formatting)
+- next-themes (dark/light mode)
+- sonner (toast notifications)
+- lucide-react (icons)
