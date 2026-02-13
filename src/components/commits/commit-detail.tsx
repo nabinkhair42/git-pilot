@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowLeft, FileText, Plus, Minus } from "lucide-react";
-import { useCommitDetail } from "@/hooks/use-git";
+import { useUnifiedCommitDetail } from "@/hooks/use-unified";
 import { useRepo } from "@/hooks/use-repo";
 import { formatDate, formatHash, formatDiffStats } from "@/lib/formatters";
 import { FILE_STATUS_LABELS, FILE_STATUS_COLORS } from "@/config/constants";
@@ -16,8 +16,9 @@ interface CommitDetailProps {
 }
 
 export function CommitDetail({ hash }: CommitDetailProps) {
-  const { repoPath } = useRepo();
-  const { data: commit, isLoading, error } = useCommitDetail(hash);
+  const { repoPath, mode, githubOwner, githubRepoName } = useRepo();
+  const isGitHub = mode === "github";
+  const { data: commit, isLoading, error } = useUnifiedCommitDetail(hash);
   const router = useRouter();
 
   if (isLoading) {
@@ -50,7 +51,12 @@ export function CommitDetail({ hash }: CommitDetailProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.push(`/repo/commits?path=${encodeURIComponent(repoPath || "")}`)}
+            onClick={() => {
+              const backUrl = isGitHub
+                ? `/repo/commits?mode=github&owner=${encodeURIComponent(githubOwner || "")}&repo=${encodeURIComponent(githubRepoName || "")}`
+                : `/repo/commits?path=${encodeURIComponent(repoPath || "")}`;
+              router.push(backUrl);
+            }}
             className="mb-4 -ml-2 text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft size={14} className="mr-1" />

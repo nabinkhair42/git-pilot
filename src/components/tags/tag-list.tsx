@@ -9,7 +9,9 @@ import {
   BookMarked,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useTags, useGitMutations } from "@/hooks/use-git";
+import { useGitMutations } from "@/hooks/use-git";
+import { useRepo } from "@/hooks/use-repo";
+import { useUnifiedTags } from "@/hooks/use-unified";
 import { formatRelativeDate, formatHash } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +34,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
 
 export function TagList() {
-  const { data, isLoading, error } = useTags();
+  const { mode } = useRepo();
+  const isGitHub = mode === "github";
+  const { data, isLoading, error } = useUnifiedTags();
   const mutations = useGitMutations();
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -118,14 +122,16 @@ export function TagList() {
             </p>
             <h2 className="mt-2 text-2xl font-bold tracking-tight">Tags</h2>
           </div>
-          <Button
-            size="sm"
-            onClick={() => setCreateOpen(true)}
-            className="bg-foreground text-background transition-opacity hover:opacity-80"
-          >
-            <Plus size={14} className="mr-1.5" />
-            New Tag
-          </Button>
+          {!isGitHub && (
+            <Button
+              size="sm"
+              onClick={() => setCreateOpen(true)}
+              className="bg-foreground text-background transition-opacity hover:opacity-80"
+            >
+              <Plus size={14} className="mr-1.5" />
+              New Tag
+            </Button>
+          )}
         </div>
 
         {/* Search */}
@@ -253,15 +259,17 @@ export function TagList() {
                       >
                         Copy hash
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          setDeleteConfirm({ open: true, name: tag.name })
-                        }
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 size={14} className="mr-2" />
-                        Delete
-                      </DropdownMenuItem>
+                      {!isGitHub && (
+                        <DropdownMenuItem
+                          onClick={() =>
+                            setDeleteConfirm({ open: true, name: tag.name })
+                          }
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 size={14} className="mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

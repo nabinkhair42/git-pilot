@@ -13,8 +13,9 @@ import {
   Copy,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useCommits, useGitMutations, useBranches } from "@/hooks/use-git";
+import { useGitMutations } from "@/hooks/use-git";
 import { useRepo } from "@/hooks/use-repo";
+import { useUnifiedCommits, useUnifiedBranches } from "@/hooks/use-unified";
 import { formatRelativeDate, formatHash } from "@/lib/formatters";
 import { DEFAULT_COMMITS_PER_PAGE, RESET_MODES } from "@/config/constants";
 import { Button } from "@/components/ui/button";
@@ -43,22 +44,23 @@ import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
 import type { ResetMode } from "@/lib/git/types";
 
 export function CommitList() {
-  const { repoPath } = useRepo();
+  const { repoPath, mode, githubOwner, githubRepoName } = useRepo();
   const searchParams = useSearchParams();
+  const isGitHub = mode === "github";
 
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [branch, setBranch] = useState<string | undefined>(undefined);
 
-  const { data, isLoading, error } = useCommits({
+  const { data, isLoading, error } = useUnifiedCommits({
     branch,
     maxCount: DEFAULT_COMMITS_PER_PAGE,
-    skip: page * DEFAULT_COMMITS_PER_PAGE,
-    search: search || undefined,
+    skip: isGitHub ? undefined : page * DEFAULT_COMMITS_PER_PAGE,
+    search: isGitHub ? undefined : (search || undefined),
   });
 
-  const { data: branchData } = useBranches();
+  const { data: branchData } = useUnifiedBranches();
   const mutations = useGitMutations();
 
   // Confirmation dialog state
@@ -245,7 +247,11 @@ export function CommitList() {
 
                 <div className="min-w-0 flex-1">
                   <Link
-                    href={`/repo/commits/${commit.hash}?path=${encodeURIComponent(repoPath || "")}`}
+                    href={
+                      isGitHub
+                        ? `/repo/commits/${commit.hash}?mode=github&owner=${encodeURIComponent(githubOwner || "")}&repo=${encodeURIComponent(githubRepoName || "")}`
+                        : `/repo/commits/${commit.hash}?path=${encodeURIComponent(repoPath || "")}`
+                    }
                     className="block truncate text-sm font-medium text-foreground transition-colors hover:text-foreground/80"
                   >
                     {commit.message}
@@ -282,36 +288,40 @@ export function CommitList() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={() => handleCherryPick(commit.hash)}>
-                      <CherryIcon size={14} className="mr-2" />
-                      Cherry-pick
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleRevert(commit.hash)}>
-                      <Undo2 size={14} className="mr-2" />
-                      Revert
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger>
-                        <RotateCcw size={14} className="mr-2" />
-                        Reset to here
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent>
-                        {(Object.keys(RESET_MODES) as ResetMode[]).map((mode) => (
-                          <DropdownMenuItem
-                            key={mode}
-                            onClick={() => handleReset(commit.hash, mode)}
-                            className={mode === "hard" ? "text-destructive focus:text-destructive" : ""}
-                          >
-                            {RESET_MODES[mode].label}
-                            <span className="ml-auto text-[10px] text-muted-foreground">
-                              {RESET_MODES[mode].description}
-                            </span>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-                    <DropdownMenuSeparator />
+                    {!isGitHub && (
+                      <>
+                        <DropdownMenuItem onClick={() => handleCherryPick(commit.hash)}>
+                          <CherryIcon size={14} className="mr-2" />
+                          Cherry-pick
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleRevert(commit.hash)}>
+                          <Undo2 size={14} className="mr-2" />
+                          Revert
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>
+                            <RotateCcw size={14} className="mr-2" />
+                            Reset to here
+                          </DropdownMenuSubTrigger>
+                          <DropdownMenuSubContent>
+                            {(Object.keys(RESET_MODES) as ResetMode[]).map((resetMode) => (
+                              <DropdownMenuItem
+                                key={resetMode}
+                                onClick={() => handleReset(commit.hash, resetMode)}
+                                className={resetMode === "hard" ? "text-destructive focus:text-destructive" : ""}
+                              >
+                                {RESET_MODES[resetMode].label}
+                                <span className="ml-auto text-[10px] text-muted-foreground">
+                                  {RESET_MODES[resetMode].description}
+                                </span>
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuSubContent>
+                        </DropdownMenuSub>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
                     <DropdownMenuItem
                       onClick={() => {
                         navigator.clipboard.writeText(commit.hash);

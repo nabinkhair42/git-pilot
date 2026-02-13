@@ -10,7 +10,9 @@ import {
   Plus,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useBranches, useGitMutations } from "@/hooks/use-git";
+import { useGitMutations } from "@/hooks/use-git";
+import { useRepo } from "@/hooks/use-repo";
+import { useUnifiedBranches } from "@/hooks/use-unified";
 import { formatHash } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,7 +42,9 @@ import { BranchListSkeleton } from "@/components/loaders/branch-list-skeleton";
 import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
 
 export function BranchList() {
-  const { data, isLoading, error } = useBranches();
+  const { mode } = useRepo();
+  const isGitHub = mode === "github";
+  const { data, isLoading, error } = useUnifiedBranches();
   const mutations = useGitMutations();
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -55,7 +59,8 @@ export function BranchList() {
     open: boolean;
     name: string;
     force: boolean;
-  }>({ open: false, name: "", force: false });
+    isRemote: boolean;
+  }>({ open: false, name: "", force: false, isRemote: false });
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const [search, setSearch] = useState("");
@@ -108,13 +113,12 @@ export function BranchList() {
   async function handleDelete() {
     setDeleteLoading(true);
     try {
-      const result = await mutations.deleteBranch(
-        deleteConfirm.name,
-        deleteConfirm.force
-      );
+      const result = deleteConfirm.isRemote
+        ? await mutations.deleteRemoteBranch(deleteConfirm.name)
+        : await mutations.deleteBranch(deleteConfirm.name, deleteConfirm.force);
       if (result.success) {
         toast.success(result.message);
-        setDeleteConfirm({ open: false, name: "", force: false });
+        setDeleteConfirm({ open: false, name: "", force: false, isRemote: false });
       } else {
         toast.error(result.message);
       }
@@ -166,23 +170,27 @@ export function BranchList() {
             <h2 className="mt-2 text-2xl font-bold tracking-tight">Branches</h2>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setMergeOpen(true)}
-              className="border-white/[0.1] transition-colors hover:bg-white/[0.04]"
-            >
-              <GitMerge size={14} className="mr-1.5" />
-              Merge
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => setCreateOpen(true)}
-              className="bg-foreground text-background transition-opacity hover:opacity-80"
-            >
-              <Plus size={14} className="mr-1.5" />
-              New Branch
-            </Button>
+            {!isGitHub && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setMergeOpen(true)}
+                  className="border-white/[0.1] transition-colors hover:bg-white/[0.04]"
+                >
+                  <GitMerge size={14} className="mr-1.5" />
+                  Merge
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setCreateOpen(true)}
+                  className="bg-foreground text-background transition-opacity hover:opacity-80"
+                >
+                  <Plus size={14} className="mr-1.5" />
+                  New Branch
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -253,7 +261,7 @@ export function BranchList() {
                   </span>
                 </div>
 
-                {!branch.current && (
+                {!branch.current && !isGitHub && (
                   <div className="flex shrink-0 items-center gap-2">
                     <Button
                       variant="outline"
@@ -280,6 +288,7 @@ export function BranchList() {
                               open: true,
                               name: branch.name,
                               force: false,
+                              isRemote: false,
                             })
                           }
                           className="text-destructive focus:text-destructive"
@@ -293,6 +302,7 @@ export function BranchList() {
                               open: true,
                               name: branch.name,
                               force: true,
+                              isRemote: false,
                             })
                           }
                           className="text-destructive focus:text-destructive"
@@ -344,14 +354,45 @@ export function BranchList() {
                     </div>
 
                     <div className="flex shrink-0 items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleCheckout(branch.name)}
-                        className="border-white/[0.1] text-xs transition-colors hover:bg-white/[0.04]"
-                      >
-                        Checkout
-                      </Button>
+                      {!isGitHub && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleCheckout(branch.name)}
+                          className="border-white/[0.1] text-xs transition-colors hover:bg-white/[0.04]"
+                        >
+                          Checkout
+                        </Button>
+                      )}
+                      {!isGitHub && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                            >
+                              <MoreHorizontal size={14} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() =>
+                                setDeleteConfirm({
+                                  open: true,
+                                  name: branch.name,
+                                  force: false,
+                                  isRemote: true,
+                                })
+                              }
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 size={14} className="mr-2" />
+                              Delete Remote
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -453,15 +494,19 @@ export function BranchList() {
         onOpenChange={(open) =>
           setDeleteConfirm((prev) => ({ ...prev, open }))
         }
-        title={`${deleteConfirm.force ? "Force " : ""}Delete Branch`}
-        description={`This will delete the branch "${deleteConfirm.name}".${
-          deleteConfirm.force
-            ? " Force delete will remove it even if it has unmerged changes."
-            : ""
-        }`}
+        title={`${deleteConfirm.isRemote ? "Delete Remote Branch" : `${deleteConfirm.force ? "Force " : ""}Delete Branch`}`}
+        description={
+          deleteConfirm.isRemote
+            ? `This will delete the remote branch "${deleteConfirm.name}". This action pushes a delete to the remote and cannot be undone easily.`
+            : `This will delete the branch "${deleteConfirm.name}".${
+                deleteConfirm.force
+                  ? " Force delete will remove it even if it has unmerged changes."
+                  : ""
+              }`
+        }
         confirmLabel="Delete"
         variant="destructive"
-        typedConfirmation={deleteConfirm.force ? deleteConfirm.name : undefined}
+        typedConfirmation={deleteConfirm.force || deleteConfirm.isRemote ? deleteConfirm.name : undefined}
         onConfirm={handleDelete}
         loading={deleteLoading}
       />

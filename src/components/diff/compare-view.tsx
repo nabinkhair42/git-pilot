@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { GitCompareArrows } from "lucide-react";
-import { useCommits, useDiff } from "@/hooks/use-git";
+import { useUnifiedCommits, useUnifiedDiff } from "@/hooks/use-unified";
 import { formatHash, formatRelativeDate } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,8 +20,8 @@ export function CompareView() {
   const [toHash, setToHash] = useState<string | null>(null);
   const [viewFormat, setViewFormat] = useState<"line-by-line" | "side-by-side">("line-by-line");
 
-  const { data: commitData } = useCommits({ maxCount: 100 });
-  const { data: diffData, isLoading: diffLoading } = useDiff(fromHash, toHash);
+  const { data: commitData } = useUnifiedCommits({ maxCount: 100 });
+  const { data: diffData, isLoading: diffLoading } = useUnifiedDiff(fromHash, toHash);
 
   const commits = commitData?.commits || [];
 

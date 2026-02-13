@@ -58,6 +58,25 @@ export async function deleteBranch(
   }
 }
 
+export async function deleteRemoteBranch(
+  git: SimpleGit,
+  remoteName: string,
+  branchName: string
+): Promise<OperationResult> {
+  try {
+    await git.push(remoteName, branchName, ["--delete"]);
+    return {
+      success: true,
+      message: `Remote branch '${remoteName}/${branchName}' deleted`,
+    };
+  } catch (e) {
+    return {
+      success: false,
+      message: e instanceof Error ? e.message : "Failed to delete remote branch",
+    };
+  }
+}
+
 export async function checkoutBranch(
   git: SimpleGit,
   name: string

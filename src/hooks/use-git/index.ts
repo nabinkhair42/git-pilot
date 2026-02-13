@@ -7,7 +7,9 @@ import { useRepo } from "@/hooks/use-repo";
 import { STATUS_REFRESH_INTERVAL } from "@/config/constants";
 
 function useRepoPath() {
-  const { repoPath } = useRepo();
+  const { repoPath, mode } = useRepo();
+  // Only return the path if we're in local mode
+  if (mode === "github") return null;
   return repoPath;
 }
 
@@ -126,6 +128,13 @@ export function useGitMutations() {
     async deleteBranch(name: string, force?: boolean) {
       if (!path) throw new Error("No repo path");
       const result = await gitService.deleteBranch(path, name, force);
+      if (result.success) await invalidateAll();
+      return result;
+    },
+
+    async deleteRemoteBranch(name: string) {
+      if (!path) throw new Error("No repo path");
+      const result = await gitService.deleteRemoteBranch(path, name);
       if (result.success) await invalidateAll();
       return result;
     },

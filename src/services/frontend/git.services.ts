@@ -97,6 +97,12 @@ export async function deleteBranch(path: string, name: string, force?: boolean) 
   );
 }
 
+export async function deleteRemoteBranch(path: string, name: string) {
+  return unwrap<OperationResult>(
+    await api.delete(API_ENDPOINTS.BRANCHES, { data: { path, name, isRemote: true } })
+  );
+}
+
 export async function checkoutBranch(path: string, name: string) {
   return unwrap<OperationResult>(
     await api.post(API_ENDPOINTS.BRANCHES_CHECKOUT, { path, name })

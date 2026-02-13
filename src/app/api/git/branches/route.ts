@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getGitClient, getBranches, createBranch, deleteBranch } from "@/lib/git";
+import { getGitClient, getBranches, createBranch, deleteBranch, deleteRemoteBranch } from "@/lib/git";
 import { successResponse, errorResponse } from "@/lib/response/server-response";
 
 export async function GET(request: NextRequest) {
@@ -31,10 +31,23 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { path, name, force } = await request.json();
+    const { path, name, force, isRemote } = await request.json();
     if (!path || !name) return errorResponse("Missing 'path' or 'name'", 400);
 
     const git = getGitClient(path);
+
+    if (isRemote) {
+      // name is "origin/branch-name" format; split into remote and branch
+      const slashIndex = name.indexOf("/");
+      if (slashIndex === -1) {
+        return errorResponse("Invalid remote branch format. Expected 'remote/branch'.", 400);
+      }
+      const remoteName = name.substring(0, slashIndex);
+      const branchName = name.substring(slashIndex + 1);
+      const result = await deleteRemoteBranch(git, remoteName, branchName);
+      return successResponse(result);
+    }
+
     const result = await deleteBranch(git, name, force);
     return successResponse(result);
   } catch (e) {

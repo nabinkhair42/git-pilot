@@ -1,5 +1,10 @@
 import { RepoSelector } from "@/components/repo/repo-selector";
+import { Suspense } from "react";
 
 export default function HomePage() {
-  return <RepoSelector />;
+  return (
+    <Suspense>
+      <RepoSelector />
+    </Suspense>
+  );
 }
