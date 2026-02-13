@@ -234,7 +234,7 @@ export function BranchList() {
             {localBranches.map((branch, i) => (
               <div
                 key={branch.name}
-                className={`group flex flex-col gap-3 px-4 py-4 transition-colors hover:bg-muted sm:flex-row sm:items-center sm:gap-4 sm:px-6 ${
+                className={`group flex flex-col gap-1.5 px-4 py-3 transition-colors hover:bg-muted sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-4 ${
                   i !== 0 ? "border-t border-dashed border-border" : ""
                 }`}
               >
@@ -326,7 +326,7 @@ export function BranchList() {
             {/* Remote branches */}
             {remoteBranches.length > 0 && (
               <>
-                <div className="px-6 pb-1 pt-4 mt-2 border-t border-border">
+                <div className="px-4 pb-1 pt-4 mt-2 border-t border-border sm:px-6">
                   <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/60">
                     Remote
                   </p>
@@ -334,7 +334,7 @@ export function BranchList() {
                 {remoteBranches.map((branch, i) => (
                   <div
                     key={branch.name}
-                    className={`group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-muted ${
+                    className={`group flex flex-col gap-1.5 px-4 py-3 transition-colors hover:bg-muted sm:flex-row sm:items-center sm:gap-4 sm:px-6 sm:py-4 ${
                       i !== 0 ? "border-t border-dashed border-border" : ""
                     }`}
                   >

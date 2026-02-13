@@ -2,12 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  FolderGit2,
-  X,
-  ArrowRight,
-  LogOut,
-} from "lucide-react";
+import { FolderGit2, X, ArrowRight, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,7 +18,9 @@ const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === "production";
 
 export function RepoSelector() {
   const searchParams = useSearchParams();
-  const initialMode = (searchParams.get("mode") as AppMode) || (isProduction ? "github" : "local");
+  const initialMode =
+    (searchParams.get("mode") as AppMode) ||
+    (isProduction ? "github" : "local");
   const { mode, setMode } = useMode();
   const { data: session, isPending: sessionLoading } = useSession();
 
@@ -192,9 +189,7 @@ function RecentRepos({
             `}
             onClick={() => openRepo(repo)}
           >
-            <FolderGit2
-              className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground sm:mt-0"
-            />
+            <FolderGit2 className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground sm:mt-0" />
             <span className="min-w-0 flex-1 break-all text-left font-mono text-sm text-foreground sm:truncate">
               {repo}
             </span>
@@ -250,7 +245,9 @@ function GitHubModeContent({
   session,
   sessionLoading,
 }: {
-  session: { user: { name: string; image?: string | null; email: string } } | null;
+  session: {
+    user: { name: string; image?: string | null; email: string };
+  } | null;
   sessionLoading: boolean;
 }) {
   const [signInLoading, setSignInLoading] = useState(false);
@@ -314,14 +311,14 @@ function GitHubModeContent({
           isLoading={signInLoading}
           className="h-11 gap-2 bg-foreground px-6 text-sm font-medium text-background transition-opacity hover:opacity-80"
         >
-<GitHub className="size-4" />          Sign in with GitHub
+          <GitHub className="size-4" /> Sign in with GitHub
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="mt-2">
+    <div className="mt-2 px-2">
       {/* User info bar */}
       <div className="mx-auto mb-6 flex max-w-2xl flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-4 py-2.5">
         <div className="flex min-w-0 items-center gap-3">
@@ -332,8 +329,10 @@ function GitHubModeContent({
               className="h-7 w-7 shrink-0 rounded-full"
             />
           )}
-          <div className="min-w-0">
-            <span className="block truncate text-sm text-foreground">{session.user.name}</span>
+          <div className="min-w-0 text-left">
+            <span className="block truncate text-sm text-foreground">
+              {session.user.name}
+            </span>
             <span className="block truncate text-xs text-muted-foreground">
               {session.user.email}
             </span>

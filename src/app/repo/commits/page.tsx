@@ -8,11 +8,11 @@ export default function CommitsPage() {
   return (
     <section>
       <div className="rail-bounded px-4 sm:px-6">
-        <div className="pb-2 pt-8">
+        <div className="pb-2 pt-5 sm:pt-8">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             History
           </p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight">Commits</h2>
+          <h2 className="mt-1.5 text-xl font-bold tracking-tight sm:mt-2 sm:text-2xl">Commits</h2>
         </div>
       </div>
 

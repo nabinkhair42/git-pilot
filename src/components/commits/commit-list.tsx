@@ -38,7 +38,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { CommitListSkeleton } from "@/components/loaders/commit-list-skeleton";
 import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
 import type { ResetMode } from "@/lib/git/types";
@@ -57,7 +61,7 @@ export function CommitList() {
     branch,
     maxCount: DEFAULT_COMMITS_PER_PAGE,
     skip: isGitHub ? undefined : page * DEFAULT_COMMITS_PER_PAGE,
-    search: isGitHub ? undefined : (search || undefined),
+    search: isGitHub ? undefined : search || undefined,
   });
 
   const { data: branchData } = useUnifiedBranches();
@@ -93,12 +97,12 @@ export function CommitList() {
     (opts: Omit<typeof confirmDialog, "open">) => {
       setConfirmDialog({ ...opts, open: true });
     },
-    []
+    [],
   );
 
   async function executeWithToast(
     action: () => Promise<{ success: boolean; message: string }>,
-    successMsg?: string
+    successMsg?: string,
   ) {
     setOperationLoading(true);
     try {
@@ -123,7 +127,9 @@ export function CommitList() {
     showConfirm({
       title: `${config.label} Reset`,
       description: `${config.description}. This will reset HEAD to ${formatHash(hash)}.${
-        isCritical ? " This action is irreversible and will discard all uncommitted changes." : ""
+        isCritical
+          ? " This action is irreversible and will discard all uncommitted changes."
+          : ""
       }`,
       confirmLabel: `Reset (${mode})`,
       variant: "destructive",
@@ -152,7 +158,9 @@ export function CommitList() {
     });
   }
 
-  const totalPages = data ? Math.ceil(data.total / DEFAULT_COMMITS_PER_PAGE) : 0;
+  const totalPages = data
+    ? Math.ceil(data.total / DEFAULT_COMMITS_PER_PAGE)
+    : 0;
 
   if (error) {
     return (
@@ -167,8 +175,8 @@ export function CommitList() {
   return (
     <>
       {/* Search and filters */}
-      <div className="rail-bounded px-6">
-        <div className="flex flex-col gap-3 pb-4 pt-6 sm:flex-row sm:items-center">
+      <div className="rail-bounded px-4 sm:px-6">
+        <div className="flex flex-col gap-2 pb-3 pt-4 sm:flex-row sm:items-center sm:gap-3 sm:pb-4 sm:pt-6">
           <form onSubmit={handleSearch} className="flex flex-1 gap-2">
             <Input
               value={searchInput}
@@ -189,7 +197,10 @@ export function CommitList() {
           {branchData && (
             <Select
               value={branch || "__all__"}
-              onValueChange={(v) => { setBranch(v === "__all__" ? undefined : v); setPage(0); }}
+              onValueChange={(v) => {
+                setBranch(v === "__all__" ? undefined : v);
+                setPage(0);
+              }}
             >
               <SelectTrigger className="h-9 w-full border-border bg-input/20 text-sm sm:w-auto sm:min-w-35">
                 <SelectValue placeholder="All branches" />
@@ -222,7 +233,7 @@ export function CommitList() {
             {data?.commits.map((commit, i) => (
               <div
                 key={commit.hash}
-                className={`group flex flex-col gap-3 px-4 py-4 transition-colors hover:bg-muted sm:flex-row sm:items-start sm:gap-4 sm:px-6 ${
+                className={`group flex flex-col gap-0.5 px-4 transition-colors hover:bg-muted sm:flex-row sm:items-start sm:gap-4 sm:px-6 py-2 sm:py-3 ${
                   i !== 0 ? "border-t border-dashed border-border" : ""
                 }`}
               >
@@ -234,10 +245,13 @@ export function CommitList() {
                         navigator.clipboard.writeText(commit.hash);
                         toast.success("Hash copied");
                       }}
-                      className="mt-0.5 flex shrink-0 items-center gap-1 rounded px-1 py-0.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      className="flex shrink-0 items-center gap-1 rounded px-1 py-0.5 font-mono text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:mt-0.5 sm:text-xs"
                     >
                       {commit.abbreviatedHash}
-                      <Copy size={10} className="opacity-0 transition-opacity group-hover:opacity-60" />
+                      <Copy
+                        size={10}
+                        className="opacity-0 transition-opacity group-hover:opacity-60"
+                      />
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="left" className="text-xs">
@@ -252,11 +266,11 @@ export function CommitList() {
                         ? `/repo/commits/${commit.hash}?mode=github&owner=${encodeURIComponent(githubOwner || "")}&repo=${encodeURIComponent(githubRepoName || "")}`
                         : `/repo/commits/${commit.hash}?path=${encodeURIComponent(repoPath || "")}`
                     }
-                    className="block truncate text-sm font-medium text-foreground transition-colors hover:text-foreground/80"
+                    className="block truncate text-[13px] font-medium text-foreground transition-colors hover:text-foreground/80 sm:text-sm"
                   >
                     {commit.message}
                   </Link>
-                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground sm:mt-1 sm:gap-2 sm:text-xs">
                     <span>{commit.authorName}</span>
                     <span>&middot;</span>
                     <span>{formatRelativeDate(commit.date)}</span>
@@ -290,11 +304,15 @@ export function CommitList() {
                   <DropdownMenuContent align="end" className="w-48">
                     {!isGitHub && (
                       <>
-                        <DropdownMenuItem onClick={() => handleCherryPick(commit.hash)}>
+                        <DropdownMenuItem
+                          onClick={() => handleCherryPick(commit.hash)}
+                        >
                           <CherryIcon size={14} className="mr-2" />
                           Cherry-pick
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleRevert(commit.hash)}>
+                        <DropdownMenuItem
+                          onClick={() => handleRevert(commit.hash)}
+                        >
                           <Undo2 size={14} className="mr-2" />
                           Revert
                         </DropdownMenuItem>
@@ -305,18 +323,26 @@ export function CommitList() {
                             Reset to here
                           </DropdownMenuSubTrigger>
                           <DropdownMenuSubContent>
-                            {(Object.keys(RESET_MODES) as ResetMode[]).map((resetMode) => (
-                              <DropdownMenuItem
-                                key={resetMode}
-                                onClick={() => handleReset(commit.hash, resetMode)}
-                                className={resetMode === "hard" ? "text-destructive focus:text-destructive" : ""}
-                              >
-                                {RESET_MODES[resetMode].label}
-                                <span className="ml-auto text-[10px] text-muted-foreground">
-                                  {RESET_MODES[resetMode].description}
-                                </span>
-                              </DropdownMenuItem>
-                            ))}
+                            {(Object.keys(RESET_MODES) as ResetMode[]).map(
+                              (resetMode) => (
+                                <DropdownMenuItem
+                                  key={resetMode}
+                                  onClick={() =>
+                                    handleReset(commit.hash, resetMode)
+                                  }
+                                  className={
+                                    resetMode === "hard"
+                                      ? "text-destructive focus:text-destructive"
+                                      : ""
+                                  }
+                                >
+                                  {RESET_MODES[resetMode].label}
+                                  <span className="ml-auto text-[10px] text-muted-foreground">
+                                    {RESET_MODES[resetMode].description}
+                                  </span>
+                                </DropdownMenuItem>
+                              ),
+                            )}
                           </DropdownMenuSubContent>
                         </DropdownMenuSub>
                         <DropdownMenuSeparator />
