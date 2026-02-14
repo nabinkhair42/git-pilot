@@ -122,21 +122,19 @@ export function StashList() {
           {stashes.length > 0 && (
             <Button
               variant="outline"
-              size="sm"
               onClick={() => setClearConfirm(true)}
               className="border-border text-destructive transition-colors hover:bg-destructive/10"
             >
-              <Eraser size={14} className="mr-1.5" />
+              <Eraser size={14}  />
               Clear All
             </Button>
           )}
           <Button
-            size="sm"
             onClick={() => setSaveOpen(true)}
             disabled={!hasUncommitted}
             className="bg-foreground text-background transition-opacity hover:opacity-80"
           >
-            <Plus size={14} className="mr-1.5" />
+            <Plus size={14} />
             Stash Changes
           </Button>
         </div>
@@ -149,7 +147,7 @@ export function StashList() {
         ) : undefined
       }
     >
-      
+
 
       {/* Stash list */}
       <div>

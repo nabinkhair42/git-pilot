@@ -3,6 +3,7 @@
 import { CommitListItem } from "@/components/commits/commit-list-item";
 import { ConfirmationDialog } from "@/components/dialog-window/confirmation-dialog";
 import { CommitListSkeleton } from "@/components/loaders/commit-list-skeleton";
+import { PageLayout } from "@/components/shared/page-layout";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -152,51 +153,55 @@ export function CommitList() {
   }
 
   return (
-    <>
-      {/* Search and filters */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-        <form onSubmit={handleSearch} className="flex flex-1 gap-2">
-          <InputGroup>
-            <InputGroupAddon>
-              <Search />
-            </InputGroupAddon>
-            <InputGroupInput
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search commits..."
-            />
-            <InputGroupAddon align={"inline-end"}>
-              <InputGroupButton variant={"secondary"}>Search</InputGroupButton>
-            </InputGroupAddon>
-          </InputGroup>
-        </form>
+    <PageLayout
+      label="History"
+      title="Commits"
+      filters={
+        <div className="flex flex-col gap-2 pb-4 sm:flex-row sm:items-center sm:gap-3">
+          <form onSubmit={handleSearch} className="flex flex-1 gap-2">
+            <InputGroup>
+              <InputGroupAddon>
+                <Search />
+              </InputGroupAddon>
+              <InputGroupInput
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Search commits..."
+              />
+              <InputGroupAddon align={"inline-end"}>
+                <InputGroupButton variant={"secondary"}>
+                  Search
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
+          </form>
 
-        {branchData && (
-          <Select
-            value={branch || "__all__"}
-            onValueChange={(v) => {
-              setBranch(v === "__all__" ? undefined : v);
-              setPage(0);
-            }}
-          >
-            <SelectTrigger className="h-9 w-full border-border bg-input/20 text-sm sm:w-auto sm:min-w-35">
-              <SelectValue placeholder="All branches" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all__">All branches</SelectItem>
-              {branchData.branches.map((b) => (
-                <SelectItem key={b.name} value={b.name}>
-                  {b.name} {b.current ? "(current)" : ""}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      </div>
-
-
+          {branchData && (
+            <Select
+              value={branch || "__all__"}
+              onValueChange={(v) => {
+                setBranch(v === "__all__" ? undefined : v);
+                setPage(0);
+              }}
+            >
+              <SelectTrigger className="h-9 w-full border-border bg-input/20 text-sm sm:w-auto sm:min-w-35">
+                <SelectValue placeholder="All branches" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">All branches</SelectItem>
+                {branchData.branches.map((b) => (
+                  <SelectItem key={b.name} value={b.name}>
+                    {b.name} {b.current ? "(current)" : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+      }
+    >
       {/* Commit list */}
-      <div className="">
+      <div>
         {isLoading ? (
           <CommitListSkeleton />
         ) : data?.commits.length === 0 ? (
@@ -277,6 +282,6 @@ export function CommitList() {
         onConfirm={confirmDialog.action}
         loading={operationLoading}
       />
-    </>
+    </PageLayout>
   );
 }

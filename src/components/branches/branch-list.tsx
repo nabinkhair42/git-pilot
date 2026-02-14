@@ -134,7 +134,7 @@ export function BranchList() {
                 onClick={() => setMergeOpen(true)}
                 className="border-border transition-colors hover:bg-accent"
               >
-                <GitMerge size={14} className="mr-1.5" />
+                <GitMerge size={14}  />
                 Merge
               </Button>
               <Button
@@ -142,7 +142,7 @@ export function BranchList() {
                 onClick={() => setCreateOpen(true)}
                 className="bg-foreground text-background transition-opacity hover:opacity-80"
               >
-                <Plus size={14} className="mr-1.5" />
+                <Plus size={14}  />
                 New Branch
               </Button>
             </>

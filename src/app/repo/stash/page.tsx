@@ -28,11 +28,7 @@ function StashSkeleton() {
 export default function StashPage() {
   return (
     <Suspense
-      fallback={
-        <div className="rail-bounded">
-          <StashSkeleton />
-        </div>
-      }
+      fallback={<StashSkeleton />}
     >
       <StashList />
     </Suspense>

@@ -112,7 +112,7 @@ function GitHubRepoGrid({ session }: { session: any }) {
 
   if (isLoading) {
     return (
-      <div className="rail-bounded border-t border-border">
+      <div className="border-t border-border">
         <div className="px-4 pb-4 pt-8 sm:px-6">
           <Skeleton className="h-5 w-40" />
         </div>
@@ -148,7 +148,7 @@ function GitHubRepoGrid({ session }: { session: any }) {
 
   if (error) {
     return (
-      <div className="rail-bounded border-t border-border">
+      <div className="border-t border-border">
         <div className="py-12 text-center text-sm text-muted-foreground">
           Failed to load repositories. Make sure your GitHub connection is
           active.

@@ -18,16 +18,14 @@ export function PageLayout({
   return (
     <div className="flex min-h-0 flex-1 flex-col py-3 rail-bounded">
       {/* Pinned header */}
-      <div className="">
+      <div className="px-4 border-b">
         <div
           className={cn(
             "flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
           )}
         >
           <div>
-            <p className="font-medium text-muted-foreground">
-              {label}
-            </p>
+            <p className="font-medium text-muted-foreground">{label}</p>
             <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
           </div>
           {actions}

@@ -28,11 +28,7 @@ function TagsSkeleton() {
 export default function TagsPage() {
   return (
     <Suspense
-      fallback={
-        <div className="rail-bounded">
-          <TagsSkeleton />
-        </div>
-      }
+      fallback={<TagsSkeleton />}
     >
       <TagList />
     </Suspense>

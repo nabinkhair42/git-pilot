@@ -87,7 +87,7 @@ export function TagList() {
             onClick={() => setCreateOpen(true)}
             className="bg-foreground text-background transition-opacity hover:opacity-80"
           >
-            <Plus size={14} className="mr-1.5" />
+            <Plus size={14}  />
             New Tag
           </Button>
         ) : undefined

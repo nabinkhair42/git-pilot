@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function DiffSkeleton() {
   return (
-    <div className="rail-bounded">
+    <div>
       <div className="px-6 pb-8 pt-6">
         {/* Diff block mimicking a unified diff */}
         <div className="rounded-md border border-border">

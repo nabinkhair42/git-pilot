@@ -6,7 +6,7 @@ export function CommitDetailSkeleton() {
   return (
     <>
       {/* Header */}
-      <div className="rail-bounded px-6">
+      <div className="px-6">
         <div className="pb-6 pt-8">
           {/* Back button */}
           <Skeleton className="mb-4 h-8 w-36 rounded-md" />
@@ -33,7 +33,7 @@ export function CommitDetailSkeleton() {
         </div>
       </div>
 
-      
+
 
       {/* Changed files */}
       <div className="rail-bounded">
@@ -55,7 +55,7 @@ export function CommitDetailSkeleton() {
         ))}
       </div>
 
-      
+
 
       {/* Diff area */}
       <div className="rail-bounded">
