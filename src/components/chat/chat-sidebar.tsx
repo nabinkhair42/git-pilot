@@ -114,7 +114,7 @@ export function ChatSidebar() {
             >
               <X className="size-4" />
             </button>
-            {messages.length > 0 && (
+            {messages.length > 0 ? (
               <button
                 type="button"
                 onClick={handleClear}
@@ -123,7 +123,7 @@ export function ChatSidebar() {
               >
                 <Trash2 className="size-3.5" />
               </button>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -135,7 +135,7 @@ export function ChatSidebar() {
               <div className="space-y-1">
                 <p className="text-sm font-medium">No Repository Selected</p>
                 <p className="text-xs text-muted-foreground">
-                  Use <kbd className="rounded border border-border px-1 py-0.5 font-mono text-[10px]">@repo:</kbd> to reference a repository, or select one first.
+                  Use <kbd className="rounded border border-border px-1 py-0.5 font-mono text-2.5">@repo:</kbd> to reference a repository, or select one first.
                 </p>
               </div>
             </div>

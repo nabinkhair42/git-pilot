@@ -5,10 +5,13 @@ import { successResponse, errorResponse } from "@/lib/response/server-response";
 
 export async function GET(request: NextRequest) {
   try {
-    const token = await getGitHubToken();
+    // async-api-routes: start token fetch early, do sync work, await late
+    const tokenPromise = getGitHubToken();
     const { searchParams } = new URL(request.url);
     const owner = searchParams.get("owner");
     const repo = searchParams.get("repo");
+
+    const token = await tokenPromise;
 
     // If owner+repo specified, return repo info; otherwise list all repos
     if (owner && repo) {

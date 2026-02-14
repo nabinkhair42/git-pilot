@@ -1,6 +1,3 @@
-export const APP_NAME = "GitPilot";
-export const DEFAULT_COMMITS_PER_PAGE = 50;
-
 export const RESET_MODES = {
   soft: {
     label: "Soft",
@@ -19,8 +16,6 @@ export const RESET_MODES = {
   },
 } as const;
 
-export type SafetyTier = "safe" | "moderate" | "dangerous" | "critical";
-
 export const FILE_STATUS_LABELS: Record<string, string> = {
   A: "Added",
   M: "Modified",
@@ -34,7 +29,6 @@ export const FILE_STATUS_LABELS: Record<string, string> = {
 
 import type { MentionCategory } from "@/lib/mentions/types";
 
-export const MENTION_TRIGGER_CHAR = "@";
 export const MENTION_FILE_CONTENT_MAX_CHARS = 6000;
 export const MENTION_MAX_ITEMS_PER_CATEGORY = 50;
 

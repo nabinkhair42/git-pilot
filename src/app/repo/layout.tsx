@@ -34,7 +34,7 @@ export default function RepoLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Suspense>
+    <Suspense fallback={null}>
       <RepoLayoutInner>{children}</RepoLayoutInner>
     </Suspense>
   );

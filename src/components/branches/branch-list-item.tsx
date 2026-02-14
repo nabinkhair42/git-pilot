@@ -43,21 +43,21 @@ export function BranchListItem({
           <span className="font-mono text-sm font-medium text-foreground">
             {name}
           </span>
-          {current && (
+          {current ? (
             <Badge
               variant="outline"
-              className="border-git-added/30 px-1.5 py-0 text-[10px] text-git-added"
+              className="border-git-added/30 px-1.5 py-0 text-2.5 text-git-added"
             >
               default
             </Badge>
-          )}
+          ) : null}
         </div>
         <span className="text-xs text-muted-foreground">
           {formatHash(commit)}
         </span>
       </div>
 
-      {!current && (
+      {!current ? (
         <div className="flex shrink-0 items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -80,7 +80,7 @@ export function BranchListItem({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

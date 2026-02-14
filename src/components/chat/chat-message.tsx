@@ -29,15 +29,14 @@ const TOOL_LABELS: Record<string, string> = {
   getCommitDetails: "Commit Details",
   listBranches: "List Branches",
   compareDiff: "Compare Diff",
-  getWorkingTreeStatus: "Working Tree Status",
   listTags: "List Tags",
-  listStashes: "List Stashes",
   getFileContent: "File Content",
   listFiles: "File Tree",
-  createNewBranch: "Create Branch",
-  switchBranch: "Switch Branch",
+  createBranch: "Create Branch",
+  deleteBranch: "Delete Branch",
   cherryPickCommits: "Cherry Pick",
   revertCommits: "Revert Commits",
+  resetBranch: "Reset Branch",
 };
 
 interface ChatMessagesProps {
@@ -112,12 +111,12 @@ export function ChatMessages({ messages, status, onSuggestionClick }: ChatMessag
                       />
                       <ToolContent>
                         <ToolInput input={part.input} />
-                        {part.state === "output-available" && (
+                        {part.state === "output-available" ? (
                           <ToolOutput output={part.output} errorText={undefined} />
-                        )}
-                        {part.state === "output-error" && (
+                        ) : null}
+                        {part.state === "output-error" ? (
                           <ToolOutput output={undefined} errorText={part.errorText} />
-                        )}
+                        ) : null}
                       </ToolContent>
                     </Tool>
                   );
@@ -141,7 +140,7 @@ export function ChatMessages({ messages, status, onSuggestionClick }: ChatMessag
         ))}
 
         {/* Thinking indicator */}
-        {status === "submitted" && (
+        {status === "submitted" ? (
           <Message from="assistant">
             <MessageContent>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -150,7 +149,7 @@ export function ChatMessages({ messages, status, onSuggestionClick }: ChatMessag
               </div>
             </MessageContent>
           </Message>
-        )}
+        ) : null}
       </ConversationContent>
       <ConversationScrollButton />
     </Conversation>

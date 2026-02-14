@@ -34,7 +34,7 @@ export function SiteFooter() {
 
         {/* Right — theme switcher */}
         <div className="flex items-center gap-0.5">
-          {mounted &&
+          {mounted ?
             themes.map(({ value, icon: Icon, label }) => (
               <button
                 key={value}
@@ -49,7 +49,7 @@ export function SiteFooter() {
               >
                 <Icon size={14} />
               </button>
-            ))}
+            )) : null}
         </div>
       </div>
     </footer>

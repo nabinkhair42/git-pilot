@@ -141,11 +141,11 @@ export function MentionPicker({
                       >
                         <div className="min-w-0 flex-1">
                           <div className="truncate text-sm">{item.label}</div>
-                          {item.description && (
+                          {item.description ? (
                             <div className="truncate text-xs text-muted-foreground">
                               {item.description}
                             </div>
-                          )}
+                          ) : null}
                         </div>
                       </CommandItem>
                     ))}
@@ -164,11 +164,11 @@ export function MentionPicker({
                   >
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm">{item.label}</div>
-                      {item.description && (
+                      {item.description ? (
                         <div className="truncate text-xs text-muted-foreground">
                           {item.description}
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   </CommandItem>
                 ))}

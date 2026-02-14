@@ -1,5 +1,4 @@
 import type { SVGProps } from "react";
-import { GitHub } from "./github";
 
 const GitManagerAppIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg {...props} viewBox="0 0 32 32" fill="none" className="size-6">

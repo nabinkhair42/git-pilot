@@ -8,8 +8,11 @@ export async function GET(
   { params }: { params: Promise<{ hash: string }> }
 ) {
   try {
-    const token = await getGitHubToken();
-    const { hash } = await params;
+    // async-parallel: token fetch and params resolve are independent
+    const [token, { hash }] = await Promise.all([
+      getGitHubToken(),
+      params,
+    ]);
     const { searchParams } = new URL(request.url);
     const owner = searchParams.get("owner");
     const repo = searchParams.get("repo");

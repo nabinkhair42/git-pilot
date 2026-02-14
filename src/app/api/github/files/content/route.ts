@@ -6,7 +6,8 @@ import { successResponse, errorResponse } from "@/lib/response/server-response";
 
 export async function GET(request: NextRequest) {
   try {
-    const token = await getGitHubToken();
+    // async-api-routes: start token fetch early, do sync work, await late
+    const tokenPromise = getGitHubToken();
     const { searchParams } = new URL(request.url);
     const owner = searchParams.get("owner");
     const repo = searchParams.get("repo");
@@ -18,6 +19,7 @@ export async function GET(request: NextRequest) {
 
     const ref = searchParams.get("ref") || undefined;
 
+    const token = await tokenPromise;
     const octokit = createGitHubClient(token);
     const { data } = await octokit.rest.repos.getContent({
       owner,

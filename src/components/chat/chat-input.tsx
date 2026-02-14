@@ -1,44 +1,44 @@
 "use client";
 
-import type { ChatStatus } from "ai";
-import type { MentionItem, MentionCategory } from "@/lib/mentions/types";
-import {
-  PromptInput,
-  PromptInputProvider,
-  PromptInputTextarea,
-  PromptInputHeader,
-  PromptInputFooter,
-  PromptInputTools,
-  PromptInputSubmit,
-  usePromptInputController,
-} from "@/components/ai-elements/prompt-input";
 import {
   ModelSelector,
-  ModelSelectorTrigger,
   ModelSelectorContent,
-  ModelSelectorInput,
-  ModelSelectorList,
   ModelSelectorEmpty,
   ModelSelectorGroup,
+  ModelSelectorInput,
   ModelSelectorItem,
+  ModelSelectorList,
   ModelSelectorLogo,
   ModelSelectorName,
+  ModelSelectorTrigger,
 } from "@/components/ai-elements/model-selector";
+import {
+  PromptInput,
+  PromptInputFooter,
+  PromptInputHeader,
+  PromptInputProvider,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputTools,
+  usePromptInputController,
+} from "@/components/ai-elements/prompt-input";
 import { MentionChips } from "@/components/chat/mention-chips";
 import { MentionPicker } from "@/components/chat/mention-picker";
-import { useMentions } from "@/hooks/use-mentions";
-import { useMentionQuery } from "@/hooks/use-mention-query";
-import { MENTION_CATEGORY_SHORTCUTS } from "@/config/constants";
 import { Button } from "@/components/ui/button";
-import { AtSign, Infinity } from "lucide-react";
+import { MENTION_CATEGORY_SHORTCUTS } from "@/config/constants";
+import { useMentionQuery } from "@/hooks/use-mention-query";
+import { useMentions } from "@/hooks/use-mentions";
+import type { MentionCategory, MentionItem } from "@/lib/mentions/types";
+import type { ChatStatus } from "ai";
+import { AtSign } from "lucide-react";
 import {
-  useState,
   useCallback,
   useEffect,
   useMemo,
   useRef,
-  type KeyboardEvent,
+  useState,
   type ChangeEvent,
+  type KeyboardEvent,
 } from "react";
 
 const MODELS = [
@@ -362,15 +362,6 @@ function ChatInputInner({
               <AtSign className="size-3.5" />
             </Button>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 gap-1.5 px-2 text-xs text-muted-foreground"
-              type="button"
-            >
-              <Infinity className="size-3.5" />
-              Agent
-            </Button>
 
             <ModelSelector
               open={modelSelectorOpen}

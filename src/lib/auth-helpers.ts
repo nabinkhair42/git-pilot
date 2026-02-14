@@ -17,7 +17,10 @@ export async function getAuthSession() {
  * Throws if not authenticated or token not available.
  */
 export async function getGitHubToken(): Promise<string> {
-  const session = await getAuthSession();
+  const reqHeaders = await headers();
+
+  // async-parallel: session check and token fetch both need headers, resolved once above
+  const session = await auth.api.getSession({ headers: reqHeaders });
   if (!session) {
     throw new Error("Not authenticated");
   }
@@ -26,7 +29,7 @@ export async function getGitHubToken(): Promise<string> {
     body: {
       providerId: "github",
     },
-    headers: await headers(),
+    headers: reqHeaders,
   });
 
   if (!result?.accessToken) {

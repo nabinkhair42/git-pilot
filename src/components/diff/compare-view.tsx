@@ -13,8 +13,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DiffSkeleton } from "@/components/loaders/diff-skeleton";
-import { DiffViewer } from "@/components/diff/diff-viewer";
 import { PageLayout } from "@/components/shared/page-layout";
+import dynamic from "next/dynamic";
+
+const DiffViewer = dynamic(
+  () => import("@/components/diff/diff-viewer"),
+  { loading: () => <DiffSkeleton />, ssr: false }
+);
 
 export function CompareView() {
   const [fromHash, setFromHash] = useState<string | null>(null);

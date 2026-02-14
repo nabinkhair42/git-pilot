@@ -16,18 +16,6 @@ export function formatHash(hash: string): string {
   return hash.slice(0, 7);
 }
 
-export function formatNumber(n: number): string {
-  return new Intl.NumberFormat().format(n);
-}
-
-export function formatPath(path: string): string {
-  const home = typeof window !== "undefined" ? "" : process.env.HOME || "";
-  if (home && path.startsWith(home)) {
-    return "~" + path.slice(home.length);
-  }
-  return path;
-}
-
 export function formatDiffStats(insertions: number, deletions: number): string {
   const parts: string[] = [];
   if (insertions > 0) parts.push(`+${insertions}`);

@@ -12,9 +12,9 @@ function unwrap<T>(res: { data: { success: boolean; data: T } }): T {
   return res.data.data;
 }
 
-// ─── GitHub Repo types ──────────────────────────────────────────────────────
+// ─── Repos ──────────────────────────────────────────────────────────────────
 
-export interface GitHubRepoItem {
+interface GitHubRepoItem {
   owner: string;
   name: string;
   fullName: string;
@@ -27,22 +27,10 @@ export interface GitHubRepoItem {
   url: string;
 }
 
-// ─── Repos ──────────────────────────────────────────────────────────────────
-
 export async function getGitHubRepos() {
   return unwrap<GitHubRepoItem[]>(
     await api.get(GITHUB_API_ENDPOINTS.REPOS)
   );
-}
-
-export async function getGitHubRepoInfo(owner: string, repo: string) {
-  return unwrap<{
-    path: string;
-    currentBranch: string;
-    remotes: { name: string; refs: { fetch: string; push: string } }[];
-    isClean: boolean;
-    headCommit: string;
-  }>(await api.get(GITHUB_API_ENDPOINTS.REPOS, { params: { owner, repo } }));
 }
 
 // ─── Commits ────────────────────────────────────────────────────────────────

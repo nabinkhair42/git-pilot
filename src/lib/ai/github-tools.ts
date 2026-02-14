@@ -376,5 +376,3 @@ export function createGitHubTools(
     }),
   };
 }
-
-export type GitHubTools = ReturnType<typeof createGitHubTools>;

@@ -48,35 +48,35 @@ export function TagListItem({
           <span className="font-mono text-sm font-medium text-foreground">
             {name}
           </span>
-          {isAnnotated && (
+          {isAnnotated ? (
             <Badge
               variant="outline"
-              className="border-git-modified/30 px-1.5 py-0 text-[10px] text-git-modified"
+              className="border-git-modified/30 px-1.5 py-0 text-2.5 text-git-modified"
             >
               annotated
             </Badge>
-          )}
+          ) : null}
         </div>
         <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
           <span>{formatHash(hash)}</span>
-          {message && (
+          {message ? (
             <>
               <span>&middot;</span>
               <span className="truncate">{message}</span>
             </>
-          )}
-          {date && (
+          ) : null}
+          {date ? (
             <>
               <span>&middot;</span>
               <span>{formatRelativeDate(date)}</span>
             </>
-          )}
-          {tagger && (
+          ) : null}
+          {tagger ? (
             <>
               <span>&middot;</span>
               <span>{tagger}</span>
             </>
-          )}
+          ) : null}
         </div>
       </div>
 

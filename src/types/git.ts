@@ -46,11 +46,6 @@ export interface DiffResult {
 
 export type ResetMode = "soft" | "mixed" | "hard";
 
-export interface OperationResult {
-  success: boolean;
-  message: string;
-}
-
 export interface TagInfo {
   name: string;
   hash: string;

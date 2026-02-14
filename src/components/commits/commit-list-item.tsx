@@ -66,7 +66,7 @@ export function CommitListItem({
               navigator.clipboard.writeText(hash);
               toast.success("Hash copied");
             }}
-            className="flex shrink-0 items-center gap-1 rounded px-1 py-0.5 font-mono text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:mt-0.5 sm:text-xs"
+            className="flex shrink-0 items-center gap-1 rounded px-1 py-0.5 font-mono text-2xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:mt-0.5 sm:text-xs"
           >
             {abbreviatedHash}
             <Copy
@@ -83,11 +83,11 @@ export function CommitListItem({
       <div className="min-w-0 flex-1">
         <Link
           href={href}
-          className="block truncate text-[13px] font-medium text-foreground transition-colors hover:text-foreground/80 sm:text-sm"
+          className="block truncate text-xs font-medium text-foreground transition-colors hover:text-foreground/80 sm:text-sm"
         >
           {message}
         </Link>
-        <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground sm:mt-1 sm:gap-2 sm:text-xs">
+        <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-2xs text-muted-foreground sm:mt-1 sm:gap-2 sm:text-xs">
           <span>{authorName}</span>
           <span>&middot;</span>
           <span>{formatRelativeDate(date)}</span>
@@ -98,7 +98,7 @@ export function CommitListItem({
                 <Badge
                   key={ref.trim()}
                   variant="outline"
-                  className="border-border px-1.5 py-0 text-[10px] font-mono"
+                  className="border-border px-1.5 py-0 text-2.5 font-mono"
                 >
                   {ref.trim()}
                 </Badge>

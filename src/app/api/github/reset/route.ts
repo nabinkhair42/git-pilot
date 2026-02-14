@@ -5,8 +5,11 @@ import { successResponse, errorResponse } from "@/lib/response/server-response";
 
 export async function POST(request: NextRequest) {
   try {
-    const token = await getGitHubToken();
-    const { owner, repo, branch, hash } = await request.json();
+    // async-parallel: token fetch and body parse are independent
+    const [token, { owner, repo, branch, hash }] = await Promise.all([
+      getGitHubToken(),
+      request.json(),
+    ]);
 
     if (!owner || !repo || !branch || !hash) {
       return errorResponse("owner, repo, branch, and hash are required", 400);

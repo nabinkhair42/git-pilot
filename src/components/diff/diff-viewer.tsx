@@ -9,7 +9,7 @@ interface DiffViewerProps {
   outputFormat?: "line-by-line" | "side-by-side";
 }
 
-export function DiffViewer({ diff, outputFormat = "line-by-line" }: DiffViewerProps) {
+export default function DiffViewer({ diff, outputFormat = "line-by-line" }: DiffViewerProps) {
   const rendered = useMemo(() => {
     if (!diff) return "";
     const parsed = parse(diff);
@@ -30,7 +30,7 @@ export function DiffViewer({ diff, outputFormat = "line-by-line" }: DiffViewerPr
 
   return (
     <div
-      className="overflow-x-auto font-mono text-[11px] sm:text-xs"
+      className="overflow-x-auto font-mono text-2xs sm:text-xs"
       dangerouslySetInnerHTML={{ __html: rendered }}
     />
   );

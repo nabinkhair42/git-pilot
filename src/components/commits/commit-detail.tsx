@@ -1,13 +1,19 @@
 "use client";
 
-import { DiffViewer } from "@/components/diff/diff-viewer";
 import { CommitDetailSkeleton } from "@/components/loaders/commit-detail-skeleton";
+import { DiffSkeleton } from "@/components/loaders/diff-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { FILE_STATUS_COLORS, FILE_STATUS_LABELS } from "@/config/constants";
 import { useUnifiedCommitDetail } from "@/hooks/use-unified";
 import { formatDate, formatDiffStats } from "@/lib/formatters";
 import { FileText, Minus, Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+
+// bundle-dynamic-imports: diff2html is ~100KB, only needed when viewing diffs
+const DiffViewer = dynamic(
+  () => import("@/components/diff/diff-viewer"),
+  { loading: () => <DiffSkeleton />, ssr: false }
+);
 
 interface CommitDetailProps {
   hash: string;
@@ -15,7 +21,6 @@ interface CommitDetailProps {
 
 export function CommitDetail({ hash }: CommitDetailProps) {
   const { data: commit, isLoading, error } = useUnifiedCommitDetail(hash);
-  const router = useRouter();
 
   if (isLoading) {
     return <CommitDetailSkeleton />;
@@ -60,18 +65,18 @@ export function CommitDetail({ hash }: CommitDetailProps) {
               {commit.stats.changed} file{commit.stats.changed !== 1 ? "s" : ""}{" "}
               changed
             </span>
-            {commit.stats.insertions > 0 && (
+            {commit.stats.insertions > 0 ? (
               <span className="flex items-center gap-1 text-git-added">
                 <Plus size={12} />
                 {commit.stats.insertions}
               </span>
-            )}
-            {commit.stats.deletions > 0 && (
+            ) : null}
+            {commit.stats.deletions > 0 ? (
               <span className="flex items-center gap-1 text-git-deleted">
                 <Minus size={12} />
                 {commit.stats.deletions}
               </span>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
@@ -97,7 +102,7 @@ export function CommitDetail({ hash }: CommitDetailProps) {
               >
                 <Badge
                   variant="outline"
-                  className={`shrink-0 border-border px-1.5 py-0 text-[10px] font-mono ${
+                  className={`shrink-0 border-border px-1.5 py-0 text-2.5 font-mono ${
                     FILE_STATUS_COLORS[file.status] || "text-muted-foreground"
                   }`}
                 >

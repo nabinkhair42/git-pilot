@@ -4,12 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGitHubRepos } from "@/hooks/use-github";
 import { useMode, type GitHubRepo } from "@/hooks/use-mode";
-import { signIn, signOut } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client";
 import { Lock, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { GitHub } from "../icons/github";
-import { LogOut } from "lucide-react";
+import { GitHub } from "@/components/icons/github";
 
 export function GitHubModeContent({
   session,
@@ -21,7 +20,6 @@ export function GitHubModeContent({
   sessionLoading: boolean;
 }) {
   const [signInLoading, setSignInLoading] = useState(false);
-  const [signOutLoading, setSignOutLoading] = useState(false);
 
   if (sessionLoading) {
     return (
@@ -162,13 +160,13 @@ function GitHubRepoGrid({ session }: { session: any }) {
     <div className="border-t border-border">
       <div className="flex items-center justify-between px-4 pb-4 pt-8 sm:px-6 border-b">
         <div className="flex min-w-0 items-center gap-3">
-          {session.user.image && (
+          {session.user.image ? (
             <img
               src={session.user.image}
               alt=""
               className="h-7 w-7 shrink-0 rounded-full"
             />
-          )}
+          ) : null}
           <div className="min-w-0 text-left">
             <span className="block truncate text-sm text-foreground">
               {session.user.name}
@@ -219,23 +217,23 @@ function GitHubRepoGrid({ session }: { session: any }) {
                     <span className="min-w-0 break-all font-mono text-sm text-foreground sm:truncate">
                       {repo.fullName}
                     </span>
-                    {repo.isPrivate && (
+                    {repo.isPrivate ? (
                       <Lock className="h-3 w-3 shrink-0 text-muted-foreground" />
-                    )}
-                    {repo.language && (
+                    ) : null}
+                    {repo.language ? (
                       <Badge
                         variant="secondary"
-                        className="shrink-0 text-[10px] font-normal"
+                        className="shrink-0 text-2.5 font-normal"
                       >
                         {repo.language}
                       </Badge>
-                    )}
+                    ) : null}
                   </div>
-                  {repo.description && (
+                  {repo.description ? (
                     <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground sm:truncate">
                       {repo.description}
                     </p>
-                  )}
+                  ) : null}
                 </div>
               </div>
             ))

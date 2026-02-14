@@ -21,9 +21,3 @@ export function errorResponse(error: string, status = 500) {
   );
 }
 
-export function messageResponse(message: string, status = 200) {
-  return NextResponse.json<ServerResponse>(
-    { success: true, message },
-    { status }
-  );
-}

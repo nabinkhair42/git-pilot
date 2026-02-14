@@ -20,7 +20,12 @@ import {
 } from "lucide-react";
 import { isValidElement } from "react";
 
-import { CodeBlock } from "./code-block";
+// Simple code display for tool input/output (JSON only)
+const CodeBlock = ({ code }: { code: string; language?: string }) => (
+  <pre className="overflow-x-auto p-3 font-mono text-xs">
+    <code>{code}</code>
+  </pre>
+);
 
 export type ToolProps = ComponentProps<typeof Collapsible>;
 

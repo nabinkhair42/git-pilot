@@ -22,11 +22,11 @@ const siteUrl = "https://git.nabinkhair.com.np";
 export const metadata: Metadata = {
   title: {
     default:
-      "GitPilot — AI-Powered Visual Git Client for Local & GitHub Repos",
+      "GitPilot — AI-Powered Visual Git Client for GitHub Repos",
     template: "%s | GitPilot",
   },
   description:
-    "Visual Git client with AI chat. Browse history, manage branches & tags, cherry-pick, revert, reset, compare diffs, and stash — locally or via GitHub.",
+    "Visual Git client with AI chat. Browse history, manage branches and tags, cherry-pick, revert, reset, and compare diffs via GitHub.",
   keywords: [
     "git",
     "git client",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     siteName: "GitPilot",
     title: "GitPilot — AI-Powered Visual Git Client",
     description:
-      "Visual Git client with AI chat. Browse history, manage branches & tags, cherry-pick, revert, reset, compare diffs, and stash — locally or via GitHub.",
+      "Visual Git client with AI chat. Browse history, manage branches and tags, cherry-pick, revert, reset, and compare diffs via GitHub.",
     images: [
       {
         url: "/online-mode-dark.png",
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "GitPilot — AI-Powered Visual Git Client",
     description:
-      "Visual Git client with AI chat. Browse history, manage branches & tags, cherry-pick, revert, reset, compare diffs, and stash.",
+      "Visual Git client with AI chat. Browse history, manage branches and tags, cherry-pick, revert, reset, and compare diffs via GitHub.",
     images: ["/online-mode-dark.png"],
   },
   icons: {
