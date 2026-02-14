@@ -3,9 +3,9 @@
 import { ChatInput } from "@/components/chat/chat-input";
 import { ChatMessages } from "@/components/chat/chat-message";
 import { useRepo } from "@/hooks/use-repo";
-import { cn } from "@/lib/utils";
-import { resolveAllMentions, buildMentionContextBlock } from "@/lib/mentions/resolve-context";
+import { buildMentionContextBlock, resolveAllMentions } from "@/lib/mentions/resolve-context";
 import type { MentionItem } from "@/lib/mentions/types";
+import { cn } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Bot, MessageSquare, Trash2, X } from "lucide-react";

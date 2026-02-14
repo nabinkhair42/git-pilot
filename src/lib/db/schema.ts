@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
 
 // ─── better-auth core schema ───────────────────────────────────────────────
 
@@ -50,4 +50,28 @@ export const verification = pgTable("verification", {
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at"),
   updatedAt: timestamp("updated_at"),
+});
+
+// ─── chat persistence schema ────────────────────────────────────────────────
+
+export const chat = pgTable("chat", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  title: text("title").notNull().default("New chat"),
+  repoOwner: text("repo_owner"),
+  repoName: text("repo_name"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const chatMessage = pgTable("chat_message", {
+  id: text("id").primaryKey(),
+  chatId: text("chat_id")
+    .notNull()
+    .references(() => chat.id, { onDelete: "cascade" }),
+  role: text("role").notNull(),
+  parts: jsonb("parts").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });

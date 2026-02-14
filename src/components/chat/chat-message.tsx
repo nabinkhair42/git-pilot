@@ -22,6 +22,8 @@ import {
 import { Suggestion } from "@/components/ai-elements/suggestion";
 import { Spinner } from "@/components/ui/spinner";
 import { GitManagerAppIcon } from "@/components/icons/git-manager";
+import { toolRenderers } from "./tool-renderers/registry";
+import { ApprovalRenderer } from "./tool-renderers/approval-renderer";
 
 const TOOL_LABELS: Record<string, string> = {
   getRepoOverview: "Repository Overview",
@@ -43,9 +45,17 @@ interface ChatMessagesProps {
   messages: UIMessage[];
   status: string;
   onSuggestionClick?: (suggestion: string) => void;
+  onAction?: (message: string) => void;
+  addToolApprovalResponse?: (params: { id: string; approved: boolean }) => void;
 }
 
-export function ChatMessages({ messages, status, onSuggestionClick }: ChatMessagesProps) {
+export function ChatMessages({
+  messages,
+  status,
+  onSuggestionClick,
+  onAction,
+  addToolApprovalResponse,
+}: ChatMessagesProps) {
   if (messages.length === 0) {
     return (
       <ConversationEmptyState>
@@ -111,12 +121,51 @@ export function ChatMessages({ messages, status, onSuggestionClick }: ChatMessag
                       />
                       <ToolContent>
                         <ToolInput input={part.input} />
-                        {part.state === "output-available" ? (
-                          <ToolOutput output={part.output} errorText={undefined} />
-                        ) : null}
-                        {part.state === "output-error" ? (
+
+                        {/* Approval requested — show confirm/deny UI */}
+                        {part.state === "approval-requested" && addToolApprovalResponse && (
+                          <ApprovalRenderer
+                            toolName={name}
+                            input={part.input}
+                            onApprove={() =>
+                              addToolApprovalResponse({
+                                id: (part as unknown as { approval: { id: string } }).approval.id,
+                                approved: true,
+                              })
+                            }
+                            onDeny={() =>
+                              addToolApprovalResponse({
+                                id: (part as unknown as { approval: { id: string } }).approval.id,
+                                approved: false,
+                              })
+                            }
+                          />
+                        )}
+
+                        {/* Denied — show denial message */}
+                        {part.state === "output-denied" && (
+                          <div className="text-sm text-muted-foreground">Action was denied by user.</div>
+                        )}
+
+                        {/* Output available — use rich renderer or JSON fallback */}
+                        {part.state === "output-available" && (() => {
+                          const Renderer = toolRenderers[name];
+                          if (Renderer) {
+                            return (
+                              <Renderer
+                                output={part.output}
+                                input={part.input}
+                                onAction={onAction ?? (() => {})}
+                              />
+                            );
+                          }
+                          return <ToolOutput output={part.output} errorText={undefined} />;
+                        })()}
+
+                        {/* Error */}
+                        {part.state === "output-error" && (
                           <ToolOutput output={undefined} errorText={part.errorText} />
-                        ) : null}
+                        )}
                       </ToolContent>
                     </Tool>
                   );

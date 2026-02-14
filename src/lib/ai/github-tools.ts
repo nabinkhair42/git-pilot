@@ -294,6 +294,7 @@ export function createGitHubTools(
           .string()
           .describe("Name of the branch to delete."),
       }),
+      needsApproval: true,
       execute: async ({ branch }) => {
         try {
           return await deleteBranch(token, owner, repo, branch);
@@ -317,6 +318,7 @@ export function createGitHubTools(
           .string()
           .describe("The commit hash to cherry-pick."),
       }),
+      needsApproval: true,
       execute: async ({ branch, hash }) => {
         try {
           return await cherryPickCommit(token, owner, repo, branch, hash);
@@ -340,6 +342,7 @@ export function createGitHubTools(
           .string()
           .describe("The commit hash to revert."),
       }),
+      needsApproval: true,
       execute: async ({ branch, hash }) => {
         try {
           return await revertCommit(token, owner, repo, branch, hash);
@@ -363,6 +366,7 @@ export function createGitHubTools(
           .string()
           .describe("The commit SHA to reset the branch to."),
       }),
+      needsApproval: true,
       execute: async ({ branch, sha }) => {
         try {
           return await resetBranch(token, owner, repo, branch, sha);

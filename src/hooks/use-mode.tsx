@@ -19,12 +19,16 @@ interface ModeContextValue {
   githubRepo: GitHubRepo | null;
   setGitHubRepo: (repo: GitHubRepo | null) => void;
   isGitHubMode: boolean;
+  githubOwner: string | null;
+  githubRepoName: string | null;
 }
 
 const ModeContext = createContext<ModeContextValue>({
   githubRepo: null,
   setGitHubRepo: () => {},
   isGitHubMode: false,
+  githubOwner: null,
+  githubRepoName: null,
 });
 
 export function ModeProvider({ children }: { children: ReactNode }) {
@@ -36,6 +40,8 @@ export function ModeProvider({ children }: { children: ReactNode }) {
         githubRepo,
         setGitHubRepo,
         isGitHubMode: githubRepo !== null,
+        githubOwner: githubRepo?.owner ?? null,
+        githubRepoName: githubRepo?.name ?? null,
       }}
     >
       {children}

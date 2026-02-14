@@ -1,20 +1,8 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-} from "react";
-
-interface RepoContextValue {
-  githubOwner: string | null;
-  githubRepoName: string | null;
-}
-
-export const RepoContext = createContext<RepoContextValue>({
-  githubOwner: null,
-  githubRepoName: null,
-});
+import { useMode } from "@/hooks/use-mode";
 
 export function useRepo() {
-  return useContext(RepoContext);
+  const { githubOwner, githubRepoName } = useMode();
+  return { githubOwner, githubRepoName };
 }
