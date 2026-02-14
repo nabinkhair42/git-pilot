@@ -35,7 +35,7 @@ export function RepoSelector() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col rail-bounded">
       {/* Hero */}
       <section className="relative pt-16">
         <div className="rail-bounded px-4 text-center sm:px-6">

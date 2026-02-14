@@ -14,16 +14,7 @@ import { toast } from "sonner";
 import { useStashList, useGitMutations, useStatus } from "@/hooks/use-git";
 import { formatRelativeDate, formatHash } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { PageLayout } from "@/components/shared/page-layout";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +22,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { StashListSkeleton } from "@/components/loaders/stash-list-skeleton";
-import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
+import { StashSaveDialog } from "@/components/dialog-window/stash-save-dialog";
+import { ConfirmationDialog } from "@/components/dialog-window/confirmation-dialog";
 
 export function StashList() {
   const { data, isLoading, error } = useStashList();
@@ -39,8 +31,6 @@ export function StashList() {
   const mutations = useGitMutations();
 
   const [saveOpen, setSaveOpen] = useState(false);
-  const [stashMessage, setStashMessage] = useState("");
-  const [saveLoading, setSaveLoading] = useState(false);
 
   const [clearConfirm, setClearConfirm] = useState(false);
   const [clearLoading, setClearLoading] = useState(false);
@@ -57,21 +47,13 @@ export function StashList() {
   const stashes = data?.stashes || [];
   const hasUncommitted = status && !status.isClean;
 
-  async function handleSave() {
-    setSaveLoading(true);
-    try {
-      const result = await mutations.stashSave(stashMessage || undefined, true);
-      if (result.success) {
-        toast.success(result.message);
-        setSaveOpen(false);
-        setStashMessage("");
-      } else {
-        toast.error(result.message);
-      }
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to stash");
-    } finally {
-      setSaveLoading(false);
+  async function handleSave(message?: string) {
+    const result = await mutations.stashSave(message, true);
+    if (result.success) {
+      toast.success(result.message);
+    } else {
+      toast.error(result.message);
+      throw new Error(result.message);
     }
   }
 
@@ -137,7 +119,7 @@ export function StashList() {
 
   if (error) {
     return (
-      <div className="rail-bounded flex items-center justify-center py-20">
+      <div className="flex items-center justify-center py-20">
         <p className="text-sm text-destructive">
           Failed to load stashes: {error.message}
         </p>
@@ -184,7 +166,7 @@ export function StashList() {
       <div className="section-divider" aria-hidden="true" />
 
       {/* Stash list */}
-      <div className="rail-bounded">
+      <div>
         {isLoading ? (
           <StashListSkeleton />
         ) : stashes.length === 0 ? (
@@ -278,46 +260,11 @@ export function StashList() {
         )}
       </div>
 
-      {/* Save stash dialog */}
-      <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
-        <DialogContent className="border-border bg-background">
-          <DialogHeader>
-            <DialogTitle>Stash Changes</DialogTitle>
-            <DialogDescription>
-              Save your uncommitted changes and revert the working tree to HEAD.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2 py-2">
-            <label className="text-sm text-muted-foreground">
-              Message (optional)
-            </label>
-            <Input
-              value={stashMessage}
-              onChange={(e) => setStashMessage(e.target.value)}
-              placeholder="WIP: describe your changes"
-              className="text-sm"
-              autoFocus
-              onKeyDown={(e) => e.key === "Enter" && handleSave()}
-            />
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setSaveOpen(false)}
-              className="border-border transition-colors hover:bg-accent"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSave}
-              isLoading={saveLoading}
-              className="bg-foreground text-background transition-opacity hover:opacity-80"
-            >
-              Stash
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <StashSaveDialog
+        open={saveOpen}
+        onOpenChange={setSaveOpen}
+        onSubmit={handleSave}
+      />
 
       {/* Drop confirmation */}
       <ConfirmationDialog

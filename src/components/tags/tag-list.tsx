@@ -18,21 +18,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { TagListSkeleton } from "@/components/loaders/tag-list-skeleton";
-import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
+import { CreateTagDialog } from "@/components/dialog-window/create-tag-dialog";
+import { ConfirmationDialog } from "@/components/dialog-window/confirmation-dialog";
 
 export function TagList() {
   const { mode } = useRepo();
@@ -41,9 +34,6 @@ export function TagList() {
   const mutations = useGitMutations();
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [tagName, setTagName] = useState("");
-  const [tagMessage, setTagMessage] = useState("");
-  const [createLoading, setCreateLoading] = useState(false);
 
   const [search, setSearch] = useState("");
 
@@ -62,26 +52,13 @@ export function TagList() {
       )
     : tags;
 
-  async function handleCreate() {
-    if (!tagName.trim()) return;
-    setCreateLoading(true);
-    try {
-      const result = await mutations.createTag(
-        tagName.trim(),
-        tagMessage.trim() || undefined
-      );
-      if (result.success) {
-        toast.success(result.message);
-        setCreateOpen(false);
-        setTagName("");
-        setTagMessage("");
-      } else {
-        toast.error(result.message);
-      }
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to create tag");
-    } finally {
-      setCreateLoading(false);
+  async function handleCreate(name: string, message?: string) {
+    const result = await mutations.createTag(name, message);
+    if (result.success) {
+      toast.success(result.message);
+    } else {
+      toast.error(result.message);
+      throw new Error(result.message);
     }
   }
 
@@ -104,7 +81,7 @@ export function TagList() {
 
   if (error) {
     return (
-      <div className="rail-bounded flex items-center justify-center py-20">
+      <div className="flex items-center justify-center py-20">
         <p className="text-sm text-destructive">
           Failed to load tags: {error.message}
         </p>
@@ -144,7 +121,7 @@ export function TagList() {
       <div className="section-divider" aria-hidden="true" />
 
       {/* Tag list */}
-      <div className="rail-bounded">
+      <div>
         {isLoading ? (
           <TagListSkeleton />
         ) : filteredTags.length === 0 ? (
@@ -258,59 +235,11 @@ export function TagList() {
         )}
       </div>
 
-      {/* Create tag dialog */}
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="border-border bg-background">
-          <DialogHeader>
-            <DialogTitle>Create New Tag</DialogTitle>
-            <DialogDescription>
-              Create a tag on the current HEAD commit. Add a message to create an
-              annotated tag.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 py-2">
-            <div className="space-y-1.5">
-              <label className="text-sm text-muted-foreground">Tag name</label>
-              <Input
-                value={tagName}
-                onChange={(e) => setTagName(e.target.value)}
-                placeholder="v1.0.0"
-                className="font-mono text-sm"
-                autoFocus
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm text-muted-foreground">
-                Message (optional, creates annotated tag)
-              </label>
-              <Input
-                value={tagMessage}
-                onChange={(e) => setTagMessage(e.target.value)}
-                placeholder="Release version 1.0.0"
-                className="text-sm"
-                onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setCreateOpen(false)}
-              className="border-border transition-colors hover:bg-accent"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreate}
-              disabled={!tagName.trim()}
-              isLoading={createLoading}
-              className="bg-foreground text-background transition-opacity hover:opacity-80"
-            >
-              Create
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CreateTagDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onSubmit={handleCreate}
+      />
 
       {/* Delete confirmation */}
       <ConfirmationDialog

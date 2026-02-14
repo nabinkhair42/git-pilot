@@ -87,7 +87,7 @@ export function CompareView() {
       <div className="section-divider" aria-hidden="true" />
 
       {/* Diff output */}
-      <div className="rail-bounded">
+      <div>
         {!fromHash || !toHash ? (
           <div className="flex items-center justify-center py-20">
             <p className="text-sm text-muted-foreground">

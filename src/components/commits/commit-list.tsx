@@ -1,7 +1,7 @@
 "use client";
 
 import { CommitListSkeleton } from "@/components/loaders/commit-list-skeleton";
-import { ConfirmationDialog } from "@/components/shared/confirmation-dialog";
+import { ConfirmationDialog } from "@/components/dialog-window/confirmation-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,11 +40,18 @@ import {
   Copy,
   MoreHorizontal,
   RotateCcw,
+  Search,
   Undo2,
 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "../ui/input-group";
 
 export function CommitList() {
   const { repoPath, mode, githubOwner, githubRepoName } = useRepo();
@@ -162,7 +169,7 @@ export function CommitList() {
 
   if (error) {
     return (
-      <div className="rail-bounded flex items-center justify-center py-20">
+      <div className="flex items-center justify-center py-20">
         <p className="text-sm text-destructive">
           Failed to load commits: {error.message}
         </p>
@@ -173,23 +180,24 @@ export function CommitList() {
   return (
     <>
       {/* Search and filters */}
-      <div className="rail-bounded px-4 sm:px-6">
-        <div className="flex flex-col gap-2 pb-3 pt-4 sm:flex-row sm:items-center sm:gap-3 sm:pb-4 sm:pt-6">
+      <div className="">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
           <form onSubmit={handleSearch} className="flex flex-1 gap-2">
-            <Input
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search commits..."
-              className="h-9 flex-1 border-border bg-input/20 text-sm placeholder:text-muted-foreground/50 focus:border-primary/40 focus:ring-1 focus:ring-primary/20"
-            />
-            <Button
-              type="submit"
-              variant="outline"
-              size="sm"
-              className="border-border transition-colors hover:bg-accent"
-            >
-              Search
-            </Button>
+            <InputGroup>
+              <InputGroupAddon>
+                <Search />
+              </InputGroupAddon>
+              <InputGroupInput
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Search commits..."
+              />
+              <InputGroupAddon align={"inline-end"}>
+                <InputGroupButton variant={"secondary"}>
+                  Search
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
           </form>
 
           {branchData && (
@@ -219,7 +227,7 @@ export function CommitList() {
       <div className="section-divider" aria-hidden="true" />
 
       {/* Commit list */}
-      <div className="rail-bounded">
+      <div className="">
         {isLoading ? (
           <CommitListSkeleton />
         ) : data?.commits.length === 0 ? (
@@ -366,7 +374,7 @@ export function CommitList() {
       {totalPages > 1 && (
         <>
           <div className="section-divider" aria-hidden="true" />
-          <div className="rail-bounded">
+          <div>
             <div className="flex items-center justify-between px-6 py-4">
               <span className="text-xs text-muted-foreground">
                 Page {page + 1} of {totalPages} ({data?.total} commits)

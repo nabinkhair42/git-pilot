@@ -73,7 +73,7 @@ export function RecentRepos({
   if (repos.length === 0) return null;
 
   return (
-    <div className="rail-bounded border-t">
+    <div className="border-t">
       <div className="px-4 pb-4 pt-8 sm:px-6">
         <p className="font-medium text-muted-foreground">Recent Repositories</p>
       </div>

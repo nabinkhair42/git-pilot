@@ -8,9 +8,7 @@ export default function BranchesPage() {
   return (
     <Suspense
       fallback={
-        <div className="rail-bounded">
           <BranchListSkeleton />
-        </div>
       }
     >
       <BranchList />

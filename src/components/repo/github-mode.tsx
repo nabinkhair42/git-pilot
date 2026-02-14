@@ -160,7 +160,7 @@ function GitHubRepoGrid({ session }: { session: any }) {
   if (!repos || repos.length === 0) return null;
 
   return (
-    <div className="rail-bounded border-t border-border">
+    <div className="border-t border-border">
       <div className="flex items-center justify-between px-4 pb-4 pt-8 sm:px-6 border-b">
         <div className="flex min-w-0 items-center gap-3">
           {session.user.image && (

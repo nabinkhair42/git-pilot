@@ -16,14 +16,12 @@ export function PageLayout({
   children,
 }: PageLayoutProps) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col py-3">
       {/* Pinned header */}
       <div className="rail-bounded px-4 sm:px-6">
         <div
           className={cn(
-            "py-4",
-            actions &&
-              "flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
+            "flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
           )}
         >
           <div>
@@ -37,7 +35,7 @@ export function PageLayout({
         {filters}
       </div>
       {/* Scrollable content */}
-      <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
+      <div className="min-h-0 flex-1 overflow-y-auto rail-bounded px-0!">{children}</div>
     </div>
   );
 }
