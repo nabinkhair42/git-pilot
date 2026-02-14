@@ -15,7 +15,7 @@ import { useStashList, useGitMutations, useStatus } from "@/hooks/use-git";
 import { formatRelativeDate, formatHash } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PageHeader } from "@/components/shared/page-header";
+import { PageLayout } from "@/components/shared/page-layout";
 import {
   Dialog,
   DialogContent,
@@ -146,42 +146,41 @@ export function StashList() {
   }
 
   return (
-    <>
-      <PageHeader
-        label="Working Tree"
-        title="Stashes"
-        actions={
-          <div className="flex gap-2">
-            {stashes.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setClearConfirm(true)}
-                className="border-border text-destructive transition-colors hover:bg-destructive/10"
-              >
-                <Eraser size={14} className="mr-1.5" />
-                Clear All
-              </Button>
-            )}
+    <PageLayout
+      label="Working Tree"
+      title="Stashes"
+      actions={
+        <div className="flex gap-2">
+          {stashes.length > 0 && (
             <Button
+              variant="outline"
               size="sm"
-              onClick={() => setSaveOpen(true)}
-              disabled={!hasUncommitted}
-              className="bg-foreground text-background transition-opacity hover:opacity-80"
+              onClick={() => setClearConfirm(true)}
+              className="border-border text-destructive transition-colors hover:bg-destructive/10"
             >
-              <Plus size={14} className="mr-1.5" />
-              Stash Changes
+              <Eraser size={14} className="mr-1.5" />
+              Clear All
             </Button>
-          </div>
-        }
-      >
-        {!hasUncommitted && (
+          )}
+          <Button
+            size="sm"
+            onClick={() => setSaveOpen(true)}
+            disabled={!hasUncommitted}
+            className="bg-foreground text-background transition-opacity hover:opacity-80"
+          >
+            <Plus size={14} className="mr-1.5" />
+            Stash Changes
+          </Button>
+        </div>
+      }
+      filters={
+        !hasUncommitted ? (
           <p className="pb-4 text-xs text-muted-foreground/60">
             Working tree is clean. Make some changes to stash them.
           </p>
-        )}
-      </PageHeader>
-
+        ) : undefined
+      }
+    >
       <div className="section-divider" aria-hidden="true" />
 
       {/* Stash list */}
@@ -346,6 +345,6 @@ export function StashList() {
         onConfirm={handleClear}
         loading={clearLoading}
       />
-    </>
+    </PageLayout>
   );
 }

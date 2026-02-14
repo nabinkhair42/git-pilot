@@ -10,9 +10,5 @@ export default function CommitDetailPage({
 }) {
   const { hash } = use(params);
 
-  return (
-    <section>
-      <CommitDetail hash={hash} />
-    </section>
-  );
+  return <CommitDetail hash={hash} />;
 }

@@ -27,16 +27,14 @@ function StashSkeleton() {
 
 export default function StashPage() {
   return (
-    <section>
-      <Suspense
-        fallback={
-          <div className="rail-bounded border-t border-border">
-            <StashSkeleton />
-          </div>
-        }
-      >
-        <StashList />
-      </Suspense>
-    </section>
+    <Suspense
+      fallback={
+        <div className="rail-bounded border-t border-border">
+          <StashSkeleton />
+        </div>
+      }
+    >
+      <StashList />
+    </Suspense>
   );
 }

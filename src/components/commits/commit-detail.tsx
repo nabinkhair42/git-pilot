@@ -36,8 +36,8 @@ export function CommitDetail({ hash }: CommitDetailProps) {
   }
 
   return (
-    <>
-      {/* Header */}
+    <div className="flex min-h-0 flex-1 flex-col">
+      {/* Pinned header */}
       <div className="rail-bounded px-4 sm:px-6">
         <div className="py-4">
           <Button
@@ -92,10 +92,12 @@ export function CommitDetail({ hash }: CommitDetailProps) {
         </div>
       </div>
 
-      <div className="section-divider" aria-hidden="true" />
+      {/* Scrollable content */}
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="section-divider" aria-hidden="true" />
 
-      {/* File list */}
-      <div className="rail-bounded border-t border-border">
+        {/* File list */}
+        <div className="rail-bounded border-t border-border">
         <div className="px-6 pb-3 pt-6">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Changed Files
@@ -142,6 +144,7 @@ export function CommitDetail({ hash }: CommitDetailProps) {
           <DiffViewer diff={commit.diff} />
         </div>
       </div>
-    </>
+      </div>
+    </div>
   );
 }

@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useGitMutations } from "@/hooks/use-git";
 import { useRepo } from "@/hooks/use-repo";
 import { useUnifiedTags } from "@/hooks/use-unified";
-import { PageHeader } from "@/components/shared/page-header";
+import { PageLayout } from "@/components/shared/page-layout";
 import { formatRelativeDate, formatHash } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -113,24 +113,23 @@ export function TagList() {
   }
 
   return (
-    <>
-      <PageHeader
-        label="Releases"
-        title="Tags"
-        actions={
-          !isGitHub ? (
-            <Button
-              size="sm"
-              onClick={() => setCreateOpen(true)}
-              className="bg-foreground text-background transition-opacity hover:opacity-80"
-            >
-              <Plus size={14} className="mr-1.5" />
-              New Tag
-            </Button>
-          ) : undefined
-        }
-      >
-        {tags.length > 5 && (
+    <PageLayout
+      label="Releases"
+      title="Tags"
+      actions={
+        !isGitHub ? (
+          <Button
+            size="sm"
+            onClick={() => setCreateOpen(true)}
+            className="bg-foreground text-background transition-opacity hover:opacity-80"
+          >
+            <Plus size={14} className="mr-1.5" />
+            New Tag
+          </Button>
+        ) : undefined
+      }
+      filters={
+        tags.length > 5 ? (
           <div className="pb-4">
             <Input
               value={search}
@@ -139,9 +138,9 @@ export function TagList() {
               className="h-9 max-w-xs border-border bg-input/20 text-sm placeholder:text-muted-foreground/50 focus:border-primary/40 focus:ring-1 focus:ring-primary/20"
             />
           </div>
-        )}
-      </PageHeader>
-
+        ) : undefined
+      }
+    >
       <div className="section-divider" aria-hidden="true" />
 
       {/* Tag list */}
@@ -326,6 +325,6 @@ export function TagList() {
         onConfirm={handleDelete}
         loading={deleteLoading}
       />
-    </>
+    </PageLayout>
   );
 }

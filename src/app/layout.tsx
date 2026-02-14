@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { SiteFooter } from "@/components/shared/site-footer";
+import type { Metadata } from "next";
+import { IBM_Plex_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -20,7 +21,8 @@ const siteUrl = "https://git.nabinkhair.com.np";
 
 export const metadata: Metadata = {
   title: {
-    default: "Git Commit Manager — Visual Git Client for Commits, Branches & Diffs",
+    default:
+      "Git Commit Manager — Visual Git Client for Commits, Branches & Diffs",
     template: "%s | Git Commit Manager",
   },
   description:
@@ -91,7 +93,10 @@ export default function RootLayout({
       <body
         className={`${plusJakarta.variable} ${ibmPlexMono.variable} font-sans antialiased`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <SiteFooter />
+        </Providers>
       </body>
     </html>
   );

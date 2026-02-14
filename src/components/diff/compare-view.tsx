@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { DiffSkeleton } from "@/components/loaders/diff-skeleton";
 import { DiffViewer } from "@/components/diff/diff-viewer";
-import { PageHeader } from "@/components/shared/page-header";
+import { PageLayout } from "@/components/shared/page-layout";
 
 export function CompareView() {
   const [fromHash, setFromHash] = useState<string | null>(null);
@@ -27,8 +27,10 @@ export function CompareView() {
   const commits = commitData?.commits || [];
 
   return (
-    <>
-      <PageHeader label="Diff" title="Compare Commits">
+    <PageLayout
+      label="Diff"
+      title="Compare Commits"
+      filters={
         <div className="flex flex-col gap-3 pb-6 sm:flex-row sm:items-end">
           <div className="flex-1 space-y-1.5">
             <label className="text-sm text-muted-foreground">From (older)</label>
@@ -80,8 +82,8 @@ export function CompareView() {
             </SelectContent>
           </Select>
         </div>
-      </PageHeader>
-
+      }
+    >
       <div className="section-divider" aria-hidden="true" />
 
       {/* Diff output */}
@@ -100,6 +102,6 @@ export function CompareView() {
           </div>
         ) : null}
       </div>
-    </>
+    </PageLayout>
   );
 }

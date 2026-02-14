@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { useGitMutations } from "@/hooks/use-git";
 import { useRepo } from "@/hooks/use-repo";
 import { useUnifiedBranches } from "@/hooks/use-unified";
-import { PageHeader } from "@/components/shared/page-header";
+import { PageLayout } from "@/components/shared/page-layout";
 import { formatHash } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -164,37 +164,36 @@ export function BranchList() {
   }
 
   return (
-    <>
-      <PageHeader
-        label="Management"
-        title="Branches"
-        actions={
-          <div className="flex flex-wrap gap-2">
-            {!isGitHub && (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setMergeOpen(true)}
-                  className="border-border transition-colors hover:bg-accent"
-                >
-                  <GitMerge size={14} className="mr-1.5" />
-                  Merge
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => setCreateOpen(true)}
-                  className="bg-foreground text-background transition-opacity hover:opacity-80"
-                >
-                  <Plus size={14} className="mr-1.5" />
-                  New Branch
-                </Button>
-              </>
-            )}
-          </div>
-        }
-      >
-        {allBranches.length > 5 && (
+    <PageLayout
+      label="Management"
+      title="Branches"
+      actions={
+        <div className="flex flex-wrap gap-2">
+          {!isGitHub && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setMergeOpen(true)}
+                className="border-border transition-colors hover:bg-accent"
+              >
+                <GitMerge size={14} className="mr-1.5" />
+                Merge
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => setCreateOpen(true)}
+                className="bg-foreground text-background transition-opacity hover:opacity-80"
+              >
+                <Plus size={14} className="mr-1.5" />
+                New Branch
+              </Button>
+            </>
+          )}
+        </div>
+      }
+      filters={
+        allBranches.length > 5 ? (
           <div className="pb-4">
             <Input
               value={search}
@@ -203,9 +202,9 @@ export function BranchList() {
               className="h-9 w-full border-border bg-input/20 text-sm placeholder:text-muted-foreground/50 focus:border-primary/40 focus:ring-1 focus:ring-primary/20 sm:max-w-xs"
             />
           </div>
-        )}
-      </PageHeader>
-
+        ) : undefined
+      }
+    >
       <div className="section-divider" aria-hidden="true" />
 
       {/* Branch list */}
@@ -515,6 +514,6 @@ export function BranchList() {
         onConfirm={handleDelete}
         loading={deleteLoading}
       />
-    </>
+    </PageLayout>
   );
 }

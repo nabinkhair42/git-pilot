@@ -27,16 +27,14 @@ function TagsSkeleton() {
 
 export default function TagsPage() {
   return (
-    <section>
-      <Suspense
-        fallback={
-          <div className="rail-bounded border-t border-border">
-            <TagsSkeleton />
-          </div>
-        }
-      >
-        <TagList />
-      </Suspense>
-    </section>
+    <Suspense
+      fallback={
+        <div className="rail-bounded border-t border-border">
+          <TagsSkeleton />
+        </div>
+      }
+    >
+      <TagList />
+    </Suspense>
   );
 }

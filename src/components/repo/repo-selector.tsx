@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { FolderGit2, X, ArrowRight, LogOut } from "lucide-react";
-import { toast } from "sonner";
+import { GitHubRepoPicker } from "@/components/github/repo-picker";
+import { PathInput } from "@/components/repo/path-input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRecentRepos } from "@/hooks/use-recent-repos";
-import { validateRepo } from "@/services/frontend/git.services";
-import { PathInput } from "@/components/repo/path-input";
-import { GitHubRepoPicker } from "@/components/github/repo-picker";
 import { useMode, type AppMode } from "@/hooks/use-mode";
+import { useRecentRepos } from "@/hooks/use-recent-repos";
 import { signIn, signOut, useSession } from "@/lib/auth-client";
+import { validateRepo } from "@/services/frontend/git.services";
+import { ArrowRight, FolderGit2, LogOut, X } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { GitHub } from "../icons/github";
 
 const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === "production";
@@ -33,9 +33,9 @@ export function RepoSelector() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="page-rails flex min-h-screen flex-col">
+    <div className="page-rails flex flex-col min-h-">
       {/* Hero */}
-      <section className="relative pt-16 sm:pt-24 lg:pt-32">
+      <section className="relative pt-16">
         <div className="mx-auto w-full max-w-6xl px-4 text-center sm:px-6">
           <div className="pb-8">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-4 py-1.5">
@@ -61,9 +61,9 @@ export function RepoSelector() {
               <button
                 type="button"
                 onClick={() => setMode("local")}
-                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-xs font-medium transition-all sm:gap-2 sm:px-4 sm:text-sm ${
+                className={`flex flex-1 items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all sm:gap-2 sm:text-sm ${
                   mode === "local"
-                    ? "bg-background text-foreground shadow-sm"
+                    ? "bg-background text-foreground  border"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -73,9 +73,9 @@ export function RepoSelector() {
               <button
                 type="button"
                 onClick={() => setMode("github")}
-                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-2 text-xs font-medium transition-all sm:gap-2 sm:px-4 sm:text-sm ${
+                className={`flex flex-1 items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all sm:gap-2 sm:text-sm ${
                   mode === "github"
-                    ? "bg-background text-foreground shadow-sm"
+                    ? "bg-background text-foreground  border"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -109,7 +109,7 @@ function LocalModeContent() {
   const [path, setPath] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { repos, addRepo, removeRepo } = useRecentRepos();
+  const { addRepo } = useRecentRepos();
 
   async function openRepo(repoPath: string) {
     if (!repoPath.trim()) return;

@@ -20,20 +20,17 @@ function RepoLayoutInner({ children }: { children: React.ReactNode }) {
     <RepoContext.Provider
       value={{ repoPath, mode, githubOwner, githubRepoName }}
     >
-      <div className="flex h-screen">
+      <div className="flex h-screen overflow-clip">
         {/* Content column: header + scrollable main */}
         <div className="flex min-w-0 flex-1 flex-col">
           <RepoHeader />
           <main className="flex min-h-0 flex-1 flex-col">
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <div className="page-rails flex min-h-full flex-col">
-                {children}
-              </div>
+            <div className="page-rails flex min-h-0 flex-1 flex-col">
+              {children}
             </div>
             <SiteFooter />
           </main>
         </div>
-        {/* Chat sidebar: full viewport height */}
         <ChatSidebar />
       </div>
     </RepoContext.Provider>
