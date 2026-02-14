@@ -74,13 +74,13 @@ export function RecentRepos({
   if (repos.length === 0) return null;
 
   return (
-    <div className="rail-bounded border-t border-border">
+    <div className="rail-bounded">
       <div className="px-4 pb-4 pt-8 sm:px-6">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        <p className="font-medium text-muted-foreground">
           Recent Repositories
         </p>
       </div>
-      <div className="grid gap-0 sm:grid-cols-2">
+      <div className="grid gap-0 sm:grid-cols-2 border-y border-border">
         {repos.map((repo, i) => (
           <div
             key={repo}
@@ -135,7 +135,7 @@ export function LocalModeBottom() {
 
   return (
     <>
-      <div className="section-divider mt-16" aria-hidden="true" />
+      <div className="mt-16" aria-hidden="true" />
       <RecentRepos repos={repos} openRepo={openRepo} removeRepo={removeRepo} />
     </>
   );

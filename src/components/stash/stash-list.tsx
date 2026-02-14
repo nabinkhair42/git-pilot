@@ -184,7 +184,7 @@ export function StashList() {
       <div className="section-divider" aria-hidden="true" />
 
       {/* Stash list */}
-      <div className="rail-bounded border-t border-border">
+      <div className="rail-bounded">
         {isLoading ? (
           <StashListSkeleton />
         ) : stashes.length === 0 ? (

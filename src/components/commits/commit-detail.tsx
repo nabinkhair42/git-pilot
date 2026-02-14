@@ -97,7 +97,7 @@ export function CommitDetail({ hash }: CommitDetailProps) {
         <div className="section-divider" aria-hidden="true" />
 
         {/* File list */}
-        <div className="rail-bounded border-t border-border">
+        <div className="rail-bounded">
         <div className="px-6 pb-3 pt-6">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Changed Files
@@ -134,7 +134,7 @@ export function CommitDetail({ hash }: CommitDetailProps) {
       <div className="section-divider" aria-hidden="true" />
 
       {/* Diff */}
-      <div className="rail-bounded border-t border-border">
+      <div className="rail-bounded">
         <div className="px-6 pb-3 pt-6">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Diff

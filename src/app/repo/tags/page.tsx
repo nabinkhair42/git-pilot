@@ -29,7 +29,7 @@ export default function TagsPage() {
   return (
     <Suspense
       fallback={
-        <div className="rail-bounded border-t border-border">
+        <div className="rail-bounded">
           <TagsSkeleton />
         </div>
       }

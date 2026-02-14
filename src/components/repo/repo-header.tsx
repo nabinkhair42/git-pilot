@@ -19,7 +19,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GitManagerAppIcon } from "../icons/git-manager";
+import { GitManagerAppIcon } from "@/components/icons/git-manager";
+import { Kbd } from "@/components/ui/kbd";
 
 const localNavItems = [
   {
@@ -92,39 +93,27 @@ export function RepoHeader() {
             href={isGitHub ? "/?mode=github" : "/"}
             className="flex min-w-0 items-center gap-2 text-foreground transition-colors hover:text-foreground/80"
           >
-            <GitManagerAppIcon className="size-4 shrink-0 sm:size-5" />
             <span className="max-w-30 truncate text-sm font-semibold tracking-tight sm:max-w-50 sm:text-base md:max-w-none">
               {displayName}
             </span>
           </Link>
 
           {isGitHub && (
-            <Badge
-              variant="outline"
-              className="hidden gap-1.5 border-git-info/30 text-[10px] text-git-info sm:flex"
-            >
-              GitHub
-            </Badge>
+            <Kbd className="border-git-info/30 text-git-info">GitHub</Kbd>
           )}
 
           {!isGitHub && repoInfo && (
-            <Badge
-              variant="secondary"
-              className="hidden gap-1.5 font-mono text-xs sm:flex"
-            >
+            <Kbd className="hidden gap-1.5 font-mono text-xs sm:flex">
               <GitBranch size={12} />
               {repoInfo.currentBranch}
-            </Badge>
+            </Kbd>
           )}
 
           {!isGitHub && status && !status.isClean && (
-            <Badge
-              variant="outline"
-              className="hidden gap-1.5 border-git-warning/30 text-git-warning sm:flex"
-            >
+            <Kbd className="hidden gap-1.5 border-git-warning/30 text-git-warning sm:flex">
               <CircleDot size={10} />
               Uncommitted
-            </Badge>
+            </Kbd>
           )}
         </div>
 
@@ -132,27 +121,18 @@ export function RepoHeader() {
           {navItems.map((item) => {
             const active = isActive(item.href);
             return (
-              <Tooltip key={item.href}>
-                <TooltipTrigger asChild>
-                  <Link
-                    href={buildHref(item.href)}
-                    className={`flex items-center gap-1.5 rounded-lg px-2 py-1.5 transition-colors sm:px-3 ${
-                      active
-                        ? "bg-accent text-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <item.icon className="size-3.5 sm:size-4" />
-                    <span className="hidden sm:inline">{item.label}</span>
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="text-xs">
-                  {item.label}
-                  <kbd className="ml-2 rounded border border-border bg-muted px-1 py-0.5 font-mono text-[10px]">
-                    {item.shortcut}
-                  </kbd>
-                </TooltipContent>
-              </Tooltip>
+              <Link
+                href={buildHref(item.href)}
+                className={`flex items-center gap-1.5 rounded-lg px-2 py-1.5 transition-colors sm:px-3 ${
+                  active
+                    ? "bg-accent text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <item.icon className="size-3.5 sm:size-4" />
+                <span className="hidden sm:inline">{item.label}</span>
+                <Kbd className="hidden sm:inline-flex">{item.shortcut}</Kbd>
+              </Link>
             );
           })}
         </nav>

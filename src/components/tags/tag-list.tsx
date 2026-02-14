@@ -144,7 +144,7 @@ export function TagList() {
       <div className="section-divider" aria-hidden="true" />
 
       {/* Tag list */}
-      <div className="rail-bounded border-t border-border">
+      <div className="rail-bounded">
         {isLoading ? (
           <TagListSkeleton />
         ) : filteredTags.length === 0 ? (

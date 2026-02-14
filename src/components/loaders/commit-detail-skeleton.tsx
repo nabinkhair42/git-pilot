@@ -36,7 +36,7 @@ export function CommitDetailSkeleton() {
       <div className="section-divider" aria-hidden="true" />
 
       {/* Changed files */}
-      <div className="rail-bounded border-t border-border">
+      <div className="rail-bounded">
         <div className="px-6 pb-3 pt-6">
           <Skeleton className="h-3 w-24" />
         </div>
@@ -58,7 +58,7 @@ export function CommitDetailSkeleton() {
       <div className="section-divider" aria-hidden="true" />
 
       {/* Diff area */}
-      <div className="rail-bounded border-t border-border">
+      <div className="rail-bounded">
         <div className="px-6 pb-3 pt-6">
           <Skeleton className="h-3 w-8" />
         </div>

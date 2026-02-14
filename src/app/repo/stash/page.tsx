@@ -29,7 +29,7 @@ export default function StashPage() {
   return (
     <Suspense
       fallback={
-        <div className="rail-bounded border-t border-border">
+        <div className="rail-bounded">
           <StashSkeleton />
         </div>
       }

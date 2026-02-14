@@ -5,7 +5,10 @@ import { useSession } from "@/lib/auth-client";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { ModeSwitcher } from "@/components/shared/mode-switcher";
-import { GitHubModeContent } from "@/components/repo/github-mode";
+import {
+  GitHubModeBottom,
+  GitHubModeContent,
+} from "@/components/repo/github-mode";
 import {
   LocalModeBottom,
   LocalModeContent,
@@ -81,6 +84,9 @@ export function RepoSelector() {
 
       {/* Section divider + Recent repos — outside max-w container so divider aligns with rails */}
       {mode === "local" && <LocalModeBottom />}
+      {mode === "github" && (
+        <GitHubModeBottom session={session} sessionLoading={sessionLoading} />
+      )}
     </div>
   );
 }

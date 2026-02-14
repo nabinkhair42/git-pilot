@@ -208,7 +208,7 @@ export function BranchList() {
       <div className="section-divider" aria-hidden="true" />
 
       {/* Branch list */}
-      <div className="rail-bounded border-t border-border">
+      <div className="rail-bounded">
         {isLoading ? (
           <BranchListSkeleton />
         ) : branches.length === 0 ? (

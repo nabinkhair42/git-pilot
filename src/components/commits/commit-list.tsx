@@ -219,7 +219,7 @@ export function CommitList() {
       <div className="section-divider" aria-hidden="true" />
 
       {/* Commit list */}
-      <div className="rail-bounded border-t border-border">
+      <div className="rail-bounded">
         {isLoading ? (
           <CommitListSkeleton />
         ) : data?.commits.length === 0 ? (
@@ -366,7 +366,7 @@ export function CommitList() {
       {totalPages > 1 && (
         <>
           <div className="section-divider" aria-hidden="true" />
-          <div className="rail-bounded border-t border-border">
+          <div className="rail-bounded">
             <div className="flex items-center justify-between px-6 py-4">
               <span className="text-xs text-muted-foreground">
                 Page {page + 1} of {totalPages} ({data?.total} commits)

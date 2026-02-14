@@ -10,7 +10,7 @@ export default function CommitsPage() {
     <PageLayout label="History" title="Commits">
       <Suspense
         fallback={
-          <div className="rail-bounded border-t border-border">
+          <div className="rail-bounded">
             <CommitListSkeleton />
           </div>
         }
