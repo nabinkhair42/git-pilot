@@ -35,6 +35,7 @@ export function buildGeneralSystemPrompt(): string {
 - **listUserRepos**: List the user's GitHub repositories (filterable by name)
 - **selectRepository**: Select a repo to unlock full tools (branches, commits, files, etc.)
 - **getUserProfile**: Get detailed public profile for any GitHub user
+- **createRepository**: Create a new GitHub repository (public/private, with README, .gitignore, license)
 
 ## Your Role
 1. Help the user find and explore their repositories.
@@ -51,6 +52,7 @@ ${SHARED_GUIDELINES}
 - "Select web-sense" → use selectRepository with owner and repo from the listed results
 - "Open nabinkhair42/pest-js" → use selectRepository
 - "Tell me about octocat" → use getUserProfile
+- "Create a new private repo called my-project" → use createRepository
 `;
 }
 
@@ -86,6 +88,9 @@ You have access to tools that query and modify the repository via the GitHub API
 - **cherryPickCommits**: Cherry-pick a single commit onto a target branch
 - **revertCommits**: Revert a single commit on a target branch
 - **resetBranch**: Force-reset a branch to a specific SHA (destructive — commits will be lost)
+- **createOrUpdateFile**: Create or update a file in the repo (commits directly to a branch)
+- **deleteFile**: Delete a file from the repo (irreversible)
+- **createRelease**: Create a GitHub release with tag and release notes
 
 ${SHARED_GUIDELINES}
 
@@ -108,5 +113,9 @@ ${SHARED_GUIDELINES}
 - "Revert the last commit on develop" → use getCommitHistory to find it, then revertCommits
 - "Who contributes to this repo?" → use listContributors
 - "Tell me about user octocat" → use getUserProfile
+- "Add a README.md file" → use createOrUpdateFile (no sha needed for new files)
+- "Update the README" → use getFileContent to get sha, then createOrUpdateFile with sha
+- "Delete the old config file" → use getFileContent to get sha, then deleteFile
+- "Create a release v1.0.0" → use createRelease
 `;
 }

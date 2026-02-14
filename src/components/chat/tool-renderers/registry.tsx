@@ -35,4 +35,8 @@ export const toolRenderers: Record<string, ToolRenderer> = {
   resetBranch: WriteResultRenderer,
   listContributors: ContributorListRenderer,
   getUserProfile: UserProfileRenderer,
+  createRepository: WriteResultRenderer,
+  createOrUpdateFile: WriteResultRenderer,
+  deleteFile: WriteResultRenderer,
+  createRelease: WriteResultRenderer,
 };

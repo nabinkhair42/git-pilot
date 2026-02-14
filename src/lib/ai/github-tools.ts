@@ -18,6 +18,10 @@ import {
   resetBranch,
   getContributors,
   getUserProfile,
+  createRepository,
+  createOrUpdateFile,
+  deleteFile,
+  createRelease,
 } from "@/lib/github/client";
 
 /**
@@ -421,6 +425,115 @@ export function createGitHubTools(
         }
       },
     }),
+
+    createOrUpdateFile: tool({
+      description:
+        "Create or update a file in the repository. Commits directly to a branch. For updating an existing file, the sha parameter is required — get it from getFileContent first.",
+      inputSchema: z.object({
+        path: z
+          .string()
+          .describe("File path relative to repo root (e.g. 'src/index.ts')."),
+        content: z
+          .string()
+          .describe("File content (plain text)."),
+        message: z
+          .string()
+          .describe("Commit message for this change."),
+        branch: z
+          .string()
+          .optional()
+          .describe("Branch to commit to. Defaults to the default branch."),
+        sha: z
+          .string()
+          .optional()
+          .describe("Required for updating existing files. Get from getFileContent."),
+      }),
+      needsApproval: true,
+      execute: async ({ path, content, message, branch, sha }) => {
+        try {
+          return await createOrUpdateFile(token, owner, repo, path, content, message, { branch, sha });
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to create/update file: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    deleteFile: tool({
+      description:
+        "Delete a file from the repository. This is irreversible. The sha parameter is required — get it from getFileContent first.",
+      inputSchema: z.object({
+        path: z
+          .string()
+          .describe("File path to delete (relative to repo root)."),
+        message: z
+          .string()
+          .describe("Commit message for the deletion."),
+        sha: z
+          .string()
+          .describe("File SHA (required). Get from getFileContent."),
+        branch: z
+          .string()
+          .optional()
+          .describe("Branch to commit to. Defaults to the default branch."),
+      }),
+      needsApproval: true,
+      execute: async ({ path, message, sha, branch }) => {
+        try {
+          return await deleteFile(token, owner, repo, path, message, sha, { branch });
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to delete file: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    createRelease: tool({
+      description:
+        "Create a GitHub release with a tag and optional release notes. Use this when the user wants to publish a new version or release.",
+      inputSchema: z.object({
+        tagName: z
+          .string()
+          .describe("Tag name, e.g. 'v1.0.0'."),
+        name: z
+          .string()
+          .optional()
+          .describe("Release title."),
+        body: z
+          .string()
+          .optional()
+          .describe("Release notes (markdown)."),
+        draft: z
+          .boolean()
+          .optional()
+          .default(false)
+          .describe("Create as draft release."),
+        prerelease: z
+          .boolean()
+          .optional()
+          .default(false)
+          .describe("Mark as pre-release."),
+        targetBranch: z
+          .string()
+          .optional()
+          .describe("Branch to tag. Defaults to the default branch."),
+      }),
+      needsApproval: true,
+      execute: async ({ tagName, name, body, draft, prerelease, targetBranch }) => {
+        try {
+          return await createRelease(token, owner, repo, tagName, { name, body, draft, prerelease, targetBranch });
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to create release: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
   };
 }
 
@@ -504,6 +617,49 @@ export function createGeneralTools(token: string) {
         } catch (error) {
           return {
             error: `Failed to fetch profile for "${username}": ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    createRepository: tool({
+      description:
+        "Create a new GitHub repository for the authenticated user. Can set visibility, initialize with README, add .gitignore, and choose a license.",
+      inputSchema: z.object({
+        name: z
+          .string()
+          .describe("Repository name."),
+        description: z
+          .string()
+          .optional()
+          .describe("Repository description."),
+        isPrivate: z
+          .boolean()
+          .optional()
+          .default(false)
+          .describe("Whether the repository should be private."),
+        autoInit: z
+          .boolean()
+          .optional()
+          .default(true)
+          .describe("Initialize with a README."),
+        gitignoreTemplate: z
+          .string()
+          .optional()
+          .describe("Gitignore template name, e.g. 'Node', 'Python'."),
+        license: z
+          .string()
+          .optional()
+          .describe("License template, e.g. 'mit', 'apache-2.0'."),
+      }),
+      needsApproval: true,
+      execute: async ({ name, description, isPrivate, autoInit, gitignoreTemplate, license }) => {
+        try {
+          return await createRepository(token, name, { description, isPrivate, autoInit, gitignoreTemplate, license });
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to create repository: ${error instanceof Error ? error.message : "Unknown error"}`,
           };
         }
       },

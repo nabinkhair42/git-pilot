@@ -464,6 +464,141 @@ export async function getUserProfile(token: string, username: string) {
   };
 }
 
+// ─── Repository Management ──────────────────────────────────────────────────
+
+export async function createRepository(
+  token: string,
+  name: string,
+  options: {
+    description?: string;
+    isPrivate?: boolean;
+    autoInit?: boolean;
+    gitignoreTemplate?: string;
+    license?: string;
+  } = {}
+) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.repos.createForAuthenticatedUser({
+    name,
+    description: options.description,
+    private: options.isPrivate ?? false,
+    auto_init: options.autoInit ?? true,
+    gitignore_template: options.gitignoreTemplate,
+    license_template: options.license,
+  });
+
+  return {
+    success: true,
+    message: `Repository "${data.full_name}" created successfully`,
+    owner: data.owner.login,
+    name: data.name,
+    fullName: data.full_name,
+    url: data.html_url,
+    defaultBranch: data.default_branch,
+    isPrivate: data.private,
+  };
+}
+
+// ─── File Management ────────────────────────────────────────────────────────
+
+export async function createOrUpdateFile(
+  token: string,
+  owner: string,
+  repo: string,
+  path: string,
+  content: string,
+  message: string,
+  options: { branch?: string; sha?: string } = {}
+) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.repos.createOrUpdateFileContents({
+    owner,
+    repo,
+    path,
+    message,
+    content: Buffer.from(content).toString("base64"),
+    branch: options.branch,
+    sha: options.sha,
+  });
+
+  return {
+    success: true,
+    message: options.sha
+      ? `File "${path}" updated successfully`
+      : `File "${path}" created successfully`,
+    path,
+    sha: data.content?.sha ?? "",
+    commitSha: data.commit.sha ?? "",
+    commitUrl: data.commit.html_url ?? "",
+  };
+}
+
+export async function deleteFile(
+  token: string,
+  owner: string,
+  repo: string,
+  path: string,
+  message: string,
+  sha: string,
+  options: { branch?: string } = {}
+) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.repos.deleteFile({
+    owner,
+    repo,
+    path,
+    message,
+    sha,
+    branch: options.branch,
+  });
+
+  return {
+    success: true,
+    message: `File "${path}" deleted successfully`,
+    path,
+    commitSha: data.commit.sha ?? "",
+  };
+}
+
+// ─── Releases ───────────────────────────────────────────────────────────────
+
+export async function createRelease(
+  token: string,
+  owner: string,
+  repo: string,
+  tagName: string,
+  options: {
+    name?: string;
+    body?: string;
+    draft?: boolean;
+    prerelease?: boolean;
+    targetBranch?: string;
+  } = {}
+) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.repos.createRelease({
+    owner,
+    repo,
+    tag_name: tagName,
+    name: options.name,
+    body: options.body,
+    draft: options.draft ?? false,
+    prerelease: options.prerelease ?? false,
+    target_commitish: options.targetBranch,
+  });
+
+  return {
+    success: true,
+    message: `Release "${tagName}" created successfully`,
+    tagName: data.tag_name,
+    name: data.name ?? "",
+    url: data.html_url,
+    id: data.id,
+    draft: data.draft,
+    prerelease: data.prerelease,
+  };
+}
+
 // ─── Diff ───────────────────────────────────────────────────────────────────
 
 export async function getCompare(

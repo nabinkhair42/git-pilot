@@ -44,6 +44,10 @@ const TOOL_LABELS: Record<string, string> = {
   resetBranch: "Reset Branch",
   listContributors: "Contributors",
   getUserProfile: "User Profile",
+  createRepository: "Create Repository",
+  createOrUpdateFile: "Create/Update File",
+  deleteFile: "Delete File",
+  createRelease: "Create Release",
 };
 
 interface ChatMessagesProps {

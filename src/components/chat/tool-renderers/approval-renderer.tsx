@@ -6,6 +6,10 @@ const LABELS: Record<string, string> = {
   cherryPickCommits: "Cherry Pick Commit",
   revertCommits: "Revert Commit",
   resetBranch: "Reset Branch",
+  createRepository: "Create Repository",
+  createOrUpdateFile: "Create/Update File",
+  deleteFile: "Delete File",
+  createRelease: "Create Release",
 };
 
 const DESCRIPTIONS: Record<string, (input: Record<string, unknown>) => string> = {
@@ -17,6 +21,14 @@ const DESCRIPTIONS: Record<string, (input: Record<string, unknown>) => string> =
     `This will revert commit ${String(input.hash).slice(0, 7)} on "${input.branch}", creating a new undo commit.`,
   resetBranch: (input) =>
     `This will force-reset "${input.branch}" to commit ${String(input.sha).slice(0, 7)}. All commits after this point will be lost.`,
+  createRepository: (input) =>
+    `This will create a new ${input.isPrivate ? "private" : "public"} repository "${input.name}".`,
+  createOrUpdateFile: (input) =>
+    `This will ${input.sha ? "update" : "create"} "${input.path}" and commit to ${input.branch || "the default branch"}.`,
+  deleteFile: (input) =>
+    `This will permanently delete "${input.path}" from ${input.branch || "the default branch"}.`,
+  createRelease: (input) =>
+    `This will create release "${input.tagName}"${input.name ? ` (${input.name})` : ""} on this repository.`,
 };
 
 interface ApprovalRendererProps {
