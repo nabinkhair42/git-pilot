@@ -499,6 +499,15 @@ export async function createRepository(
   };
 }
 
+export async function deleteRepository(token: string, owner: string, repo: string) {
+  const octokit = createGitHubClient(token);
+  await octokit.rest.repos.delete({ owner, repo });
+  return {
+    success: true,
+    message: `Repository "${owner}/${repo}" has been permanently deleted`,
+  };
+}
+
 // ─── File Management ────────────────────────────────────────────────────────
 
 export async function createOrUpdateFile(

@@ -36,6 +36,7 @@ export const toolRenderers: Record<string, ToolRenderer> = {
   listContributors: ContributorListRenderer,
   getUserProfile: UserProfileRenderer,
   createRepository: WriteResultRenderer,
+  deleteRepository: WriteResultRenderer,
   createOrUpdateFile: WriteResultRenderer,
   deleteFile: WriteResultRenderer,
   createRelease: WriteResultRenderer,

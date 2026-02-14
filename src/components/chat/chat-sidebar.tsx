@@ -28,7 +28,7 @@ export function ChatSidebar() {
     [githubOwner, githubRepoName],
   );
 
-  const { messages, sendMessage, status, stop, setMessages } = useChat({
+  const { messages, sendMessage, status, stop, setMessages, addToolApprovalResponse } = useChat({
     id: "repo-chat",
     transport,
   });
@@ -144,6 +144,7 @@ export function ChatSidebar() {
               messages={messages}
               status={status}
               onSuggestionClick={handleSuggestionClick}
+              addToolApprovalResponse={addToolApprovalResponse}
             />
           )}
         </div>

@@ -36,6 +36,7 @@ export function buildGeneralSystemPrompt(): string {
 - **selectRepository**: Select a repo to unlock full tools (branches, commits, files, etc.)
 - **getUserProfile**: Get detailed public profile for any GitHub user
 - **createRepository**: Create a new GitHub repository (public/private, with README, .gitignore, license)
+- **deleteRepository**: Permanently delete a GitHub repository (irreversible)
 
 ## Your Role
 1. Help the user find and explore their repositories.
@@ -53,6 +54,7 @@ ${SHARED_GUIDELINES}
 - "Open nabinkhair42/pest-js" → use selectRepository
 - "Tell me about octocat" → use getUserProfile
 - "Create a new private repo called my-project" → use createRepository
+- "Delete my old test-repo" → use deleteRepository (warn user first)
 `;
 }
 
@@ -91,6 +93,7 @@ You have access to tools that query and modify the repository via the GitHub API
 - **createOrUpdateFile**: Create or update a file in the repo (commits directly to a branch)
 - **deleteFile**: Delete a file from the repo (irreversible)
 - **createRelease**: Create a GitHub release with tag and release notes
+- **deleteRepository**: Permanently delete a GitHub repository (irreversible)
 
 ${SHARED_GUIDELINES}
 
@@ -117,5 +120,6 @@ ${SHARED_GUIDELINES}
 - "Update the README" → use getFileContent to get sha, then createOrUpdateFile with sha
 - "Delete the old config file" → use getFileContent to get sha, then deleteFile
 - "Create a release v1.0.0" → use createRelease
+- "Delete this repository" → use deleteRepository (warn user first, this is permanent)
 `;
 }

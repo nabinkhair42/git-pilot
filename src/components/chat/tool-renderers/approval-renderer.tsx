@@ -7,6 +7,7 @@ const LABELS: Record<string, string> = {
   revertCommits: "Revert Commit",
   resetBranch: "Reset Branch",
   createRepository: "Create Repository",
+  deleteRepository: "Delete Repository",
   createOrUpdateFile: "Create/Update File",
   deleteFile: "Delete File",
   createRelease: "Create Release",
@@ -23,6 +24,8 @@ const DESCRIPTIONS: Record<string, (input: Record<string, unknown>) => string> =
     `This will force-reset "${input.branch}" to commit ${String(input.sha).slice(0, 7)}. All commits after this point will be lost.`,
   createRepository: (input) =>
     `This will create a new ${input.isPrivate ? "private" : "public"} repository "${input.name}".`,
+  deleteRepository: (input) =>
+    `This will PERMANENTLY delete repository "${input.owner}/${input.repo}". All code, issues, pull requests, and settings will be lost. This cannot be undone.`,
   createOrUpdateFile: (input) =>
     `This will ${input.sha ? "update" : "create"} "${input.path}" and commit to ${input.branch || "the default branch"}.`,
   deleteFile: (input) =>

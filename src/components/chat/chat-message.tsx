@@ -45,6 +45,7 @@ const TOOL_LABELS: Record<string, string> = {
   listContributors: "Contributors",
   getUserProfile: "User Profile",
   createRepository: "Create Repository",
+  deleteRepository: "Delete Repository",
   createOrUpdateFile: "Create/Update File",
   deleteFile: "Delete File",
   createRelease: "Create Release",

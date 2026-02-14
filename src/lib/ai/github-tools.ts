@@ -19,6 +19,7 @@ import {
   getContributors,
   getUserProfile,
   createRepository,
+  deleteRepository,
   createOrUpdateFile,
   deleteFile,
   createRelease,
@@ -534,6 +535,26 @@ export function createGitHubTools(
         }
       },
     }),
+
+    deleteRepository: tool({
+      description:
+        "Permanently delete a GitHub repository. This is irreversible — all code, issues, PRs, and settings will be lost.",
+      inputSchema: z.object({
+        owner: z.string().describe("Repository owner."),
+        repo: z.string().describe("Repository name to delete."),
+      }),
+      needsApproval: true,
+      execute: async ({ owner: targetOwner, repo: targetRepo }) => {
+        try {
+          return await deleteRepository(token, targetOwner, targetRepo);
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to delete repository: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
   };
 }
 
@@ -617,6 +638,26 @@ export function createGeneralTools(token: string) {
         } catch (error) {
           return {
             error: `Failed to fetch profile for "${username}": ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    deleteRepository: tool({
+      description:
+        "Permanently delete a GitHub repository. This is irreversible — all code, issues, PRs, and settings will be lost.",
+      inputSchema: z.object({
+        owner: z.string().describe("Repository owner."),
+        repo: z.string().describe("Repository name to delete."),
+      }),
+      needsApproval: true,
+      execute: async ({ owner, repo }) => {
+        try {
+          return await deleteRepository(token, owner, repo);
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to delete repository: ${error instanceof Error ? error.message : "Unknown error"}`,
           };
         }
       },

@@ -102,12 +102,32 @@ const { messages, sendMessage, status, stop, setMessages } = useChat({
 
 **Features:**
 - User/AI avatars with role-based styling
-- Tool call indicators with icons
-- Tool states: running, complete, error
+- Tool call indicators with icons and labels via `TOOL_LABELS` map
+- Tool states: running, complete, error, approval-requested, output-denied
+- Rich tool output renderers via `toolRenderers` registry (per-tool custom UI)
+- Approval UI for write operations (`ApprovalRenderer` with confirm/deny buttons)
 - Markdown rendering (ReactMarkdown)
 - Code syntax highlighting
 - "Thinking..." indicator when `status === "submitted"`
 - Empty state with suggested questions
+
+### 6. `tool-renderers/` (Tool Output Renderers)
+**Registry** (`registry.tsx`): Maps tool names to renderer components.
+
+**Available renderers:**
+- `RepoOverviewRenderer` - repo metadata display
+- `CommitHistoryRenderer` - commit list with hashes and dates
+- `CommitDetailRenderer` - full commit diff view
+- `BranchListRenderer` - branch list with current indicator
+- `TagListRenderer` - tag list
+- `CompareDiffRenderer` - diff between two refs
+- `FileListRenderer` - directory listing
+- `FileContentRenderer` - file content viewer
+- `WriteResultRenderer` - success/failure for write operations (used by `createBranch`, `deleteBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createRepository`, `createOrUpdateFile`, `deleteFile`, `createRelease`)
+- `ContributorListRenderer` - contributor avatars and stats
+- `UserProfileRenderer` - GitHub user profile card
+
+**Approval renderer** (`approval-renderer.tsx`): Shows warning banner with description and approve/deny buttons for write operations. Covers: `deleteBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createRepository`, `createOrUpdateFile`, `deleteFile`, `createRelease`.
 
 ## Hooks
 
@@ -150,9 +170,23 @@ State management for selected mentions.
 src/components/chat/
   chat-sidebar.tsx      # Main container (desktop + mobile)
   chat-input.tsx        # Controlled textarea + inline mentions + model selector
-  chat-message.tsx      # Message display + tools
+  chat-message.tsx      # Message display + tools + TOOL_LABELS map
   mention-picker.tsx    # Inline dropdown (categories + search)
   mention-chips.tsx     # Selected mention badges
+  tool-renderers/
+    registry.tsx          # Maps tool names to renderer components
+    approval-renderer.tsx # Approval UI (confirm/deny) for write operations
+    write-result-renderer.tsx   # Generic success/failure for write tools
+    repo-overview-renderer.tsx  # Repo metadata display
+    commit-history-renderer.tsx # Commit list
+    commit-detail-renderer.tsx  # Full commit diff
+    branch-list-renderer.tsx    # Branch list
+    tag-list-renderer.tsx       # Tag list
+    compare-diff-renderer.tsx   # Diff between refs
+    file-list-renderer.tsx      # Directory listing
+    file-content-renderer.tsx   # File content viewer
+    contributor-list-renderer.tsx # Contributor avatars
+    user-profile-renderer.tsx   # GitHub user profile card
 
 src/hooks/
   use-mention-query/index.ts      # Textarea mention parser
@@ -173,6 +207,7 @@ src/config/constants.ts # MENTION_CATEGORIES, MENTION_CATEGORY_SHORTCUTS
 3. **Status management**: `submitted` / `streaming` / `ready` / `error`
 4. **Input handling**: `sendMessage({ text })`, clear after send
 5. **Stream control**: `stop()` aborts, `setMessages()` for clearing
+6. **Tool approval**: `needsApproval: true` on write tools, `addToolApprovalResponse({ id, approved })` for confirm/deny
 
 ## Performance
 
