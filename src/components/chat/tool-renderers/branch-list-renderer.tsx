@@ -1,4 +1,4 @@
-import { BranchListItem } from "@/components/branches/branch-list-item";
+import { BranchListItem } from "@/components/github/branch-list-item";
 import type { ToolRendererProps } from "./registry";
 
 interface BranchListOutput {

@@ -1,4 +1,4 @@
-import { CommitListItem } from "@/components/commits/commit-list-item";
+import { CommitListItem } from "@/components/github/commit-list-item";
 import type { ToolRendererProps } from "./registry";
 
 interface CommitHistoryOutput {

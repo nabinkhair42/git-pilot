@@ -6,7 +6,7 @@ import { formatRelativeDate, formatDiffStats } from "@/lib/formatters";
 import { FileText } from "lucide-react";
 import type { ToolRendererProps } from "./registry";
 
-const DiffViewer = dynamic(() => import("@/components/diff/diff-viewer"), {
+const DiffViewer = dynamic(() => import("@/components/github/diff-viewer"), {
   ssr: false,
   loading: () => <div className="py-4 text-center text-xs text-muted-foreground">Loading diff...</div>,
 });

@@ -90,7 +90,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${plusJakarta.variable} ${ibmPlexMono.variable} flex h-screen flex-col overflow-hidden font-sans antialiased`}
+        className={`${plusJakarta.variable} ${ibmPlexMono.variable} font-sans antialiased`}
       >
         <Providers>{children}</Providers>
       </body>

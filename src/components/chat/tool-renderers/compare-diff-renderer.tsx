@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
 import type { ToolRendererProps } from "./registry";
 
-const DiffViewer = dynamic(() => import("@/components/diff/diff-viewer"), {
+const DiffViewer = dynamic(() => import("@/components/github/diff-viewer"), {
   ssr: false,
   loading: () => <div className="py-4 text-center text-xs text-muted-foreground">Loading diff...</div>,
 });

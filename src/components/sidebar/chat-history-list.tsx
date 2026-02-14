@@ -1,14 +1,22 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarMenuAction,
+  SidebarMenuSkeleton,
+} from "@/components/ui/sidebar";
 import { useChatHistory } from "@/hooks/use-chat-history";
-import { useChatNavigation } from "@/hooks/use-chat-navigation";
-import { cn } from "@/lib/utils";
 import * as chatService from "@/services/frontend/chat.services";
 import { isToday, isYesterday, subDays, isAfter } from "date-fns";
 import { MessageSquare, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useMemo, useState, useCallback } from "react";
+import { DeleteChatDialog } from "../dialog-window/delete-chat-dialog";
 
 type ChatEntry = { id: string; title: string; updatedAt: string };
 
@@ -52,87 +60,100 @@ function groupChatsByDate(items: ChatEntry[]): ChatGroup[] {
 
 export function ChatHistoryList() {
   const { chats, isLoading, mutate } = useChatHistory();
-  const { activeChatId, setActiveChatId } = useChatNavigation();
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const pathname = usePathname();
+  const router = useRouter();
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const activeChatId = pathname.startsWith("/chats/")
+    ? pathname.split("/")[2]
+    : null;
 
   const groups = useMemo(() => groupChatsByDate(chats), [chats]);
 
+  const handleDeleteClick = useCallback((e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDeleteTarget(id);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      await chatService.deleteChat(deleteTarget);
+      if (activeChatId === deleteTarget) {
+        router.push("/");
+      }
+      mutate();
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
+  }, [deleteTarget, activeChatId, router, mutate]);
+
   if (isLoading) {
     return (
-      <div className="space-y-3 p-3">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-8 w-full rounded-md" />
-        ))}
-      </div>
+      <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+        <SidebarMenu>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <SidebarMenuItem key={i}>
+              <SidebarMenuSkeleton />
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroup>
     );
   }
 
   if (chats.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 px-3 py-8 text-center">
-        <MessageSquare className="size-5 text-sidebar-foreground/40" />
-        <p className="text-xs text-sidebar-foreground/60">No chats yet</p>
-      </div>
+      <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+        <div className="flex flex-col items-center gap-2 px-3 py-8 text-center">
+          <MessageSquare className="size-5 text-sidebar-foreground/40" />
+          <p className="text-xs text-sidebar-foreground/60">No chats yet</p>
+        </div>
+      </SidebarGroup>
     );
   }
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    setDeletingId(id);
-    try {
-      await chatService.deleteChat(id);
-      if (activeChatId === id) {
-        setActiveChatId(null);
-      }
-      mutate();
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
   return (
-    <div className="px-2 py-2">
+    <>
       {groups.map((group) => (
-        <div key={group.label}>
-          <div className="px-2 py-1.5">
-            <span className="text-[11px] font-medium text-sidebar-foreground/50">
-              {group.label}
-            </span>
-          </div>
-          {group.chats.map((chat) => (
-            <div
-              key={chat.id}
-              role="button"
-              tabIndex={0}
-              onClick={() => setActiveChatId(chat.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setActiveChatId(chat.id);
-                }
-              }}
-              className={cn(
-                "group relative flex w-full cursor-pointer items-center rounded-lg px-2 py-2 text-left text-sm transition-colors hover:bg-sidebar-accent",
-                activeChatId === chat.id &&
-                  "bg-sidebar-accent text-sidebar-accent-foreground"
-              )}
-            >
-              <span className="min-w-0 flex-1 truncate pr-6">
-                {chat.title}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                onClick={(e) => handleDelete(e, chat.id)}
-                disabled={deletingId === chat.id}
-                className="absolute right-1 hidden text-sidebar-foreground/40 hover:text-destructive group-hover:flex"
-              >
-                <Trash2 className="size-3" />
-              </Button>
-            </div>
-          ))}
-        </div>
+        <SidebarGroup key={group.label} className="group-data-[collapsible=icon]:hidden">
+          <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+          <SidebarMenu>
+            {group.chats.map((chat) => (
+              <SidebarMenuItem key={chat.id}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={activeChatId === chat.id}
+                  tooltip={chat.title}
+                >
+                  <Link href={`/chats/${chat.id}`}>
+                    <span className="truncate">{chat.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+                <SidebarMenuAction
+                  showOnHover
+                  onClick={(e) => handleDeleteClick(e, chat.id)}
+                >
+                  <Trash2 className="size-3" />
+                </SidebarMenuAction>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
       ))}
-    </div>
+
+      <DeleteChatDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={isDeleting}
+      />
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import { TagListItem } from "@/components/tags/tag-list-item";
+import { TagListItem } from "@/components/github/tag-list-item";
 import type { ToolRendererProps } from "./registry";
 
 interface TagListOutput {

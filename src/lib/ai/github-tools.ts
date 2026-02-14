@@ -1,6 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
 import {
+  getUserRepos,
   getRepoInfo,
   getCommits,
   getCommitDetail,
@@ -376,6 +377,49 @@ export function createGitHubTools(
             message: `Failed to reset branch: ${error instanceof Error ? error.message : "Unknown error"}`,
           };
         }
+      },
+    }),
+  };
+}
+
+/**
+ * Creates general GitHub tools that don't require a specific repo.
+ * Used when the user hasn't selected a repository yet.
+ */
+export function createGeneralTools(token: string) {
+  return {
+    listUserRepos: tool({
+      description:
+        "List the authenticated user's GitHub repositories. Returns repos sorted by most recently updated. Use this when the user asks to see their repos, find a project, or hasn't selected a repository yet.",
+      inputSchema: z.object({
+        query: z
+          .string()
+          .optional()
+          .describe("Optional search term to filter repos by name."),
+      }),
+      execute: async ({ query }) => {
+        const repos = await getUserRepos(token);
+        const filtered = query
+          ? repos.filter((r) =>
+              r.fullName.toLowerCase().includes(query.toLowerCase()) ||
+              (r.description?.toLowerCase().includes(query.toLowerCase()) ?? false)
+            )
+          : repos;
+        return {
+          total: filtered.length,
+          repos: filtered.slice(0, 50).map((r) => ({
+            fullName: r.fullName,
+            owner: r.owner,
+            name: r.name,
+            description: r.description,
+            language: r.language,
+            isPrivate: r.isPrivate,
+            defaultBranch: r.defaultBranch,
+            stars: r.stargazersCount,
+            updatedAt: r.updatedAt,
+            url: r.url,
+          })),
+        };
       },
     }),
   };
