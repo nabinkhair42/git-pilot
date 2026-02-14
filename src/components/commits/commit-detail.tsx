@@ -1,15 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { ArrowLeft, FileText, Plus, Minus } from "lucide-react";
-import { useUnifiedCommitDetail } from "@/hooks/use-unified";
-import { useRepo } from "@/hooks/use-repo";
-import { formatDate, formatHash, formatDiffStats } from "@/lib/formatters";
-import { FILE_STATUS_LABELS, FILE_STATUS_COLORS } from "@/config/constants";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { CommitDetailSkeleton } from "@/components/loaders/commit-detail-skeleton";
 import { DiffViewer } from "@/components/diff/diff-viewer";
+import { CommitDetailSkeleton } from "@/components/loaders/commit-detail-skeleton";
+import { Badge } from "@/components/ui/badge";
+import { FILE_STATUS_COLORS, FILE_STATUS_LABELS } from "@/config/constants";
+import { useRepo } from "@/hooks/use-repo";
+import { useUnifiedCommitDetail } from "@/hooks/use-unified";
+import { formatDate, formatDiffStats } from "@/lib/formatters";
+import { FileText, Minus, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface CommitDetailProps {
   hash: string;
@@ -40,22 +39,9 @@ export function CommitDetail({ hash }: CommitDetailProps) {
       {/* Pinned header */}
       <div className="rail-bounded px-4 sm:px-6">
         <div className="py-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              const backUrl = isGitHub
-                ? `/repo/commits?mode=github&owner=${encodeURIComponent(githubOwner || "")}&repo=${encodeURIComponent(githubRepoName || "")}`
-                : `/repo/commits?path=${encodeURIComponent(repoPath || "")}`;
-              router.push(backUrl);
-            }}
-            className="mb-4 -ml-2 text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft size={14} className="mr-1" />
-            Back to commits
-          </Button>
-
-          <h2 className="text-xl font-bold tracking-tight">{commit.message}</h2>
+          <h2 className="text-xl font-bold tracking-tight truncate max-w-md">
+            {commit.message}
+          </h2>
           {commit.body && (
             <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
               {commit.body}
@@ -74,7 +60,8 @@ export function CommitDetail({ hash }: CommitDetailProps) {
 
           <div className="mt-3 flex items-center gap-3 text-xs">
             <span className="text-muted-foreground">
-              {commit.stats.changed} file{commit.stats.changed !== 1 ? "s" : ""} changed
+              {commit.stats.changed} file{commit.stats.changed !== 1 ? "s" : ""}{" "}
+              changed
             </span>
             {commit.stats.insertions > 0 && (
               <span className="flex items-center gap-1 text-git-added">
@@ -98,52 +85,53 @@ export function CommitDetail({ hash }: CommitDetailProps) {
 
         {/* File list */}
         <div className="rail-bounded">
-        <div className="px-6 pb-3 pt-6">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Changed Files
-          </p>
-        </div>
-        <div>
-          {commit.files.map((file, i) => (
-            <div
-              key={file.file}
-              className={`flex items-center gap-3 px-6 py-2.5 transition-colors hover:bg-muted ${
-                i !== 0 ? "border-t border-dashed border-border" : ""
-              }`}
-            >
-              <Badge
-                variant="outline"
-                className={`shrink-0 border-border px-1.5 py-0 text-[10px] font-mono ${
-                  FILE_STATUS_COLORS[file.status] || "text-muted-foreground"
+          <div className="px-6 pb-3 pt-6">
+            <p className="text-xs font-medium text-muted-foreground">
+              Changed Files
+            </p>
+          </div>
+          <div>
+            {commit.files.map((file, i) => (
+              <div
+                key={file.file}
+                className={`flex items-center gap-3 px-6 py-2.5 transition-colors hover:bg-muted ${
+                  i !== 0 ? "border-t border-dashed border-border" : ""
                 }`}
               >
-                {FILE_STATUS_LABELS[file.status] || file.status}
-              </Badge>
-              <FileText size={14} className="shrink-0 text-muted-foreground" />
-              <span className="min-w-0 flex-1 truncate font-mono text-sm">
-                {file.file}
-              </span>
-              <span className="shrink-0 text-xs text-muted-foreground">
-                {formatDiffStats(file.insertions, file.deletions)}
-              </span>
-            </div>
-          ))}
+                <Badge
+                  variant="outline"
+                  className={`shrink-0 border-border px-1.5 py-0 text-[10px] font-mono ${
+                    FILE_STATUS_COLORS[file.status] || "text-muted-foreground"
+                  }`}
+                >
+                  {FILE_STATUS_LABELS[file.status] || file.status}
+                </Badge>
+                <FileText
+                  size={14}
+                  className="shrink-0 text-muted-foreground"
+                />
+                <span className="min-w-0 flex-1 truncate font-mono text-sm">
+                  {file.file}
+                </span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {formatDiffStats(file.insertions, file.deletions)}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="section-divider" aria-hidden="true" />
+        <div className="section-divider" aria-hidden="true" />
 
-      {/* Diff */}
-      <div className="rail-bounded">
-        <div className="px-6 pb-3 pt-6">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Diff
-          </p>
+        {/* Diff */}
+        <div className="rail-bounded">
+          <div className="px-6 pb-3 pt-6">
+            <p className="text-xs font-medium text-muted-foreground">Diff</p>
+          </div>
+          <div className="overflow-x-auto px-6 pb-8">
+            <DiffViewer diff={commit.diff} />
+          </div>
         </div>
-        <div className="overflow-x-auto px-6 pb-8">
-          <DiffViewer diff={commit.diff} />
-        </div>
-      </div>
       </div>
     </div>
   );

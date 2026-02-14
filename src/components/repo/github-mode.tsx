@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { GitHub } from "../icons/github";
 import { LogOut } from "lucide-react";
+import { session } from "@/lib/db/schema";
 
 export function GitHubModeContent({
   session,
@@ -60,43 +61,7 @@ export function GitHubModeContent({
     );
   }
 
-  return (
-    <div className="mt-2 px-2">
-      {/* User info bar */}
-      <div className="mx-auto mb-6 flex max-w-2xl flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-4 py-2.5">
-        <div className="flex min-w-0 items-center gap-3">
-          {session.user.image && (
-            <img
-              src={session.user.image}
-              alt=""
-              className="h-7 w-7 shrink-0 rounded-full"
-            />
-          )}
-          <div className="min-w-0 text-left">
-            <span className="block truncate text-sm text-foreground">
-              {session.user.name}
-            </span>
-            <span className="block truncate text-xs text-muted-foreground">
-              {session.user.email}
-            </span>
-          </div>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-xs text-muted-foreground"
-          isLoading={signOutLoading}
-          onClick={() => {
-            setSignOutLoading(true);
-            signOut();
-          }}
-        >
-          <LogOut size={12} className="mr-1" />
-          Sign out
-        </Button>
-      </div>
-    </div>
-  );
+  return null;
 }
 
 export function GitHubModeBottom({
@@ -110,15 +75,10 @@ export function GitHubModeBottom({
 }) {
   if (sessionLoading || !session) return null;
 
-  return (
-    <>
-      <div className="mt-16" aria-hidden="true" />
-      <GitHubRepoGrid />
-    </>
-  );
+  return <GitHubRepoGrid session={session} />;
 }
 
-function GitHubRepoGrid() {
+function GitHubRepoGrid({ session }: { session: any }) {
   const { data: repos, isLoading, error } = useGitHubRepos();
   const { setGitHubRepo } = useMode();
   const router = useRouter();
@@ -132,7 +92,7 @@ function GitHubRepoGrid() {
       (r) =>
         r.fullName.toLowerCase().includes(q) ||
         r.description?.toLowerCase().includes(q) ||
-        r.language?.toLowerCase().includes(q)
+        r.language?.toLowerCase().includes(q),
     );
   }, [repos, search]);
 
@@ -146,7 +106,7 @@ function GitHubRepoGrid() {
     };
     setGitHubRepo(ghRepo);
     router.push(
-      `/repo/commits?mode=github&owner=${encodeURIComponent(repo.owner)}&repo=${encodeURIComponent(repo.name)}`
+      `/repo/commits?mode=github&owner=${encodeURIComponent(repo.owner)}&repo=${encodeURIComponent(repo.name)}`,
     );
   }
 
@@ -201,10 +161,24 @@ function GitHubRepoGrid() {
 
   return (
     <div className="rail-bounded border-t border-border">
-      <div className="flex items-center justify-between px-4 pb-4 pt-8 sm:px-6">
-        <p className="font-medium text-muted-foreground">
-          Your Repositories
-        </p>
+      <div className="flex items-center justify-between px-4 pb-4 pt-8 sm:px-6 border-b">
+        <div className="flex min-w-0 items-center gap-3">
+          {session.user.image && (
+            <img
+              src={session.user.image}
+              alt=""
+              className="h-7 w-7 shrink-0 rounded-full"
+            />
+          )}
+          <div className="min-w-0 text-left">
+            <span className="block truncate text-sm text-foreground">
+              {session.user.name}
+            </span>
+            <span className="block truncate text-xs text-muted-foreground">
+              {session.user.email}
+            </span>
+          </div>
+        </div>
         <div className="relative w-48">
           <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -215,58 +189,59 @@ function GitHubRepoGrid() {
           />
         </div>
       </div>
-
-      <div className="grid gap-0 border-y border-border sm:grid-cols-2">
-        {filtered.length === 0 ? (
-          <div className="col-span-full py-12 text-center text-sm text-muted-foreground">
-            {search ? "No matching repositories" : "No repositories found"}
-          </div>
-        ) : (
-          filtered.map((repo, i) => (
-            <div
-              key={repo.fullName}
-              role="button"
-              tabIndex={0}
-              onClick={() => selectRepo(repo)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  selectRepo(repo);
-                }
-              }}
-              className={`group flex cursor-pointer items-start gap-3 px-4 py-4 transition-colors hover:bg-muted sm:items-center sm:px-6
+      <div className="overflow-y-auto h-96">
+        <div className="grid gap-0 sm:grid-cols-2">
+          {filtered.length === 0 ? (
+            <div className="col-span-full py-12 text-center text-sm text-muted-foreground">
+              {search ? "No matching repositories" : "No repositories found"}
+            </div>
+          ) : (
+            filtered.map((repo, i) => (
+              <div
+                key={repo.fullName}
+                role="button"
+                tabIndex={0}
+                onClick={() => selectRepo(repo)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    selectRepo(repo);
+                  }
+                }}
+                className={`group flex cursor-pointer items-start gap-3 px-4 py-4 transition-colors hover:bg-muted sm:items-center sm:px-6
                 ${i % 2 !== 0 ? "sm:border-l sm:border-dashed sm:border-border" : ""}
                 ${i >= 2 ? "sm:border-t sm:border-dashed sm:border-border" : ""}
                 ${i >= 1 ? "max-sm:border-t max-sm:border-dashed max-sm:border-border" : ""}
               `}
-            >
-              <GitHub className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground sm:mt-0" />
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="min-w-0 break-all font-mono text-sm text-foreground sm:truncate">
-                    {repo.fullName}
-                  </span>
-                  {repo.isPrivate && (
-                    <Lock className="h-3 w-3 shrink-0 text-muted-foreground" />
-                  )}
-                  {repo.language && (
-                    <Badge
-                      variant="secondary"
-                      className="shrink-0 text-[10px] font-normal"
-                    >
-                      {repo.language}
-                    </Badge>
+              >
+                <GitHub className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground sm:mt-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="min-w-0 break-all font-mono text-sm text-foreground sm:truncate">
+                      {repo.fullName}
+                    </span>
+                    {repo.isPrivate && (
+                      <Lock className="h-3 w-3 shrink-0 text-muted-foreground" />
+                    )}
+                    {repo.language && (
+                      <Badge
+                        variant="secondary"
+                        className="shrink-0 text-[10px] font-normal"
+                      >
+                        {repo.language}
+                      </Badge>
+                    )}
+                  </div>
+                  {repo.description && (
+                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground sm:truncate">
+                      {repo.description}
+                    </p>
                   )}
                 </div>
-                {repo.description && (
-                  <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground sm:truncate">
-                    {repo.description}
-                  </p>
-                )}
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

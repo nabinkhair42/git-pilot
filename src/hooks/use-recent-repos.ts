@@ -1,9 +1,7 @@
 "use client";
 
+import { MAX_RECENT_REPOS, STORAGE_KEY } from "@/config/constants";
 import { useState, useEffect, useCallback } from "react";
-
-const STORAGE_KEY = "git-commit-manager:recent-repos";
-const MAX_RECENT = 10;
 
 export function useRecentRepos() {
   const [repos, setRepos] = useState<string[]>([]);
@@ -20,7 +18,7 @@ export function useRecentRepos() {
   const addRepo = useCallback((path: string) => {
     setRepos((prev) => {
       const filtered = prev.filter((r) => r !== path);
-      const next = [path, ...filtered].slice(0, MAX_RECENT);
+      const next = [path, ...filtered].slice(0, MAX_RECENT_REPOS);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
       return next;
     });

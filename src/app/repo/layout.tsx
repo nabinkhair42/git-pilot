@@ -1,12 +1,11 @@
 "use client";
 
-import { Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { RepoContext } from "@/hooks/use-repo";
-import { RepoHeader } from "@/components/repo/repo-header";
 import { ChatSidebar } from "@/components/chat/chat-sidebar";
-import { SiteFooter } from "@/components/shared/site-footer";
+import { RepoHeader } from "@/components/repo/repo-header";
 import type { AppMode } from "@/hooks/use-mode";
+import { RepoContext } from "@/hooks/use-repo";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 function RepoLayoutInner({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
@@ -24,7 +23,6 @@ function RepoLayoutInner({ children }: { children: React.ReactNode }) {
         <div className="flex min-w-0 flex-1 flex-col page-rails">
           <RepoHeader />
           <>{children}</>
-          <SiteFooter />
         </div>
         <ChatSidebar />
       </div>

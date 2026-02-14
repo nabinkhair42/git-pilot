@@ -1,5 +1,6 @@
 import { Providers } from "@/components/providers";
 
+import { SiteFooter } from "@/components/shared/site-footer";
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
@@ -95,6 +96,7 @@ export default function RootLayout({
       >
         <Providers>
           {children}
+          <SiteFooter />
         </Providers>
       </body>
     </html>

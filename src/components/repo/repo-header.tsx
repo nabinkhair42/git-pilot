@@ -1,11 +1,6 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Kbd } from "@/components/ui/kbd";
 import { useRepoInfo, useStatus } from "@/hooks/use-git";
 import { useRepoShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useRepo } from "@/hooks/use-repo";
@@ -15,12 +10,11 @@ import {
   GitBranch,
   GitCommitHorizontal,
   GitCompareArrows,
+  Keyboard,
   Tag,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GitManagerAppIcon } from "@/components/icons/git-manager";
-import { Kbd } from "@/components/ui/kbd";
 
 const localNavItems = [
   {
@@ -118,10 +112,11 @@ export function RepoHeader() {
         </div>
 
         <nav className="flex shrink-0 items-center gap-0.5 text-sm sm:gap-1">
-          {navItems.map((item) => {
+          {navItems.map((item, index) => {
             const active = isActive(item.href);
             return (
               <Link
+                key={index}
                 href={buildHref(item.href)}
                 className={`flex items-center gap-1.5 rounded-lg px-2 py-1.5 transition-colors sm:px-3 ${
                   active
@@ -131,7 +126,10 @@ export function RepoHeader() {
               >
                 <item.icon className="size-3.5 sm:size-4" />
                 <span className="hidden sm:inline">{item.label}</span>
-                <Kbd className="hidden sm:inline-flex">{item.shortcut}</Kbd>
+                <Kbd className="hidden sm:inline-flex">
+                  <Keyboard size={12} />
+                  {item.shortcut}
+                </Kbd>
               </Link>
             );
           })}
