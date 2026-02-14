@@ -1,7 +1,7 @@
 import { convertToModelMessages, streamText, UIMessage, stepCountIs } from "ai";
 import { openai } from "@ai-sdk/openai";
-import { createGitHubTools } from "@/lib/ai/github-tools";
-import { buildGitHubSystemPrompt } from "@/lib/ai/system-prompt";
+import { createGitHubTools, createGeneralTools } from "@/lib/ai/github-tools";
+import { buildGitHubSystemPrompt, buildGeneralSystemPrompt } from "@/lib/ai/system-prompt";
 import { getGitHubToken } from "@/lib/auth-helpers";
 import { errorResponse } from "@/lib/response/server-response";
 
@@ -22,17 +22,21 @@ export async function POST(req: Request) {
 
     const { messages, owner, repo }: ChatRequestBody = await req.json();
 
-    if (!owner || !repo) {
-      return errorResponse("Missing owner or repo", 400);
-    }
+    const hasRepo = !!owner && !!repo;
 
     // async-parallel: token fetch and message conversion are independent
     const [token, convertedMessages] = await Promise.all([
       getGitHubToken(),
       convertToModelMessages(messages),
     ]);
-    const tools = createGitHubTools(owner, repo, token);
-    const systemPrompt = buildGitHubSystemPrompt(owner, repo);
+
+    const tools = hasRepo
+      ? createGitHubTools(owner, repo, token)
+      : createGeneralTools(token);
+
+    const systemPrompt = hasRepo
+      ? buildGitHubSystemPrompt(owner, repo)
+      : buildGeneralSystemPrompt();
 
     const result = streamText({
       model: openai("gpt-4o"),

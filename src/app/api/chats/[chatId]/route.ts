@@ -49,8 +49,6 @@ export async function PATCH(
       .update(chat)
       .set({
         ...(body.title !== undefined && { title: body.title }),
-        ...(body.repoOwner !== undefined && { repoOwner: body.repoOwner }),
-        ...(body.repoName !== undefined && { repoName: body.repoName }),
         updatedAt: new Date(),
       })
       .where(and(eq(chat.id, chatId), eq(chat.userId, session.user.id)))

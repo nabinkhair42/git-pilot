@@ -48,6 +48,20 @@ export const MENTION_CATEGORIES = [
   { id: "repository" as const, label: "Repository", icon: "FolderGit2", placeholder: "Search repos..." },
 ] as const;
 
+// ─── AI Models ────────────────────────────────────────────────────────────
+
+const modelLogo = (provider: string) =>
+  `https://models.dev/logos/${provider}.svg`;
+
+export const AI_MODELS = [
+  { id: "gpt-4o", name: "GPT-4o", provider: "openai", logo: modelLogo("openai") },
+  { id: "claude-sonnet-4-5-20250929", name: "Claude Sonnet 4.5", provider: "anthropic", logo: modelLogo("anthropic") },
+  { id: "claude-opus-4-6", name: "Claude Opus 4.6", provider: "anthropic", logo: modelLogo("anthropic") },
+  { id: "grok-3", name: "Grok 3", provider: "xai", logo: modelLogo("xai") },
+] as const;
+
+export type AIModel = (typeof AI_MODELS)[number];
+
 export const FILE_STATUS_COLORS: Record<string, string> = {
   A: "text-git-added",
   M: "text-git-modified",

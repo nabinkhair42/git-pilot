@@ -14,8 +14,6 @@ export async function GET() {
       .select({
         id: chat.id,
         title: chat.title,
-        repoOwner: chat.repoOwner,
-        repoName: chat.repoName,
         createdAt: chat.createdAt,
         updatedAt: chat.updatedAt,
       })
@@ -44,8 +42,6 @@ export async function POST(req: Request) {
         id,
         userId: session.user.id,
         title: body.title ?? "New chat",
-        repoOwner: body.repoOwner ?? null,
-        repoName: body.repoName ?? null,
       })
       .returning();
 

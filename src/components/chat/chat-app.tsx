@@ -123,10 +123,7 @@ function ChatAppInner({
       // If no active chat, create one first
       if (!createdChatIdRef.current) {
         try {
-          const newChat = await chatService.createChat({
-            repoOwner: githubOwner ?? undefined,
-            repoName: githubRepoName ?? undefined,
-          });
+          const newChat = await chatService.createChat();
           createdChatIdRef.current = newChat.id;
           // Update URL without remounting (preserves streaming connection)
           window.history.replaceState(null, "", `/chats/${newChat.id}`);

@@ -10,8 +10,6 @@ function unwrap<T>(res: { data: { success: boolean; data: T } }): T {
 export interface ChatItem {
   id: string;
   title: string;
-  repoOwner: string | null;
-  repoName: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -36,18 +34,11 @@ export async function getChat(id: string) {
   return unwrap<ChatDetail>(await api.get(`/chats/${id}`));
 }
 
-export async function createChat(data: {
-  title?: string;
-  repoOwner?: string;
-  repoName?: string;
-}) {
+export async function createChat(data?: { title?: string }) {
   return unwrap<ChatItem>(await api.post("/chats", data));
 }
 
-export async function updateChat(
-  id: string,
-  data: { title?: string; repoOwner?: string; repoName?: string }
-) {
+export async function updateChat(id: string, data: { title?: string }) {
   return unwrap<ChatItem>(await api.patch(`/chats/${id}`, data));
 }
 

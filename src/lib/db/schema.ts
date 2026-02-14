@@ -60,8 +60,6 @@ export const chat = pgTable("chat", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   title: text("title").notNull().default("New chat"),
-  repoOwner: text("repo_owner"),
-  repoName: text("repo_name"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

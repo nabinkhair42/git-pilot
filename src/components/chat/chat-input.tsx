@@ -1,17 +1,11 @@
 "use client";
 
 import {
-  ModelSelector,
-  ModelSelectorContent,
-  ModelSelectorEmpty,
-  ModelSelectorGroup,
-  ModelSelectorInput,
-  ModelSelectorItem,
-  ModelSelectorList,
-  ModelSelectorLogo,
-  ModelSelectorName,
-  ModelSelectorTrigger,
-} from "@/components/ai-elements/model-selector";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   PromptInput,
   PromptInputFooter,
@@ -25,7 +19,7 @@ import {
 import { MentionChips } from "@/components/chat/mention-chips";
 import { MentionPicker } from "@/components/chat/mention-picker";
 import { Button } from "@/components/ui/button";
-import { MENTION_CATEGORY_SHORTCUTS } from "@/config/constants";
+import { AI_MODELS, MENTION_CATEGORY_SHORTCUTS } from "@/config/constants";
 import { useMentionQuery } from "@/hooks/use-mention-query";
 import { useMentions } from "@/hooks/use-mentions";
 import type { MentionCategory, MentionItem } from "@/lib/mentions/types";
@@ -40,21 +34,6 @@ import {
   type ChangeEvent,
   type KeyboardEvent,
 } from "react";
-
-const MODELS = [
-  { id: "gpt-4o", name: "GPT-4o", provider: "openai" as const },
-  {
-    id: "claude-sonnet-4-5-20250929",
-    name: "Claude Sonnet 4.5",
-    provider: "anthropic" as const,
-  },
-  {
-    id: "claude-opus-4-6",
-    name: "Claude Opus 4.6",
-    provider: "anthropic" as const,
-  },
-  { id: "grok-3", name: "Grok 3", provider: "xai" as const },
-];
 
 interface ChatInputProps {
   onSend: (text: string, mentions: MentionItem[]) => void;
@@ -78,7 +57,7 @@ interface TextSegment {
 
 function buildHighlightSegments(
   text: string,
-  mentions: MentionItem[]
+  mentions: MentionItem[],
 ): TextSegment[] {
   if (!text || mentions.length === 0)
     return [{ text: text || "", highlight: false }];
@@ -135,7 +114,7 @@ function MentionHighlightOverlay({
 
   const segments = useMemo(
     () => buildHighlightSegments(text, mentions),
-    [text, mentions]
+    [text, mentions],
   );
 
   // Sync scroll position with textarea
@@ -162,17 +141,14 @@ function MentionHighlightOverlay({
     >
       {segments.map((seg, i) =>
         seg.highlight ? (
-          <mark
-            key={i}
-            className="rounded-sm bg-sky-500/15 text-transparent"
-          >
+          <mark key={i} className="rounded-sm bg-sky-500/15 text-transparent">
             {seg.text}
           </mark>
         ) : (
           <span key={i} className="text-transparent">
             {seg.text}
           </span>
-        )
+        ),
       )}
     </div>
   );
@@ -186,15 +162,11 @@ export function ChatInput(props: ChatInputProps) {
   );
 }
 
-function ChatInputInner({
-  onSend,
-  onStop,
-  status,
-  disabled,
-}: ChatInputProps) {
+function ChatInputInner({ onSend, onStop, status, disabled }: ChatInputProps) {
   const { textInput } = usePromptInputController();
-  const [selectedModel, setSelectedModel] = useState(MODELS[0].id);
-  const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
+  const [selectedModel, setSelectedModel] = useState<
+    (typeof AI_MODELS)[number]["id"]
+  >(AI_MODELS[0].id);
 
   const { mentions, addMention, removeMention, clearMentions } = useMentions();
   const { query, updateQuery, clearQuery } = useMentionQuery();
@@ -203,7 +175,8 @@ function ChatInputInner({
   // Track cursor position in a ref so it survives focus loss (clicking picker)
   const cursorPosRef = useRef(0);
 
-  const currentModel = MODELS.find((m) => m.id === selectedModel) ?? MODELS[0];
+  const currentModel =
+    AI_MODELS.find((m) => m.id === selectedModel) ?? AI_MODELS[0];
 
   // ── Handlers ──
 
@@ -214,7 +187,7 @@ function ChatInputInner({
       cursorPosRef.current = pos;
       updateQuery(el.value, pos);
     },
-    [updateQuery]
+    [updateQuery],
   );
 
   const handleKeyDown = useCallback(
@@ -236,7 +209,7 @@ function ChatInputInner({
         }
       }
     },
-    [query.active, clearQuery]
+    [query.active, clearQuery],
   );
 
   const handleSelect = useCallback(
@@ -248,7 +221,8 @@ function ChatInputInner({
       const shortcut = CATEGORY_TO_SHORTCUT[item.category] ?? item.category;
       const mention = `@${shortcut}:${item.label} `;
       // Replace the @... text with the formatted mention
-      const newText = text.slice(0, query.startPos) + mention + text.slice(cursorPos);
+      const newText =
+        text.slice(0, query.startPos) + mention + text.slice(cursorPos);
       const newCursorPos = query.startPos + mention.length;
       textInput.setInput(newText);
       cursorPosRef.current = newCursorPos;
@@ -263,7 +237,7 @@ function ChatInputInner({
         }
       });
     },
-    [textInput, query.startPos, addMention, clearQuery]
+    [textInput, query.startPos, addMention, clearQuery],
   );
 
   const handleSelectCategory = useCallback(
@@ -273,7 +247,8 @@ function ChatInputInner({
       const shortcut = CATEGORY_TO_SHORTCUT[category] ?? category;
       // Replace from @ to cursor with @shortcut:
       const insertion = `@${shortcut}:`;
-      const newText = text.slice(0, query.startPos) + insertion + text.slice(cursorPos);
+      const newText =
+        text.slice(0, query.startPos) + insertion + text.slice(cursorPos);
       textInput.setInput(newText);
       const newCursorPos = query.startPos + insertion.length;
       cursorPosRef.current = newCursorPos;
@@ -288,7 +263,7 @@ function ChatInputInner({
         }
       });
     },
-    [textInput, query.startPos, updateQuery]
+    [textInput, query.startPos, updateQuery],
   );
 
   const handleClose = useCallback(() => {
@@ -362,44 +337,42 @@ function ChatInputInner({
               <AtSign className="size-3.5" />
             </Button>
 
-
-            <ModelSelector
-              open={modelSelectorOpen}
-              onOpenChange={setModelSelectorOpen}
-            >
-              <ModelSelectorTrigger asChild>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-7 gap-1.5 px-2 text-xs"
                   type="button"
                 >
-                  <ModelSelectorLogo provider={currentModel.provider} />
+                  <img
+                    src={currentModel.logo}
+                    alt=""
+                    className="size-5 dark:invert"
+                    width={12}
+                    height={12}
+                  />
                   {currentModel.name}
                 </Button>
-              </ModelSelectorTrigger>
-              <ModelSelectorContent>
-                <ModelSelectorInput placeholder="Search models..." />
-                <ModelSelectorList>
-                  <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
-                  <ModelSelectorGroup>
-                    {MODELS.map((model) => (
-                      <ModelSelectorItem
-                        key={model.id}
-                        value={model.id}
-                        onSelect={() => {
-                          setSelectedModel(model.id);
-                          setModelSelectorOpen(false);
-                        }}
-                      >
-                        <ModelSelectorLogo provider={model.provider} />
-                        <ModelSelectorName>{model.name}</ModelSelectorName>
-                      </ModelSelectorItem>
-                    ))}
-                  </ModelSelectorGroup>
-                </ModelSelectorList>
-              </ModelSelectorContent>
-            </ModelSelector>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                {AI_MODELS.map((model) => (
+                  <DropdownMenuItem
+                    key={model.id}
+                    onClick={() => setSelectedModel(model.id)}
+                  >
+                    <img
+                      src={model.logo}
+                      alt=""
+                      className="size-5 dark:invert"
+                      width={12}
+                      height={12}
+                    />
+                    {model.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </PromptInputTools>
 
           <PromptInputSubmit
