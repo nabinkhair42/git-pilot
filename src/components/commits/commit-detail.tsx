@@ -4,7 +4,6 @@ import { DiffViewer } from "@/components/diff/diff-viewer";
 import { CommitDetailSkeleton } from "@/components/loaders/commit-detail-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { FILE_STATUS_COLORS, FILE_STATUS_LABELS } from "@/config/constants";
-import { useRepo } from "@/hooks/use-repo";
 import { useUnifiedCommitDetail } from "@/hooks/use-unified";
 import { formatDate, formatDiffStats } from "@/lib/formatters";
 import { FileText, Minus, Plus } from "lucide-react";
@@ -15,8 +14,6 @@ interface CommitDetailProps {
 }
 
 export function CommitDetail({ hash }: CommitDetailProps) {
-  const { repoPath, mode, githubOwner, githubRepoName } = useRepo();
-  const isGitHub = mode === "github";
   const { data: commit, isLoading, error } = useUnifiedCommitDetail(hash);
   const router = useRouter();
 
@@ -81,7 +78,7 @@ export function CommitDetail({ hash }: CommitDetailProps) {
 
       {/* Scrollable content */}
       <div className="min-h-0 flex-1 overflow-y-auto">
-        
+
 
         {/* File list */}
         <div className="rail-bounded">
@@ -121,7 +118,7 @@ export function CommitDetail({ hash }: CommitDetailProps) {
           </div>
         </div>
 
-        
+
 
         {/* Diff */}
         <div className="rail-bounded">

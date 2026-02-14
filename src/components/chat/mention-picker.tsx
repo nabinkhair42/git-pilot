@@ -19,7 +19,6 @@ import {
   GitCommitHorizontal,
   GitBranch,
   Tag,
-  Archive,
   FolderGit2,
 } from "lucide-react";
 
@@ -28,7 +27,6 @@ const CATEGORY_ICONS: Record<MentionCategory, React.ComponentType<{ className?: 
   commit: GitCommitHorizontal,
   branch: GitBranch,
   tag: Tag,
-  stash: Archive,
   repository: FolderGit2,
 };
 
@@ -45,7 +43,7 @@ export function MentionPicker({
   onSelectCategory,
   onClose,
 }: MentionPickerProps) {
-  const { mode } = useRepo();
+  const { githubOwner, githubRepoName } = useRepo();
   const commandRef = useRef<HTMLDivElement>(null);
 
   const { data: candidates, isLoading } = useMentionCandidates(
@@ -53,9 +51,7 @@ export function MentionPicker({
     query.active && query.mode === "search" ? query.search : ""
   );
 
-  const visibleCategories = MENTION_CATEGORIES.filter(
-    (cat) => !(cat.id === "stash" && mode === "github")
-  );
+  const visibleCategories = MENTION_CATEGORIES;
 
   // Close on click outside
   useEffect(() => {
@@ -71,6 +67,16 @@ export function MentionPicker({
 
   if (!query.active) return null;
 
+  // Check if repo context is available
+  const hasRepoContext = !!githubOwner && !!githubRepoName;
+
+  // Non-repo categories require a repo to be selected
+  const needsRepo =
+    query.mode === "search" &&
+    query.category !== null &&
+    query.category !== "repository" &&
+    !hasRepoContext;
+
   // Group candidates by category for cross-category search
   const grouped = query.category === null && candidates.length > 0
     ? candidates.reduce<Record<string, MentionItem[]>>((acc, item) => {
@@ -84,6 +90,8 @@ export function MentionPicker({
   return (
     <div
       ref={commandRef}
+      // Prevent textarea from losing focus when clicking picker items
+      onMouseDown={(e) => e.preventDefault()}
       className="absolute inset-x-0 bottom-full z-50 mb-1 overflow-hidden rounded-lg border border-border bg-popover shadow-lg"
     >
       {query.mode === "categories" ? (
@@ -108,7 +116,11 @@ export function MentionPicker({
         /* ── Search results ── */
         <Command shouldFilter={false} className="rounded-none">
           <CommandList className="max-h-48">
-            {isLoading ? (
+            {needsRepo ? (
+              <div className="px-4 py-6 text-center text-sm text-muted-foreground">
+                Select a repo to search {query.category}s
+              </div>
+            ) : isLoading ? (
               <div className="flex items-center justify-center py-6">
                 <Spinner />
               </div>

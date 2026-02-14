@@ -1,41 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { GitMerge, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { useGitMutations } from "@/hooks/use-git";
 import { useGitHubMutations } from "@/hooks/use-github";
-import { useRepo } from "@/hooks/use-repo";
 import { useUnifiedBranches } from "@/hooks/use-unified";
 import { PageLayout } from "@/components/shared/page-layout";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BranchListSkeleton } from "@/components/loaders/branch-list-skeleton";
 import { BranchListItem } from "@/components/branches/branch-list-item";
-import { CreateBranchDialog } from "@/components/dialog-window/create-branch-dialog";
-import { MergeBranchDialog } from "@/components/dialog-window/merge-branch-dialog";
 import { ConfirmationDialog } from "@/components/dialog-window/confirmation-dialog";
 
 export function BranchList() {
-  const { mode } = useRepo();
-  const isGitHub = mode === "github";
   const { data, isLoading, error, mutate } = useUnifiedBranches();
-  const mutations = useGitMutations();
   const ghMutations = useGitHubMutations();
-
-  const [createOpen, setCreateOpen] = useState(false);
-  const [mergeOpen, setMergeOpen] = useState(false);
 
   const [deleteConfirm, setDeleteConfirm] = useState<{
     open: boolean;
     name: string;
-    force: boolean;
-    isRemote: boolean;
-  }>({ open: false, name: "", force: false, isRemote: false });
+  }>({ open: false, name: "" });
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const [search, setSearch] = useState("");
-  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
   const allBranches = data?.branches || [];
 
@@ -45,61 +30,14 @@ export function BranchList() {
       )
     : allBranches;
 
-  const localBranches = filteredBranches.filter((b) => !b.isRemote);
-  const remoteBranches = filteredBranches.filter((b) => b.isRemote);
-  const branches = filteredBranches;
-  const currentBranch = allBranches
-    .filter((b) => !b.isRemote)
-    .find((b) => b.current);
-
-  async function handleCreate(name: string) {
-    const result = await mutations.createBranch(name);
-    if (result.success) {
-      toast.success(result.message);
-    } else {
-      toast.error(result.message);
-      throw new Error(result.message);
-    }
-  }
-
-  async function handleCheckout(name: string) {
-    setCheckoutLoading(name);
-    try {
-      const result = await mutations.checkoutBranch(name);
-      if (result.success) {
-        toast.success(result.message);
-      } else {
-        toast.error(result.message);
-      }
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Checkout failed");
-    } finally {
-      setCheckoutLoading(null);
-    }
-  }
-
   async function handleDelete() {
     setDeleteLoading(true);
     try {
-      let result;
-      if (isGitHub) {
-        result = await ghMutations.deleteBranch(deleteConfirm.name);
-      } else if (deleteConfirm.isRemote) {
-        result = await mutations.deleteRemoteBranch(deleteConfirm.name);
-      } else {
-        result = await mutations.deleteBranch(deleteConfirm.name, deleteConfirm.force);
-      }
+      const result = await ghMutations.deleteBranch(deleteConfirm.name);
       if (result.success) {
         toast.success(result.message);
-        setDeleteConfirm({
-          open: false,
-          name: "",
-          force: false,
-          isRemote: false,
-        });
-        if (isGitHub) {
-          mutate();
-        }
+        setDeleteConfirm({ open: false, name: "" });
+        mutate();
       } else {
         toast.error(result.message);
       }
@@ -107,16 +45,6 @@ export function BranchList() {
       toast.error(e instanceof Error ? e.message : "Delete failed");
     } finally {
       setDeleteLoading(false);
-    }
-  }
-
-  async function handleMerge(sourceBranch: string) {
-    const result = await mutations.mergeBranch(sourceBranch);
-    if (result.success) {
-      toast.success(result.message);
-    } else {
-      toast.error(result.message);
-      throw new Error(result.message);
     }
   }
 
@@ -134,32 +62,7 @@ export function BranchList() {
     <PageLayout
       label="Management"
       title="Branches"
-      description="View, create, and manage local and remote branches."
-      actions={
-        <div className="flex flex-wrap gap-2">
-          {!isGitHub && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setMergeOpen(true)}
-                className="border-border transition-colors hover:bg-accent"
-              >
-                <GitMerge size={14}  />
-                Merge
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => setCreateOpen(true)}
-                className="bg-foreground text-background transition-opacity hover:opacity-80"
-              >
-                <Plus size={14}  />
-                New Branch
-              </Button>
-            </>
-          )}
-        </div>
-      }
+      description="View and manage repository branches."
       filters={
         allBranches.length > 5 ? (
           <div className="pb-4">
@@ -177,112 +80,40 @@ export function BranchList() {
       <div>
         {isLoading ? (
           <BranchListSkeleton />
-        ) : branches.length === 0 ? (
+        ) : filteredBranches.length === 0 ? (
           <div className="flex items-center justify-center py-20">
             <p className="text-sm text-muted-foreground">No branches found</p>
           </div>
         ) : (
           <div>
-            {/* Local branches */}
-            {localBranches.length > 0 && (
-              <div className="px-4 pb-1 pt-4 sm:px-6">
-                <p className="text-[11px] font-medium  text-muted-foreground/60">
-                  Local
-                </p>
-              </div>
-            )}
-            {localBranches.map((branch, i) => (
+            {filteredBranches.map((branch, i) => (
               <BranchListItem
                 key={branch.name}
                 name={branch.name}
                 commit={branch.commit}
                 current={branch.current}
-                isGitHub={isGitHub}
                 showDivider={i !== 0}
-                checkoutLoading={checkoutLoading === branch.name}
-                checkoutDisabled={checkoutLoading !== null}
-                onCheckout={() => handleCheckout(branch.name)}
-                onDelete={(force) =>
+                onDelete={() =>
                   setDeleteConfirm({
                     open: true,
                     name: branch.name,
-                    force,
-                    isRemote: false,
                   })
                 }
               />
             ))}
-
-            {/* Remote branches */}
-            {remoteBranches.length > 0 && (
-              <>
-                <div className="px-4 pb-1 pt-4 mt-2 border-t border-border sm:px-6">
-                  <p className="text-[11px] font-medium  text-muted-foreground/60">
-                    Remote
-                  </p>
-                </div>
-                {remoteBranches.map((branch, i) => (
-                  <BranchListItem
-                    key={branch.name}
-                    name={branch.name}
-                    commit={branch.commit}
-                    isRemote
-                    isGitHub={isGitHub}
-                    showDivider={i !== 0}
-                    checkoutLoading={checkoutLoading === branch.name}
-                    checkoutDisabled={checkoutLoading !== null}
-                    onCheckout={() => handleCheckout(branch.name)}
-                    onDelete={() =>
-                      setDeleteConfirm({
-                        open: true,
-                        name: branch.name,
-                        force: false,
-                        isRemote: true,
-                      })
-                    }
-                  />
-                ))}
-              </>
-            )}
           </div>
         )}
       </div>
-
-      <CreateBranchDialog
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        onSubmit={handleCreate}
-      />
-
-      <MergeBranchDialog
-        open={mergeOpen}
-        onOpenChange={setMergeOpen}
-        currentBranchName={currentBranch?.name}
-        branches={allBranches}
-        onSubmit={handleMerge}
-      />
 
       {/* Delete confirmation */}
       <ConfirmationDialog
         open={deleteConfirm.open}
         onOpenChange={(open) => setDeleteConfirm((prev) => ({ ...prev, open }))}
-        title={`${deleteConfirm.isRemote ? "Delete Remote Branch" : `${deleteConfirm.force ? "Force " : ""}Delete Branch`}`}
-        description={
-          deleteConfirm.isRemote
-            ? `This will delete the remote branch "${deleteConfirm.name}". This action pushes a delete to the remote and cannot be undone easily.`
-            : `This will delete the branch "${deleteConfirm.name}".${
-                deleteConfirm.force
-                  ? " Force delete will remove it even if it has unmerged changes."
-                  : ""
-              }`
-        }
+        title="Delete Branch"
+        description={`This will delete the branch "${deleteConfirm.name}". This action cannot be undone easily.`}
         confirmLabel="Delete"
         variant="destructive"
-        typedConfirmation={
-          deleteConfirm.force || deleteConfirm.isRemote
-            ? deleteConfirm.name
-            : undefined
-        }
+        typedConfirmation={deleteConfirm.name}
         onConfirm={handleDelete}
         loading={deleteLoading}
       />

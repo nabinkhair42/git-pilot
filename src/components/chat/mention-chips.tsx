@@ -7,7 +7,6 @@ import {
   GitCommitHorizontal,
   GitBranch,
   Tag,
-  Archive,
   FolderGit2,
   X,
 } from "lucide-react";
@@ -17,7 +16,6 @@ const CATEGORY_ICONS: Record<MentionCategory, React.ComponentType<{ className?: 
   commit: GitCommitHorizontal,
   branch: GitBranch,
   tag: Tag,
-  stash: Archive,
   repository: FolderGit2,
 };
 

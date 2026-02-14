@@ -1,14 +1,14 @@
-import { Tag, BookMarked, Trash2, MoreHorizontal } from "lucide-react";
-import { toast } from "sonner";
-import { formatRelativeDate, formatHash } from "@/lib/formatters";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { formatHash, formatRelativeDate } from "@/lib/formatters";
+import { BookMarked, MoreHorizontal, Tag } from "lucide-react";
+import { toast } from "sonner";
 
 interface TagListItemProps {
   name: string;
@@ -17,9 +17,7 @@ interface TagListItemProps {
   date?: string;
   tagger?: string;
   isAnnotated?: boolean;
-  isGitHub?: boolean;
   showDivider?: boolean;
-  onDelete?: () => void;
 }
 
 export function TagListItem({
@@ -29,9 +27,7 @@ export function TagListItem({
   date,
   tagger,
   isAnnotated,
-  isGitHub,
   showDivider,
-  onDelete,
 }: TagListItemProps) {
   return (
     <div
@@ -115,15 +111,6 @@ export function TagListItem({
             >
               Copy hash
             </DropdownMenuItem>
-            {!isGitHub && (
-              <DropdownMenuItem
-                onClick={onDelete}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 size={14} className="mr-2" />
-                Delete
-              </DropdownMenuItem>
-            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

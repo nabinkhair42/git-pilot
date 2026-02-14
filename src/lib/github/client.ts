@@ -170,6 +170,37 @@ export async function deleteBranch(
   return { success: true, message: `Branch "${branch}" deleted` };
 }
 
+export async function createBranch(
+  token: string,
+  owner: string,
+  repo: string,
+  branchName: string,
+  fromRef?: string
+) {
+  const octokit = createGitHubClient(token);
+  let sha: string;
+  if (fromRef) {
+    // Try branch, then tag, then treat as commit SHA
+    try {
+      const { data } = await octokit.rest.git.getRef({ owner, repo, ref: `heads/${fromRef}` });
+      sha = data.object.sha;
+    } catch {
+      try {
+        const { data } = await octokit.rest.git.getRef({ owner, repo, ref: `tags/${fromRef}` });
+        sha = data.object.sha;
+      } catch {
+        sha = fromRef;
+      }
+    }
+  } else {
+    const { data: repoData } = await octokit.rest.repos.get({ owner, repo });
+    const { data } = await octokit.rest.git.getRef({ owner, repo, ref: `heads/${repoData.default_branch}` });
+    sha = data.object.sha;
+  }
+  await octokit.rest.git.createRef({ owner, repo, ref: `refs/heads/${branchName}`, sha });
+  return { success: true, message: `Branch "${branchName}" created from ${fromRef || "default branch"} (${sha.substring(0, 7)})` };
+}
+
 export async function resetBranch(
   token: string,
   owner: string,
@@ -464,6 +495,22 @@ export async function getFileTree(
     type: item.type,
     size: item.size,
   }));
+}
+
+export async function getFileContent(
+  token: string,
+  owner: string,
+  repo: string,
+  path: string,
+  ref?: string
+) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.repos.getContent({ owner, repo, path, ref });
+  if (Array.isArray(data) || data.type !== "file") {
+    throw new Error(`Path '${path}' is not a file`);
+  }
+  const content = Buffer.from(data.content, "base64").toString("utf-8");
+  return { path, ref: ref || "default", content, size: data.size };
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────

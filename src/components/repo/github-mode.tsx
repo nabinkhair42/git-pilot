@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { GitHub } from "../icons/github";
 import { LogOut } from "lucide-react";
-import { session } from "@/lib/db/schema";
 
 export function GitHubModeContent({
   session,
@@ -50,7 +49,7 @@ export function GitHubModeContent({
         <Button
           onClick={() => {
             setSignInLoading(true);
-            signIn.social({ provider: "github", callbackURL: "/?mode=github" });
+            signIn.social({ provider: "github", callbackURL: "/" });
           }}
           isLoading={signInLoading}
           className="h-11 gap-2 bg-foreground px-6 text-sm font-medium text-background transition-opacity hover:opacity-80"
@@ -106,7 +105,7 @@ function GitHubRepoGrid({ session }: { session: any }) {
     };
     setGitHubRepo(ghRepo);
     router.push(
-      `/repo/commits?mode=github&owner=${encodeURIComponent(repo.owner)}&repo=${encodeURIComponent(repo.name)}`,
+      `/repo/commits?owner=${encodeURIComponent(repo.owner)}&repo=${encodeURIComponent(repo.name)}`,
     );
   }
 

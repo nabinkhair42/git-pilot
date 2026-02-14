@@ -1,20 +1,13 @@
 "use client";
 
 /**
- * Unified data hooks that transparently delegate to either
- * local git hooks or GitHub API hooks based on the current repo mode.
+ * Data hooks that fetch from GitHub API based on current repo context.
  */
 
 import useSWR from "swr";
 import { useRepo } from "@/hooks/use-repo";
-import { useCommits, useCommitDetail, useBranches, useTags, useDiff } from "@/hooks/use-git";
 import * as ghService from "@/services/frontend/github.services";
-import type { CommitInfo, CommitDetail, BranchInfo, TagInfo, DiffResult } from "@/lib/git/types";
-
-function useIsGitHub() {
-  const { mode } = useRepo();
-  return mode === "github";
-}
+import type { CommitInfo, CommitDetail, BranchInfo, TagInfo, DiffResult } from "@/types/git";
 
 function useGitHubParams() {
   const { githubOwner, githubRepoName } = useRepo();
@@ -30,15 +23,10 @@ export function useUnifiedCommits(opts?: {
   search?: string;
   author?: string;
 }) {
-  const isGitHub = useIsGitHub();
   const { owner, repo } = useGitHubParams();
 
-  // Local
-  const local = useCommits(isGitHub ? undefined : opts);
-
-  // GitHub
-  const github = useSWR(
-    isGitHub && owner && repo
+  const result = useSWR(
+    owner && repo
       ? ["github-commits", owner, repo, JSON.stringify(opts)]
       : null,
     async () => {
@@ -50,61 +38,38 @@ export function useUnifiedCommits(opts?: {
     }
   );
 
-  if (isGitHub) {
-    return {
-      data: github.data as { commits: CommitInfo[]; total: number } | undefined,
-      isLoading: github.isLoading,
-      error: github.error,
-      mutate: github.mutate,
-    };
-  }
-
   return {
-    data: local.data as { commits: CommitInfo[]; total: number } | undefined,
-    isLoading: local.isLoading,
-    error: local.error,
-    mutate: local.mutate,
+    data: result.data as { commits: CommitInfo[]; total: number } | undefined,
+    isLoading: result.isLoading,
+    error: result.error,
+    mutate: result.mutate,
   };
 }
 
 export function useUnifiedCommitDetail(hash: string | null) {
-  const isGitHub = useIsGitHub();
   const { owner, repo } = useGitHubParams();
 
-  const local = useCommitDetail(isGitHub ? null : hash);
-
-  const github = useSWR(
-    isGitHub && owner && repo && hash
+  const result = useSWR(
+    owner && repo && hash
       ? ["github-commit-detail", owner, repo, hash]
       : null,
     () => ghService.getGitHubCommitDetail(owner!, repo!, hash!)
   );
 
-  if (isGitHub) {
-    return {
-      data: github.data as CommitDetail | undefined,
-      isLoading: github.isLoading,
-      error: github.error,
-    };
-  }
-
   return {
-    data: local.data as CommitDetail | undefined,
-    isLoading: local.isLoading,
-    error: local.error,
+    data: result.data as CommitDetail | undefined,
+    isLoading: result.isLoading,
+    error: result.error,
   };
 }
 
 // ─── Branches ───────────────────────────────────────────────────────────────
 
 export function useUnifiedBranches() {
-  const isGitHub = useIsGitHub();
   const { owner, repo } = useGitHubParams();
 
-  const local = useBranches();
-
-  const github = useSWR(
-    isGitHub && owner && repo
+  const result = useSWR(
+    owner && repo
       ? ["github-branches", owner, repo]
       : null,
     async () => {
@@ -113,33 +78,21 @@ export function useUnifiedBranches() {
     }
   );
 
-  if (isGitHub) {
-    return {
-      data: github.data as { branches: BranchInfo[] } | undefined,
-      isLoading: github.isLoading,
-      error: github.error,
-      mutate: github.mutate,
-    };
-  }
-
   return {
-    data: local.data as { branches: BranchInfo[] } | undefined,
-    isLoading: local.isLoading,
-    error: local.error,
-    mutate: local.mutate,
+    data: result.data as { branches: BranchInfo[] } | undefined,
+    isLoading: result.isLoading,
+    error: result.error,
+    mutate: result.mutate,
   };
 }
 
 // ─── Tags ───────────────────────────────────────────────────────────────────
 
 export function useUnifiedTags() {
-  const isGitHub = useIsGitHub();
   const { owner, repo } = useGitHubParams();
 
-  const local = useTags();
-
-  const github = useSWR(
-    isGitHub && owner && repo
+  const result = useSWR(
+    owner && repo
       ? ["github-tags", owner, repo]
       : null,
     async () => {
@@ -148,47 +101,28 @@ export function useUnifiedTags() {
     }
   );
 
-  if (isGitHub) {
-    return {
-      data: github.data as { tags: TagInfo[] } | undefined,
-      isLoading: github.isLoading,
-      error: github.error,
-    };
-  }
-
   return {
-    data: local.data as { tags: TagInfo[] } | undefined,
-    isLoading: local.isLoading,
-    error: local.error,
+    data: result.data as { tags: TagInfo[] } | undefined,
+    isLoading: result.isLoading,
+    error: result.error,
   };
 }
 
 // ─── Diff ───────────────────────────────────────────────────────────────────
 
 export function useUnifiedDiff(from: string | null, to: string | null) {
-  const isGitHub = useIsGitHub();
   const { owner, repo } = useGitHubParams();
 
-  const local = useDiff(isGitHub ? null : from, isGitHub ? null : to);
-
-  const github = useSWR(
-    isGitHub && owner && repo && from && to
+  const result = useSWR(
+    owner && repo && from && to
       ? ["github-diff", owner, repo, from, to]
       : null,
     () => ghService.getGitHubDiff(owner!, repo!, from!, to!)
   );
 
-  if (isGitHub) {
-    return {
-      data: github.data as DiffResult | undefined,
-      isLoading: github.isLoading,
-      error: github.error,
-    };
-  }
-
   return {
-    data: local.data as DiffResult | undefined,
-    isLoading: local.isLoading,
-    error: local.error,
+    data: result.data as DiffResult | undefined,
+    isLoading: result.isLoading,
+    error: result.error,
   };
 }

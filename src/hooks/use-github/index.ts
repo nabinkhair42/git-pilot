@@ -10,9 +10,8 @@ function useGitHubRepo() {
 }
 
 export function useGitHubRepos() {
-  const { isGitHubMode } = useMode();
   return useSWR(
-    isGitHubMode ? ["github-repos"] : null,
+    ["github-repos"],
     () => ghService.getGitHubRepos()
   );
 }

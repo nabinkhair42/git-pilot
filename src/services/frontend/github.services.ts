@@ -4,10 +4,9 @@ import type {
   CommitInfo,
   CommitDetail,
   BranchInfo,
-  StatusInfo,
   DiffResult,
   TagInfo,
-} from "@/lib/git/types";
+} from "@/types/git";
 
 function unwrap<T>(res: { data: { success: boolean; data: T } }): T {
   return res.data.data;
@@ -150,23 +149,3 @@ export async function resetGitHubBranch(
   );
 }
 
-// ─── Status (stub) ──────────────────────────────────────────────────────────
-
-export async function getGitHubStatus(
-  _owner: string,
-  _repo: string
-): Promise<StatusInfo> {
-  // GitHub repos don't have working-tree state
-  return {
-    current: null,
-    tracking: null,
-    ahead: 0,
-    behind: 0,
-    staged: [],
-    modified: [],
-    deleted: [],
-    untracked: [],
-    conflicted: [],
-    isClean: true,
-  };
-}

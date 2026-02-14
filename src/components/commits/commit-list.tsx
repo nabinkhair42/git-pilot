@@ -4,7 +4,6 @@ import { CommitListItem } from "@/components/commits/commit-list-item";
 import { ConfirmationDialog } from "@/components/dialog-window/confirmation-dialog";
 import { CommitListSkeleton } from "@/components/loaders/commit-list-skeleton";
 import { PageLayout } from "@/components/shared/page-layout";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -12,14 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DEFAULT_COMMITS_PER_PAGE, RESET_MODES } from "@/config/constants";
-import { useGitMutations } from "@/hooks/use-git";
+import { RESET_MODES } from "@/config/constants";
 import { useGitHubMutations } from "@/hooks/use-github";
 import { useRepo } from "@/hooks/use-repo";
 import { useUnifiedBranches, useUnifiedCommits } from "@/hooks/use-unified";
 import { formatHash } from "@/lib/formatters";
-import type { ResetMode } from "@/lib/git/types";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import type { ResetMode } from "@/types/git";
+import { Search } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -30,23 +28,17 @@ import {
 } from "../ui/input-group";
 
 export function CommitList() {
-  const { repoPath, mode, githubOwner, githubRepoName } = useRepo();
-  const isGitHub = mode === "github";
+  const { githubOwner, githubRepoName } = useRepo();
 
-  const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [branch, setBranch] = useState<string | undefined>(undefined);
 
   const { data, isLoading, error } = useUnifiedCommits({
     branch,
-    maxCount: DEFAULT_COMMITS_PER_PAGE,
-    skip: isGitHub ? undefined : page * DEFAULT_COMMITS_PER_PAGE,
-    search: isGitHub ? undefined : search || undefined,
   });
 
   const { data: branchData } = useUnifiedBranches();
-  const mutations = useGitMutations();
   const ghMutations = useGitHubMutations();
 
   // Resolve the target branch for GitHub operations
@@ -76,7 +68,6 @@ export function CommitList() {
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     setSearch(searchInput);
-    setPage(0);
   }
 
   const showConfirm = useCallback(
@@ -108,62 +99,50 @@ export function CommitList() {
 
   function handleReset(hash: string, mode: ResetMode) {
     const config = RESET_MODES[mode];
-    const isCritical = config.tier === "critical";
 
     showConfirm({
       title: `${config.label} Reset`,
-      description: isGitHub
-        ? `This will force-update "${targetBranch}" to ${formatHash(hash)}. All commits after this point will be lost. This action is irreversible.`
-        : `${config.description}. This will reset HEAD to ${formatHash(hash)}.${isCritical ? " This action is irreversible and will discard all uncommitted changes." : ""}`,
-      confirmLabel: isGitHub ? "Reset (hard)" : `Reset (${mode})`,
+      description: `This will force-update "${targetBranch}" to ${formatHash(hash)}. All commits after this point will be lost. This action is irreversible.`,
+      confirmLabel: "Reset (hard)",
       variant: "destructive",
-      typedConfirmation: isGitHub || isCritical ? formatHash(hash) : undefined,
+      typedConfirmation: formatHash(hash),
       action: () =>
-        executeWithToast(() =>
-          isGitHub
-            ? ghMutations.reset(hash, targetBranch)
-            : mutations.reset(hash, mode)
-        ),
+        executeWithToast(() => ghMutations.reset(hash, targetBranch)),
     });
   }
 
   function handleCherryPick(hash: string) {
     showConfirm({
       title: "Cherry-pick Commit",
-      description: isGitHub
-        ? `Apply commit ${formatHash(hash)} onto the "${targetBranch}" branch.`
-        : `Apply commit ${formatHash(hash)} onto the current branch.`,
+      description: `Apply commit ${formatHash(hash)} onto the "${targetBranch}" branch.`,
       confirmLabel: "Cherry-pick",
       variant: "default",
       action: () =>
-        executeWithToast(() =>
-          isGitHub
-            ? ghMutations.cherryPick([hash], targetBranch)
-            : mutations.cherryPick([hash])
-        ),
+        executeWithToast(() => ghMutations.cherryPick([hash], targetBranch)),
     });
   }
 
   function handleRevert(hash: string) {
     showConfirm({
       title: "Revert Commit",
-      description: isGitHub
-        ? `Create a new commit on "${targetBranch}" that undoes the changes from ${formatHash(hash)}.`
-        : `Create a new commit that undoes the changes from ${formatHash(hash)}.`,
+      description: `Create a new commit on "${targetBranch}" that undoes the changes from ${formatHash(hash)}.`,
       confirmLabel: "Revert",
       variant: "default",
       action: () =>
-        executeWithToast(() =>
-          isGitHub
-            ? ghMutations.revert([hash], targetBranch)
-            : mutations.revert([hash])
-        ),
+        executeWithToast(() => ghMutations.revert([hash], targetBranch)),
     });
   }
 
-  const totalPages = data
-    ? Math.ceil(data.total / DEFAULT_COMMITS_PER_PAGE)
-    : 0;
+  // Client-side filter for search
+  const commits = data?.commits || [];
+  const filteredCommits = search
+    ? commits.filter(
+        (c) =>
+          c.message.toLowerCase().includes(search.toLowerCase()) ||
+          c.hash.includes(search) ||
+          c.authorName.toLowerCase().includes(search.toLowerCase()),
+      )
+    : commits;
 
   if (error) {
     return (
@@ -205,7 +184,6 @@ export function CommitList() {
               value={branch || "__all__"}
               onValueChange={(v) => {
                 setBranch(v === "__all__" ? undefined : v);
-                setPage(0);
               }}
             >
               <SelectTrigger className="h-9 w-full border-border bg-input/20 text-sm sm:w-auto sm:min-w-35">
@@ -215,7 +193,7 @@ export function CommitList() {
                 <SelectItem value="__all__">All branches</SelectItem>
                 {branchData.branches.map((b) => (
                   <SelectItem key={b.name} value={b.name}>
-                    {b.name} {b.current ? "(current)" : ""}
+                    {b.name} {b.current ? "(default)" : ""}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -228,13 +206,13 @@ export function CommitList() {
       <div>
         {isLoading ? (
           <CommitListSkeleton />
-        ) : data?.commits.length === 0 ? (
+        ) : filteredCommits.length === 0 ? (
           <div className="flex items-center justify-center py-20">
             <p className="text-sm text-muted-foreground">No commits found</p>
           </div>
         ) : (
           <div>
-            {data?.commits.map((commit, i) => (
+            {filteredCommits.map((commit, i) => (
               <CommitListItem
                 key={commit.hash}
                 hash={commit.hash}
@@ -243,13 +221,8 @@ export function CommitList() {
                 authorName={commit.authorName}
                 date={commit.date}
                 refs={commit.refs}
-                href={
-                  isGitHub
-                    ? `/repo/commits/${commit.hash}?mode=github&owner=${encodeURIComponent(githubOwner || "")}&repo=${encodeURIComponent(githubRepoName || "")}`
-                    : `/repo/commits/${commit.hash}?path=${encodeURIComponent(repoPath || "")}`
-                }
+                href={`/repo/commits/${commit.hash}?owner=${encodeURIComponent(githubOwner || "")}&repo=${encodeURIComponent(githubRepoName || "")}`}
                 showDivider={i !== 0}
-                isGitHub={isGitHub}
                 onCherryPick={() => handleCherryPick(commit.hash)}
                 onRevert={() => handleRevert(commit.hash)}
                 onReset={(mode) => handleReset(commit.hash, mode)}
@@ -258,42 +231,6 @@ export function CommitList() {
           </div>
         )}
       </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <>
-
-          <div>
-            <div className="flex items-center justify-between px-6 py-4">
-              <span className="text-xs text-muted-foreground">
-                Page {page + 1} of {totalPages} ({data?.total} commits)
-              </span>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage((p) => Math.max(0, p - 1))}
-                  disabled={page === 0}
-                  className="border-border transition-colors hover:bg-accent"
-                >
-                  <ChevronLeft size={14} />
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage((p) => p + 1)}
-                  disabled={page + 1 >= totalPages}
-                  className="border-border transition-colors hover:bg-accent"
-                >
-                  Next
-                  <ChevronRight size={14} />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
 
       <ConfirmationDialog
         open={confirmDialog.open}

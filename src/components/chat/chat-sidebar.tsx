@@ -12,10 +12,8 @@ import { Bot, MessageSquare, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export function ChatSidebar() {
-  const { repoPath, mode, githubOwner, githubRepoName } = useRepo();
-  const hasRepo =
-    (mode === "local" && !!repoPath) ||
-    (mode === "github" && !!githubOwner && !!githubRepoName);
+  const { githubOwner, githubRepoName } = useRepo();
+  const hasRepo = !!githubOwner && !!githubRepoName;
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const transport = useMemo(
@@ -23,13 +21,11 @@ export function ChatSidebar() {
       new DefaultChatTransport({
         api: "/api/chat",
         body: {
-          mode,
-          repoPath,
           owner: githubOwner,
           repo: githubRepoName,
         },
       }),
-    [mode, repoPath, githubOwner, githubRepoName],
+    [githubOwner, githubRepoName],
   );
 
   const { messages, sendMessage, status, stop, setMessages } = useChat({
@@ -44,8 +40,6 @@ export function ChatSidebar() {
 
     if (mentions.length > 0) {
       const resolved = await resolveAllMentions(mentions, {
-        mode,
-        repoPath,
         owner: githubOwner,
         repo: githubRepoName,
       });

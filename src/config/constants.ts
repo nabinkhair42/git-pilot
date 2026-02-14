@@ -1,8 +1,5 @@
 export const APP_NAME = "GitPilot";
 export const DEFAULT_COMMITS_PER_PAGE = 50;
-export const MAX_RECENT_REPOS = 50
-export const STATUS_REFRESH_INTERVAL = 5000;
-export const STORAGE_KEY = "git-commit-manager:recent-repos";
 
 export const RESET_MODES = {
   soft: {
@@ -46,7 +43,6 @@ export const MENTION_CATEGORY_SHORTCUTS: Record<string, MentionCategory> = {
   commit: "commit",
   branch: "branch",
   tag: "tag",
-  stash: "stash",
   repo: "repository",
 };
 
@@ -55,7 +51,6 @@ export const MENTION_CATEGORIES = [
   { id: "commit" as const, label: "Commit", icon: "GitCommitHorizontal", placeholder: "Search commits..." },
   { id: "branch" as const, label: "Branch", icon: "GitBranch", placeholder: "Search branches..." },
   { id: "tag" as const, label: "Tag", icon: "Tag", placeholder: "Search tags..." },
-  { id: "stash" as const, label: "Stash", icon: "Archive", placeholder: "Search stashes..." },
   { id: "repository" as const, label: "Repository", icon: "FolderGit2", placeholder: "Search repos..." },
 ] as const;
 

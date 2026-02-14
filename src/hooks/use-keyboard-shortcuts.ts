@@ -42,18 +42,18 @@ export function useKeyboardShortcuts(shortcuts: Shortcut[]) {
 export function useRepoShortcuts() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const path = searchParams.get("path") || "";
+  const owner = searchParams.get("owner") || "";
+  const repo = searchParams.get("repo") || "";
 
   function nav(route: string) {
-    router.push(`${route}?path=${encodeURIComponent(path)}`);
+    router.push(`${route}?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}`);
   }
 
   useKeyboardShortcuts([
     { key: "1", description: "Go to Commits", action: () => nav("/repo/commits") },
     { key: "2", description: "Go to Branches", action: () => nav("/repo/branches") },
     { key: "3", description: "Go to Tags", action: () => nav("/repo/tags") },
-    { key: "4", description: "Go to Stash", action: () => nav("/repo/stash") },
-    { key: "5", description: "Go to Compare", action: () => nav("/repo/compare") },
+    { key: "4", description: "Go to Compare", action: () => nav("/repo/compare") },
     { key: "h", description: "Go Home", action: () => router.push("/") },
   ]);
 }

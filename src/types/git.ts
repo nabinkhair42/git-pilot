@@ -38,27 +38,6 @@ export interface BranchInfo {
   isRemote: boolean;
 }
 
-export interface RepoInfo {
-  path: string;
-  currentBranch: string;
-  remotes: { name: string; refs: { fetch: string; push: string } }[];
-  isClean: boolean;
-  headCommit: string;
-}
-
-export interface StatusInfo {
-  current: string | null;
-  tracking: string | null;
-  ahead: number;
-  behind: number;
-  staged: string[];
-  modified: string[];
-  deleted: string[];
-  untracked: string[];
-  conflicted: string[];
-  isClean: boolean;
-}
-
 export interface DiffResult {
   diff: string;
   from: string;
@@ -70,13 +49,6 @@ export type ResetMode = "soft" | "mixed" | "hard";
 export interface OperationResult {
   success: boolean;
   message: string;
-}
-
-export interface StashEntry {
-  index: number;
-  message: string;
-  date: string;
-  hash: string;
 }
 
 export interface TagInfo {

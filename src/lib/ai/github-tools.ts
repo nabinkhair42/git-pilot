@@ -9,11 +9,17 @@ import {
   getCompare,
   getStatus,
   getFileTree,
+  getFileContent,
+  createBranch,
+  deleteBranch,
+  cherryPickCommit,
+  revertCommit,
+  resetBranch,
 } from "@/lib/github/client";
 
 /**
  * Creates a set of GitHub-aware AI tools scoped to a specific repo.
- * All tools are read-only since write operations aren't supported via GitHub API.
+ * Includes read operations (safe) and write operations (modify remote repo).
  */
 export function createGitHubTools(
   owner: string,
@@ -216,6 +222,154 @@ export function createGitHubTools(
             directory: directory || "/",
             error:
               "Failed to list files. Check that the ref and directory are valid.",
+          };
+        }
+      },
+    }),
+
+    getFileContent: tool({
+      description:
+        "Read the content of a file in the repository at a given ref. Returns the file content as text. Useful for examining source code, configs, docs, etc.",
+      inputSchema: z.object({
+        filePath: z
+          .string()
+          .describe("Path to the file relative to the repo root (e.g. 'src/index.ts')."),
+        ref: z
+          .string()
+          .optional()
+          .describe("Git ref to read the file at (branch, tag, or commit hash). Defaults to default branch."),
+      }),
+      execute: async ({ filePath, ref }) => {
+        try {
+          const result = await getFileContent(token, owner, repo, filePath, ref);
+          const maxLength = 6000;
+          const truncated =
+            result.content.length > maxLength
+              ? result.content.slice(0, maxLength) +
+                "\n\n... [content truncated, showing first 6000 chars]"
+              : result.content;
+          return {
+            path: result.path,
+            ref: result.ref,
+            size: result.size,
+            content: truncated,
+          };
+        } catch (error) {
+          return {
+            error: `Failed to read file: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    createBranch: tool({
+      description:
+        "Create a new branch in the repository. Can branch from any existing branch, tag, or commit SHA. Defaults to branching from the default branch.",
+      inputSchema: z.object({
+        name: z
+          .string()
+          .describe("Name for the new branch."),
+        fromRef: z
+          .string()
+          .optional()
+          .describe("Branch, tag, or commit SHA to create the branch from. Defaults to default branch."),
+      }),
+      execute: async ({ name, fromRef }) => {
+        try {
+          return await createBranch(token, owner, repo, name, fromRef);
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to create branch: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    deleteBranch: tool({
+      description:
+        "Delete a branch from the repository. Cannot delete the default branch. This is irreversible.",
+      inputSchema: z.object({
+        branch: z
+          .string()
+          .describe("Name of the branch to delete."),
+      }),
+      execute: async ({ branch }) => {
+        try {
+          return await deleteBranch(token, owner, repo, branch);
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to delete branch: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    cherryPickCommits: tool({
+      description:
+        "Cherry-pick a single commit onto a target branch. Creates a new commit on the target branch with the same changes as the source commit.",
+      inputSchema: z.object({
+        branch: z
+          .string()
+          .describe("Target branch to cherry-pick onto."),
+        hash: z
+          .string()
+          .describe("The commit hash to cherry-pick."),
+      }),
+      execute: async ({ branch, hash }) => {
+        try {
+          return await cherryPickCommit(token, owner, repo, branch, hash);
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to cherry-pick: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    revertCommits: tool({
+      description:
+        "Revert a single commit on a target branch. Creates a new commit that undoes the changes from the specified commit.",
+      inputSchema: z.object({
+        branch: z
+          .string()
+          .describe("Target branch to revert on."),
+        hash: z
+          .string()
+          .describe("The commit hash to revert."),
+      }),
+      execute: async ({ branch, hash }) => {
+        try {
+          return await revertCommit(token, owner, repo, branch, hash);
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to revert: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    resetBranch: tool({
+      description:
+        "Force-reset a branch to point at a specific commit SHA. WARNING: This is destructive — any commits after the target SHA will be lost. Use with extreme caution.",
+      inputSchema: z.object({
+        branch: z
+          .string()
+          .describe("Branch to reset."),
+        sha: z
+          .string()
+          .describe("The commit SHA to reset the branch to."),
+      }),
+      execute: async ({ branch, sha }) => {
+        try {
+          return await resetBranch(token, owner, repo, branch, sha);
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to reset branch: ${error instanceof Error ? error.message : "Unknown error"}`,
           };
         }
       },

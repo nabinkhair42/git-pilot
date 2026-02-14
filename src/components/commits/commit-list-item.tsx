@@ -14,9 +14,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -26,7 +23,7 @@ import {
 } from "@/components/ui/tooltip";
 import { RESET_MODES } from "@/config/constants";
 import { formatRelativeDate } from "@/lib/formatters";
-import type { ResetMode } from "@/lib/git/types";
+import type { ResetMode } from "@/types/git";
 
 interface CommitListItemProps {
   hash: string;
@@ -37,7 +34,6 @@ interface CommitListItemProps {
   refs?: string;
   href: string;
   showDivider?: boolean;
-  isGitHub?: boolean;
   onCherryPick?: () => void;
   onRevert?: () => void;
   onReset?: (mode: ResetMode) => void;
@@ -52,7 +48,6 @@ export function CommitListItem({
   refs,
   href,
   showDivider,
-  isGitHub,
   onCherryPick,
   onRevert,
   onReset,
@@ -133,44 +128,13 @@ export function CommitListItem({
             Revert
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <RotateCcw size={14} className="mr-2" />
-              Reset to here
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              {isGitHub ? (
-                <DropdownMenuItem
-                  onClick={() => onReset?.("hard")}
-                  className="text-destructive focus:text-destructive"
-                >
-                  {RESET_MODES.hard.label}
-                  <span className="ml-auto text-[10px] text-muted-foreground">
-                    {RESET_MODES.hard.description}
-                  </span>
-                </DropdownMenuItem>
-              ) : (
-                (Object.keys(RESET_MODES) as ResetMode[]).map(
-                  (resetMode) => (
-                    <DropdownMenuItem
-                      key={resetMode}
-                      onClick={() => onReset?.(resetMode)}
-                      className={
-                        resetMode === "hard"
-                          ? "text-destructive focus:text-destructive"
-                          : ""
-                      }
-                    >
-                      {RESET_MODES[resetMode].label}
-                      <span className="ml-auto text-[10px] text-muted-foreground">
-                        {RESET_MODES[resetMode].description}
-                      </span>
-                    </DropdownMenuItem>
-                  ),
-                )
-              )}
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
+          <DropdownMenuItem
+            onClick={() => onReset?.("hard")}
+            className="text-destructive focus:text-destructive"
+          >
+            <RotateCcw size={14} className="mr-2" />
+            {RESET_MODES.hard.label} reset to here
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => {

@@ -13,29 +13,17 @@ interface BranchListItemProps {
   name: string;
   commit: string;
   current?: boolean;
-  isRemote?: boolean;
-  isGitHub?: boolean;
   showDivider?: boolean;
-  checkoutLoading?: boolean;
-  checkoutDisabled?: boolean;
-  onCheckout?: () => void;
-  onDelete?: (force: boolean) => void;
+  onDelete?: () => void;
 }
 
 export function BranchListItem({
   name,
   commit,
   current,
-  isRemote,
-  isGitHub,
   showDivider,
-  checkoutLoading,
-  checkoutDisabled,
-  onCheckout,
   onDelete,
 }: BranchListItemProps) {
-  const showActions = isGitHub ? !current : (!current || isRemote);
-
   return (
     <div
       className={`group flex flex-col gap-1.5 px-4 transition-colors cursor-pointer hover:bg-muted sm:flex-row sm:items-center sm:gap-4 sm:px-6 py-2 sm:py-3  ${
@@ -43,41 +31,24 @@ export function BranchListItem({
       }`}
     >
       <div className="flex size-5 shrink-0 items-center justify-center">
-        {current && !isRemote ? (
+        {current ? (
           <Check size={16} className="text-git-added" />
         ) : (
-          <GitBranch
-            size={14}
-            className={
-              isRemote ? "text-muted-foreground/50" : "text-muted-foreground"
-            }
-          />
+          <GitBranch size={14} className="text-muted-foreground" />
         )}
       </div>
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span
-            className={`font-mono text-sm ${
-              isRemote ? "text-foreground/70" : "font-medium text-foreground"
-            }`}
-          >
+          <span className="font-mono text-sm font-medium text-foreground">
             {name}
           </span>
-          {current && !isRemote && (
+          {current && (
             <Badge
               variant="outline"
               className="border-git-added/30 px-1.5 py-0 text-[10px] text-git-added"
             >
-              current
-            </Badge>
-          )}
-          {isRemote && (
-            <Badge
-              variant="outline"
-              className="border-git-info/30 px-1.5 py-0 text-[10px] text-git-info"
-            >
-              remote
+              default
             </Badge>
           )}
         </div>
@@ -86,20 +57,8 @@ export function BranchListItem({
         </span>
       </div>
 
-      {showActions && (
+      {!current && (
         <div className="flex shrink-0 items-center gap-2">
-          {!isGitHub && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onCheckout}
-              isLoading={checkoutLoading}
-              disabled={checkoutDisabled}
-              className="border-border text-xs transition-colors hover:bg-accent"
-            >
-              {isRemote ? "Checkout" : "Switch"}
-            </Button>
-          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -112,21 +71,12 @@ export function BranchListItem({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
-                onClick={() => onDelete?.(false)}
+                onClick={() => onDelete?.()}
                 className="text-destructive focus:text-destructive"
               >
                 <Trash2 size={14} className="mr-2" />
-                {isRemote ? "Delete Remote" : "Delete"}
+                Delete
               </DropdownMenuItem>
-              {!isRemote && !isGitHub && (
-                <DropdownMenuItem
-                  onClick={() => onDelete?.(true)}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <Trash2 size={14} className="mr-2" />
-                  Force Delete
-                </DropdownMenuItem>
-              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

@@ -1,4 +1,4 @@
-export type MentionCategory = "file" | "commit" | "branch" | "tag" | "stash" | "repository"
+export type MentionCategory = "file" | "commit" | "branch" | "tag" | "repository"
 
 export interface MentionItem {
   id: string              // "category:value" (e.g., "commit:abc1234")
