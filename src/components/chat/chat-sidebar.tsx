@@ -128,7 +128,7 @@ export function ChatSidebar() {
         </div>
 
         {/* Messages (Conversation handles scroll via use-stick-to-bottom) */}
-        <div className="min-h-0 flex-1">
+        <div className="flex min-h-0 flex-1 flex-col">
           {messages.length === 0 && !hasRepo ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
               <Bot className="size-10 text-muted-foreground/40" />
