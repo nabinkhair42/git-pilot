@@ -117,6 +117,7 @@ export function StashList() {
     <PageLayout
       label="Working Tree"
       title="Stashes"
+      description="Save and restore uncommitted changes."
       actions={
         <div className="flex gap-2">
           {stashes.length > 0 && (
@@ -141,7 +142,7 @@ export function StashList() {
       }
       filters={
         !hasUncommitted ? (
-          <p className="pb-4 text-xs text-muted-foreground/60">
+          <p className="text-xs text-muted-foreground/60">
             Working tree is clean. Make some changes to stash them.
           </p>
         ) : undefined

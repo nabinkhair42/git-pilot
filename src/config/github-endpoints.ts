@@ -5,4 +5,8 @@ export const GITHUB_API_ENDPOINTS = {
   BRANCHES: "/github/branches",
   TAGS: "/github/tags",
   DIFF: "/github/diff",
+
+  // Files (for mention system)
+  FILES: "/github/files",
+  FILES_CONTENT: "/github/files/content",
 } as const;

@@ -163,6 +163,21 @@ export async function getBranches(
   }));
 }
 
+export async function deleteBranch(
+  token: string,
+  owner: string,
+  repo: string,
+  branch: string
+) {
+  const octokit = createGitHubClient(token);
+  await octokit.rest.git.deleteRef({
+    owner,
+    repo,
+    ref: `heads/${branch}`,
+  });
+  return { success: true, message: `Branch "${branch}" deleted` };
+}
+
 // ─── Tags ───────────────────────────────────────────────────────────────────
 
 export async function getTags(

@@ -80,6 +80,7 @@ export function TagList() {
     <PageLayout
       label="Releases"
       title="Tags"
+      description="Manage version tags and release markers."
       actions={
         !isGitHub ? (
           <Button
@@ -105,7 +106,7 @@ export function TagList() {
         ) : undefined
       }
     >
-      
+
 
       {/* Tag list */}
       <div>

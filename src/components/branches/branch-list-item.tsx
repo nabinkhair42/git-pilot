@@ -34,7 +34,7 @@ export function BranchListItem({
   onCheckout,
   onDelete,
 }: BranchListItemProps) {
-  const showActions = !isGitHub && (!current || isRemote);
+  const showActions = isGitHub ? !current : (!current || isRemote);
 
   return (
     <div
@@ -88,16 +88,18 @@ export function BranchListItem({
 
       {showActions && (
         <div className="flex shrink-0 items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onCheckout}
-            isLoading={checkoutLoading}
-            disabled={checkoutDisabled}
-            className="border-border text-xs transition-colors hover:bg-accent"
-          >
-            {isRemote ? "Checkout" : "Switch"}
-          </Button>
+          {!isGitHub && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onCheckout}
+              isLoading={checkoutLoading}
+              disabled={checkoutDisabled}
+              className="border-border text-xs transition-colors hover:bg-accent"
+            >
+              {isRemote ? "Checkout" : "Switch"}
+            </Button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -116,7 +118,7 @@ export function BranchListItem({
                 <Trash2 size={14} className="mr-2" />
                 {isRemote ? "Delete Remote" : "Delete"}
               </DropdownMenuItem>
-              {!isRemote && (
+              {!isRemote && !isGitHub && (
                 <DropdownMenuItem
                   onClick={() => onDelete?.(true)}
                   className="text-destructive focus:text-destructive"

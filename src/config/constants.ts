@@ -33,6 +33,21 @@ export const FILE_STATUS_LABELS: Record<string, string> = {
   U: "Unmerged",
 };
 
+// ─── Mentions ──────────────────────────────────────────────────────────────
+
+export const MENTION_TRIGGER_CHAR = "@";
+export const MENTION_FILE_CONTENT_MAX_CHARS = 6000;
+export const MENTION_MAX_ITEMS_PER_CATEGORY = 50;
+
+export const MENTION_CATEGORIES = [
+  { id: "file" as const, label: "File", icon: "FileText", placeholder: "Search files..." },
+  { id: "commit" as const, label: "Commit", icon: "GitCommitHorizontal", placeholder: "Search commits..." },
+  { id: "branch" as const, label: "Branch", icon: "GitBranch", placeholder: "Search branches..." },
+  { id: "tag" as const, label: "Tag", icon: "Tag", placeholder: "Search tags..." },
+  { id: "stash" as const, label: "Stash", icon: "Archive", placeholder: "Search stashes..." },
+  { id: "repository" as const, label: "Repository", icon: "FolderGit2", placeholder: "Search repos..." },
+] as const;
+
 export const FILE_STATUS_COLORS: Record<string, string> = {
   A: "text-git-added",
   M: "text-git-modified",

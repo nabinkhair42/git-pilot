@@ -62,6 +62,59 @@ The AI Chat feature uses Vercel AI SDK 6 with a tool-calling architecture.
 4. Update the system prompt in `src/lib/ai/system-prompt.ts` if the tool needs special instructions.
 5. No changes needed to the API route (tools are auto-discovered from the tools object).
 
+## Mention/Reference System
+
+The chat supports an `@` mention system that lets users reference repo entities (files, commits, branches, tags, stashes, repos) in chat messages.
+
+### Trigger Mechanism
+
+- Typing `@` in the chat input (at start or after whitespace) opens a categorized picker
+- Clicking the `@` button in the toolbar also opens the picker
+- Users can select multiple items across categories; selected items appear as chips above the input
+
+### Categories and Data Sources
+
+| Category | Local Mode | GitHub Mode |
+|----------|-----------|-------------|
+| File | `git ls-tree` via `/api/git/files` | `octokit.git.getTree` via `/api/github/files` |
+| Commit | `gitService.getCommits` | `githubService.getGitHubCommits` |
+| Branch | `gitService.getBranches` | `githubService.getGitHubBranches` |
+| Tag | `gitService.getTags` | `githubService.getGitHubTags` |
+| Stash | `gitService.getStashList` | Hidden in GitHub mode |
+| Repository | `useRecentRepos` (localStorage) | `githubService.getGitHubRepos` |
+
+### Context Resolution
+
+On send, `resolveAllMentions()` fetches full context for each mention:
+- **Files**: Content fetched and truncated to 6000 chars
+- **Commits**: Detail fetched including diff (truncated to 4000 chars)
+- **Others**: Lightweight labels (branch name, tag name, etc.)
+
+The resolved context is appended to the user message as a `## User-Referenced Context` markdown section.
+
+### File Paths
+
+| Purpose | Path |
+|---------|------|
+| Types | `src/lib/mentions/types.ts` |
+| Constants | `src/config/constants.ts` (MENTION_* exports) |
+| Context resolution | `src/lib/mentions/resolve-context.ts` |
+| Frontend services | `src/services/frontend/mention.services.ts` |
+| Candidates hook | `src/hooks/use-mention-candidates/index.ts` |
+| State hook | `src/hooks/use-mentions/index.ts` |
+| Picker UI | `src/components/chat/mention-picker.tsx` |
+| Chips UI | `src/components/chat/mention-chips.tsx` |
+| Local file API | `src/app/api/git/files/route.ts`, `src/app/api/git/files/content/route.ts` |
+| GitHub file API | `src/app/api/github/files/route.ts`, `src/app/api/github/files/content/route.ts` |
+
+### Adding a New Mention Category
+
+1. Add the category to `MentionCategory` type in `src/lib/mentions/types.ts`
+2. Add entry to `MENTION_CATEGORIES` in `src/config/constants.ts`
+3. Add fetcher function in `src/hooks/use-mention-candidates/index.ts`
+4. Add resolver in `src/lib/mentions/resolve-context.ts`
+5. Add icon mapping in `mention-chips.tsx` and `mention-picker.tsx`
+
 ## Code Standards
 
 - Follow Vercel React best practices for data fetching and component patterns.

@@ -4,6 +4,8 @@ import { ChatInput } from "@/components/chat/chat-input";
 import { ChatMessages } from "@/components/chat/chat-message";
 import { useRepo } from "@/hooks/use-repo";
 import { cn } from "@/lib/utils";
+import { resolveAllMentions, buildMentionContextBlock } from "@/lib/mentions/resolve-context";
+import type { MentionItem } from "@/lib/mentions/types";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { Bot, MessageSquare, Trash2, X } from "lucide-react";
@@ -35,9 +37,23 @@ export function ChatSidebar() {
     transport,
   });
 
-  const handleSend = (text: string) => {
-    if (!text.trim()) return;
-    sendMessage({ text });
+  const handleSend = async (text: string, mentions: MentionItem[]) => {
+    if (!text.trim() && mentions.length === 0) return;
+
+    let messageText = text;
+
+    if (mentions.length > 0) {
+      const resolved = await resolveAllMentions(mentions, {
+        mode,
+        repoPath,
+        owner: githubOwner,
+        repo: githubRepoName,
+      });
+      const contextBlock = buildMentionContextBlock(resolved);
+      messageText = text + contextBlock;
+    }
+
+    sendMessage({ text: messageText });
   };
 
   const handleClear = () => {

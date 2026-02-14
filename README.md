@@ -20,6 +20,7 @@ Git is powerful but unforgiving from the command line. A wrong `git reset --hard
 - **Copy commit hashes** with a single click
 - **Navigate with keyboard shortcuts** -- press 1-5 to jump between pages
 - **Browse GitHub repos** -- sign in with GitHub OAuth to view remote repositories read-only
+- **Reference repo entities in chat** -- type `@` to reference files, commits, branches, tags, and stashes for AI-enriched context
 
 ## How It Works
 

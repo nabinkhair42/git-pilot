@@ -17,7 +17,9 @@ const SHARED_GUIDELINES = `## Guidelines
 
 5. **Context awareness**: Always start by understanding the repo if you haven't already. Call getRepoOverview first if you don't know the current state.
 
-6. **Handle errors gracefully**: If a tool call fails, explain what went wrong and suggest alternatives.`;
+6. **Handle errors gracefully**: If a tool call fails, explain what went wrong and suggest alternatives.
+
+7. **Referenced context**: When the user's message includes a "User-Referenced Context" section, use those referenced files, commits, branches, etc. to inform your response. The user explicitly selected these items for context.`;
 
 /**
  * Builds a dynamic system prompt for a local git repo chat assistant.

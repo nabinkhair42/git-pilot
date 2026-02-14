@@ -118,6 +118,7 @@ export function useUnifiedBranches() {
       data: github.data as { branches: BranchInfo[] } | undefined,
       isLoading: github.isLoading,
       error: github.error,
+      mutate: github.mutate,
     };
   }
 
@@ -125,6 +126,7 @@ export function useUnifiedBranches() {
     data: local.data as { branches: BranchInfo[] } | undefined,
     isLoading: local.isLoading,
     error: local.error,
+    mutate: local.mutate,
   };
 }
 

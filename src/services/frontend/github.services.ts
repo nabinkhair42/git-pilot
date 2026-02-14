@@ -82,6 +82,14 @@ export async function getGitHubBranches(owner: string, repo: string) {
   );
 }
 
+export async function deleteGitHubBranch(owner: string, repo: string, name: string) {
+  return unwrap<{ success: boolean; message: string }>(
+    await api.delete(GITHUB_API_ENDPOINTS.BRANCHES, {
+      data: { owner, repo, name },
+    })
+  );
+}
+
 // ─── Tags ───────────────────────────────────────────────────────────────────
 
 export async function getGitHubTags(owner: string, repo: string) {

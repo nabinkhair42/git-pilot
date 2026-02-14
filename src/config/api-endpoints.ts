@@ -31,4 +31,8 @@ export const API_ENDPOINTS = {
 
   // Browse
   BROWSE: "/git/browse",
+
+  // Files (for mention system)
+  FILES: "/git/files",
+  FILES_CONTENT: "/git/files/content",
 } as const;

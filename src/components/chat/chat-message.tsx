@@ -88,7 +88,10 @@ export function ChatMessages({ messages, status, onSuggestionClick }: ChatMessag
               {message.parts.map((part, index) => {
                 if (part.type === "text" && part.text.trim()) {
                   if (message.role === "user") {
-                    return <p key={index} className="whitespace-pre-wrap">{part.text}</p>;
+                    // Strip the mention context block from display
+                    const displayText = part.text.replace(/\n\n---\n\n## User-Referenced Context[\s\S]*$/, "").trim();
+                    if (!displayText) return null;
+                    return <p key={index} className="whitespace-pre-wrap">{displayText}</p>;
                   }
                   return <MessageResponse key={index}>{part.text}</MessageResponse>;
                 }

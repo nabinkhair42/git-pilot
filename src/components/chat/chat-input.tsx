@@ -1,9 +1,11 @@
 "use client";
 
 import type { ChatStatus } from "ai";
+import type { MentionItem } from "@/lib/mentions/types";
 import {
   PromptInput,
   PromptInputTextarea,
+  PromptInputHeader,
   PromptInputFooter,
   PromptInputTools,
   PromptInputSubmit,
@@ -20,9 +22,12 @@ import {
   ModelSelectorLogo,
   ModelSelectorName,
 } from "@/components/ai-elements/model-selector";
+import { MentionChips } from "@/components/chat/mention-chips";
+import { MentionPicker } from "@/components/chat/mention-picker";
+import { useMentions } from "@/hooks/use-mentions";
 import { Button } from "@/components/ui/button";
-import { Infinity } from "lucide-react";
-import { useState } from "react";
+import { AtSign, Infinity } from "lucide-react";
+import { useState, useCallback, type KeyboardEvent } from "react";
 
 const MODELS = [
   { id: "gpt-4o", name: "GPT-4o", provider: "openai" as const },
@@ -40,7 +45,7 @@ const MODELS = [
 ];
 
 interface ChatInputProps {
-  onSend: (text: string) => void;
+  onSend: (text: string, mentions: MentionItem[]) => void;
   onStop: () => void;
   status: ChatStatus;
   disabled?: boolean;
@@ -54,25 +59,78 @@ export function ChatInput({
 }: ChatInputProps) {
   const [selectedModel, setSelectedModel] = useState(MODELS[0].id);
   const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const { mentions, toggleMention, removeMention, clearMentions } = useMentions();
 
   const currentModel = MODELS.find((m) => m.id === selectedModel) ?? MODELS[0];
 
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === "@") {
+        const textarea = e.currentTarget;
+        const pos = textarea.selectionStart;
+        const text = textarea.value;
+        // Open picker when @ is typed at start or after whitespace
+        if (pos === 0 || /\s/.test(text[pos - 1] || "")) {
+          e.preventDefault();
+          setPickerOpen(true);
+        }
+      }
+      // Close picker on Escape
+      if (e.key === "Escape" && pickerOpen) {
+        e.preventDefault();
+        setPickerOpen(false);
+      }
+    },
+    [pickerOpen]
+  );
+
+  const handlePickerConfirm = useCallback(() => {
+    // Mentions are already added via toggleMention, just close
+  }, []);
+
   return (
-    <div className="shrink-0">
+    <div className="relative shrink-0">
+      <MentionPicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        selectedMentions={mentions}
+        onToggle={toggleMention}
+        onConfirm={handlePickerConfirm}
+      />
+
       <PromptInput
         onSubmit={(message) => {
-          if (message.text.trim()) {
-            onSend(message.text.trim());
+          if (message.text.trim() || mentions.length > 0) {
+            onSend(message.text.trim(), mentions);
+            clearMentions();
           }
         }}
       >
+        <PromptInputHeader>
+          <MentionChips mentions={mentions} onRemove={removeMention} />
+        </PromptInputHeader>
+
         <PromptInputTextarea
           placeholder="Ask questions about the repo"
           disabled={disabled}
           className="min-h-10"
+          onKeyDown={handleKeyDown}
         />
         <PromptInputFooter>
           <PromptInputTools>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1.5 px-2 text-xs text-muted-foreground"
+              type="button"
+              onClick={() => setPickerOpen((prev) => !prev)}
+              title="Reference repo entities (@)"
+            >
+              <AtSign className="size-3.5" />
+            </Button>
+
             <Button
               variant="ghost"
               size="sm"

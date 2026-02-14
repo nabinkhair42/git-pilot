@@ -4,6 +4,7 @@ import { useState } from "react";
 import { GitMerge, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useGitMutations } from "@/hooks/use-git";
+import { useGitHubMutations } from "@/hooks/use-github";
 import { useRepo } from "@/hooks/use-repo";
 import { useUnifiedBranches } from "@/hooks/use-unified";
 import { PageLayout } from "@/components/shared/page-layout";
@@ -18,8 +19,9 @@ import { ConfirmationDialog } from "@/components/dialog-window/confirmation-dial
 export function BranchList() {
   const { mode } = useRepo();
   const isGitHub = mode === "github";
-  const { data, isLoading, error } = useUnifiedBranches();
+  const { data, isLoading, error, mutate } = useUnifiedBranches();
   const mutations = useGitMutations();
+  const ghMutations = useGitHubMutations();
 
   const [createOpen, setCreateOpen] = useState(false);
   const [mergeOpen, setMergeOpen] = useState(false);
@@ -79,9 +81,14 @@ export function BranchList() {
   async function handleDelete() {
     setDeleteLoading(true);
     try {
-      const result = deleteConfirm.isRemote
-        ? await mutations.deleteRemoteBranch(deleteConfirm.name)
-        : await mutations.deleteBranch(deleteConfirm.name, deleteConfirm.force);
+      let result;
+      if (isGitHub) {
+        result = await ghMutations.deleteBranch(deleteConfirm.name);
+      } else if (deleteConfirm.isRemote) {
+        result = await mutations.deleteRemoteBranch(deleteConfirm.name);
+      } else {
+        result = await mutations.deleteBranch(deleteConfirm.name, deleteConfirm.force);
+      }
       if (result.success) {
         toast.success(result.message);
         setDeleteConfirm({
@@ -90,6 +97,9 @@ export function BranchList() {
           force: false,
           isRemote: false,
         });
+        if (isGitHub) {
+          mutate();
+        }
       } else {
         toast.error(result.message);
       }
@@ -124,6 +134,7 @@ export function BranchList() {
     <PageLayout
       label="Management"
       title="Branches"
+      description="View, create, and manage local and remote branches."
       actions={
         <div className="flex flex-wrap gap-2">
           {!isGitHub && (

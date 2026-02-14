@@ -213,6 +213,14 @@
   color: var(--muted-foreground) !important;
   border-color: var(--border) !important;
   background: transparent !important;
+  min-width: 2.5em !important;
+  width: auto !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  box-sizing: content-box !important;
+  padding-left: 0.5em !important;
+  padding-right: 0.5em !important;
 }
 .d2h-info {
   background: color-mix(in srgb, var(--foreground) 3%, transparent) !important;
@@ -303,6 +311,17 @@
 .d2h-del .d2h-code-side-linenumber,
 .d2h-ins .d2h-code-side-linenumber {
   color: var(--muted-foreground) !important;
+}
+
+/* Side-by-side line number sizing */
+.d2h-code-side-linenumber {
+  min-width: 2.5em !important;
+  width: auto !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  box-sizing: content-box !important;
+  padding-left: 0.5em !important;
+  padding-right: 0.5em !important;
 }
 
 /* Table borders */

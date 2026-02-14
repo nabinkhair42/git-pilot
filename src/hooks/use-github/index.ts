@@ -60,6 +60,22 @@ export function useGitHubTags() {
   );
 }
 
+export function useGitHubMutations() {
+  const repo = useGitHubRepo();
+
+  async function deleteBranch(name: string) {
+    if (!repo) return { success: false, message: "No repo selected" };
+    try {
+      const result = await ghService.deleteGitHubBranch(repo.owner, repo.name, name);
+      return { success: true, message: result.message || `Branch "${name}" deleted` };
+    } catch (e) {
+      return { success: false, message: e instanceof Error ? e.message : "Delete failed" };
+    }
+  }
+
+  return { deleteBranch };
+}
+
 export function useGitHubDiff(from: string | null, to: string | null) {
   const repo = useGitHubRepo();
   return useSWR(

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GitCompareArrows } from "lucide-react";
+import { GitCompareArrows, AlignJustify, Columns2 } from "lucide-react";
 import { useUnifiedCommits, useUnifiedDiff } from "@/hooks/use-unified";
 import { formatHash, formatRelativeDate } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
@@ -26,25 +26,32 @@ export function CompareView() {
 
   const commits = commitData?.commits || [];
 
+  function truncateMiddle(text: string, maxLen: number) {
+    if (text.length <= maxLen) return text;
+    const half = Math.floor((maxLen - 3) / 2);
+    return text.slice(0, half) + "..." + text.slice(-half);
+  }
+
   return (
     <PageLayout
       label="Diff"
       title="Compare Commits"
+      description="View file changes between two commits."
       filters={
-        <div className="flex flex-col gap-3 pb-6 sm:flex-row sm:items-end">
-          <div className="flex-1 space-y-1.5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="flex-1 min-w-0 space-y-1.5">
             <label className="text-sm text-muted-foreground">From (older)</label>
             <Select
               value={fromHash || ""}
               onValueChange={setFromHash}
             >
-              <SelectTrigger className="h-9 border-border bg-input/20 font-mono text-xs">
+              <SelectTrigger className="h-9 w-full border-border bg-input/20 font-mono text-xs">
                 <SelectValue placeholder="Select base commit" />
               </SelectTrigger>
               <SelectContent>
                 {commits.map((c) => (
-                  <SelectItem key={c.hash} value={c.hash} className="font-mono text-xs">
-                    {formatHash(c.hash)} {c.message.slice(0, 50)}
+                  <SelectItem key={c.hash} value={c.hash} className="font-mono text-xs max-w-[var(--radix-select-trigger-width)] ">
+                    <span className="truncate">{formatHash(c.hash)} {truncateMiddle(c.message, 40)}</span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -53,19 +60,19 @@ export function CompareView() {
 
           <GitCompareArrows size={18} className="hidden shrink-0 text-muted-foreground sm:block" />
 
-          <div className="flex-1 space-y-1.5">
+          <div className="flex-1 min-w-0 space-y-1.5">
             <label className="text-sm text-muted-foreground">To (newer)</label>
             <Select
               value={toHash || ""}
               onValueChange={setToHash}
             >
-              <SelectTrigger className="h-9 border-border bg-input/20 font-mono text-xs">
+              <SelectTrigger className="h-9 w-full border-border bg-input/20 font-mono text-xs">
                 <SelectValue placeholder="Select target commit" />
               </SelectTrigger>
               <SelectContent>
                 {commits.map((c) => (
-                  <SelectItem key={c.hash} value={c.hash} className="font-mono text-xs">
-                    {formatHash(c.hash)} {c.message.slice(0, 50)}
+                  <SelectItem key={c.hash} value={c.hash} className="font-mono text-xs max-w-[var(--radix-select-trigger-width)]">
+                    <span className="truncate">{formatHash(c.hash)} {truncateMiddle(c.message, 40)}</span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -77,14 +84,20 @@ export function CompareView() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="line-by-line">Unified</SelectItem>
-              <SelectItem value="side-by-side">Split</SelectItem>
+              <SelectItem value="line-by-line">
+                <AlignJustify size={14} className="mr-2 inline-block" />
+                Unified
+              </SelectItem>
+              <SelectItem value="side-by-side">
+                <Columns2 size={14} className="mr-2 inline-block" />
+                Split
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
       }
     >
-      
+
 
       {/* Diff output */}
       <div>

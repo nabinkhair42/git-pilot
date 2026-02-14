@@ -189,7 +189,7 @@ function GitHubRepoGrid({ session }: { session: any }) {
           />
         </div>
       </div>
-      <div className="overflow-y-auto h-96">
+      <div className="overflow-y-auto h-auto max-h-[450px]">
         <div className="grid gap-0 sm:grid-cols-2">
           {filtered.length === 0 ? (
             <div className="col-span-full py-12 text-center text-sm text-muted-foreground">

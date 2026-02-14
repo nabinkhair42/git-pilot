@@ -156,8 +156,9 @@ export function CommitList() {
     <PageLayout
       label="History"
       title="Commits"
+      description="Browse and search through the commit history."
       filters={
-        <div className="flex flex-col gap-2 pb-4 sm:flex-row sm:items-center sm:gap-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
           <form onSubmit={handleSearch} className="flex flex-1 gap-2">
             <InputGroup>
               <InputGroupAddon>
@@ -238,7 +239,7 @@ export function CommitList() {
       {/* Pagination */}
       {totalPages > 1 && (
         <>
-          
+
           <div>
             <div className="flex items-center justify-between px-6 py-4">
               <span className="text-xs text-muted-foreground">
