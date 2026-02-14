@@ -1,20 +1,9 @@
 "use client";
 
-import { CommitListSkeleton } from "@/components/loaders/commit-list-skeleton";
+import { CommitListItem } from "@/components/commits/commit-list-item";
 import { ConfirmationDialog } from "@/components/dialog-window/confirmation-dialog";
-import { Badge } from "@/components/ui/badge";
+import { CommitListSkeleton } from "@/components/loaders/commit-list-skeleton";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -22,28 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { DEFAULT_COMMITS_PER_PAGE, RESET_MODES } from "@/config/constants";
 import { useGitMutations } from "@/hooks/use-git";
 import { useRepo } from "@/hooks/use-repo";
 import { useUnifiedBranches, useUnifiedCommits } from "@/hooks/use-unified";
-import { formatHash, formatRelativeDate } from "@/lib/formatters";
+import { formatHash } from "@/lib/formatters";
 import type { ResetMode } from "@/lib/git/types";
-import {
-  CherryIcon,
-  ChevronLeft,
-  ChevronRight,
-  Copy,
-  MoreHorizontal,
-  RotateCcw,
-  Search,
-  Undo2,
-} from "lucide-react";
-import Link from "next/link";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -232,134 +206,25 @@ export function CommitList() {
         ) : (
           <div>
             {data?.commits.map((commit, i) => (
-              <div
+              <CommitListItem
                 key={commit.hash}
-                className={`group flex flex-col gap-0.5 px-4 transition-colors hover:bg-muted sm:flex-row sm:items-start sm:gap-4 sm:px-6 py-2 sm:py-3 ${
-                  i !== 0 ? "border-t border-dashed border-border" : ""
-                }`}
-              >
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText(commit.hash);
-                        toast.success("Hash copied");
-                      }}
-                      className="flex shrink-0 items-center gap-1 rounded px-1 py-0.5 font-mono text-[11px] text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:mt-0.5 sm:text-xs"
-                    >
-                      {commit.abbreviatedHash}
-                      <Copy
-                        size={10}
-                        className="opacity-0 transition-opacity group-hover:opacity-60"
-                      />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="left" className="text-xs">
-                    Click to copy full hash
-                  </TooltipContent>
-                </Tooltip>
-
-                <div className="min-w-0 flex-1">
-                  <Link
-                    href={
-                      isGitHub
-                        ? `/repo/commits/${commit.hash}?mode=github&owner=${encodeURIComponent(githubOwner || "")}&repo=${encodeURIComponent(githubRepoName || "")}`
-                        : `/repo/commits/${commit.hash}?path=${encodeURIComponent(repoPath || "")}`
-                    }
-                    className="block truncate text-[13px] font-medium text-foreground transition-colors hover:text-foreground/80 sm:text-sm"
-                  >
-                    {commit.message}
-                  </Link>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground sm:mt-1 sm:gap-2 sm:text-xs">
-                    <span>{commit.authorName}</span>
-                    <span>&middot;</span>
-                    <span>{formatRelativeDate(commit.date)}</span>
-                    {commit.refs && (
-                      <>
-                        <span>&middot;</span>
-                        {commit.refs.split(",").map((ref) => (
-                          <Badge
-                            key={ref.trim()}
-                            variant="outline"
-                            className="border-border px-1.5 py-0 text-[10px] font-mono"
-                          >
-                            {ref.trim()}
-                          </Badge>
-                        ))}
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-8 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
-                    >
-                      <MoreHorizontal size={14} />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    {!isGitHub && (
-                      <>
-                        <DropdownMenuItem
-                          onClick={() => handleCherryPick(commit.hash)}
-                        >
-                          <CherryIcon size={14} className="mr-2" />
-                          Cherry-pick
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleRevert(commit.hash)}
-                        >
-                          <Undo2 size={14} className="mr-2" />
-                          Revert
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuSub>
-                          <DropdownMenuSubTrigger>
-                            <RotateCcw size={14} className="mr-2" />
-                            Reset to here
-                          </DropdownMenuSubTrigger>
-                          <DropdownMenuSubContent>
-                            {(Object.keys(RESET_MODES) as ResetMode[]).map(
-                              (resetMode) => (
-                                <DropdownMenuItem
-                                  key={resetMode}
-                                  onClick={() =>
-                                    handleReset(commit.hash, resetMode)
-                                  }
-                                  className={
-                                    resetMode === "hard"
-                                      ? "text-destructive focus:text-destructive"
-                                      : ""
-                                  }
-                                >
-                                  {RESET_MODES[resetMode].label}
-                                  <span className="ml-auto text-[10px] text-muted-foreground">
-                                    {RESET_MODES[resetMode].description}
-                                  </span>
-                                </DropdownMenuItem>
-                              ),
-                            )}
-                          </DropdownMenuSubContent>
-                        </DropdownMenuSub>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
-                    <DropdownMenuItem
-                      onClick={() => {
-                        navigator.clipboard.writeText(commit.hash);
-                        toast.success("Hash copied");
-                      }}
-                    >
-                      Copy full hash
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+                hash={commit.hash}
+                abbreviatedHash={commit.abbreviatedHash}
+                message={commit.message}
+                authorName={commit.authorName}
+                date={commit.date}
+                refs={commit.refs}
+                href={
+                  isGitHub
+                    ? `/repo/commits/${commit.hash}?mode=github&owner=${encodeURIComponent(githubOwner || "")}&repo=${encodeURIComponent(githubRepoName || "")}`
+                    : `/repo/commits/${commit.hash}?path=${encodeURIComponent(repoPath || "")}`
+                }
+                showDivider={i !== 0}
+                isGitHub={isGitHub}
+                onCherryPick={() => handleCherryPick(commit.hash)}
+                onRevert={() => handleRevert(commit.hash)}
+                onReset={(mode) => handleReset(commit.hash, mode)}
+              />
             ))}
           </div>
         )}

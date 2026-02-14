@@ -1,27 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Archive,
-  Play,
-  ArrowUpFromLine,
-  Trash2,
-  MoreHorizontal,
-  Plus,
-  Eraser,
-} from "lucide-react";
+import { Plus, Eraser } from "lucide-react";
 import { toast } from "sonner";
 import { useStashList, useGitMutations, useStatus } from "@/hooks/use-git";
-import { formatRelativeDate, formatHash } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { PageLayout } from "@/components/shared/page-layout";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { StashListSkeleton } from "@/components/loaders/stash-list-skeleton";
+import { StashListItem } from "@/components/stash/stash-list-item";
 import { StashSaveDialog } from "@/components/dialog-window/stash-save-dialog";
 import { ConfirmationDialog } from "@/components/dialog-window/confirmation-dialog";
 
@@ -176,85 +162,22 @@ export function StashList() {
         ) : (
           <div>
             {stashes.map((stash, i) => (
-              <div
+              <StashListItem
                 key={stash.index}
-                className={`group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-muted ${
-                  i !== 0 ? "border-t border-dashed border-border" : ""
-                }`}
-              >
-                <div className="flex size-5 shrink-0 items-center justify-center">
-                  <Archive size={14} className="text-muted-foreground" />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-muted-foreground/60">
-                      stash@{"{"}
-                      {stash.index}
-                      {"}"}
-                    </span>
-                    <span className="truncate text-sm font-medium text-foreground">
-                      {stash.message.replace(/^WIP on .+?: [a-f0-9]+ /, "").replace(/^On .+?: /, "") || "Untitled stash"}
-                    </span>
-                  </div>
-                  <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{formatHash(stash.hash)}</span>
-                    {stash.date && (
-                      <>
-                        <span>&middot;</span>
-                        <span>{formatRelativeDate(stash.date)}</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePop(stash.index)}
-                    isLoading={poppingIndex === stash.index}
-                    disabled={applyingIndex !== null || poppingIndex !== null}
-                    className="border-border text-xs transition-colors hover:bg-accent"
-                  >
-                    <ArrowUpFromLine size={12} className="mr-1" />
-                    Pop
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleApply(stash.index)}
-                    isLoading={applyingIndex === stash.index}
-                    disabled={applyingIndex !== null || poppingIndex !== null}
-                    className="border-border text-xs transition-colors hover:bg-accent"
-                  >
-                    <Play size={12} className="mr-1" />
-                    Apply
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
-                      >
-                        <MoreHorizontal size={14} />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() =>
-                          setDropConfirm({ open: true, index: stash.index })
-                        }
-                        className="text-destructive focus:text-destructive"
-                      >
-                        <Trash2 size={14} className="mr-2" />
-                        Drop
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
+                index={stash.index}
+                hash={stash.hash}
+                message={stash.message}
+                date={stash.date}
+                showDivider={i !== 0}
+                popLoading={poppingIndex === stash.index}
+                applyLoading={applyingIndex === stash.index}
+                actionsDisabled={applyingIndex !== null || poppingIndex !== null}
+                onPop={() => handlePop(stash.index)}
+                onApply={() => handleApply(stash.index)}
+                onDrop={() =>
+                  setDropConfirm({ open: true, index: stash.index })
+                }
+              />
             ))}
           </div>
         )}

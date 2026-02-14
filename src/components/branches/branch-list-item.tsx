@@ -38,7 +38,7 @@ export function BranchListItem({
 
   return (
     <div
-      className={`group flex flex-col gap-1.5 px-4 transition-colors cursor-pointer hover:bg-muted sm:flex-row sm:items-center sm:gap-4 sm:px-6 ${
+      className={`group flex flex-col gap-1.5 px-4 transition-colors cursor-pointer hover:bg-muted sm:flex-row sm:items-center sm:gap-4 sm:px-6 py-2 sm:py-3  ${
         showDivider ? "border-t border-dashed border-border" : ""
       }`}
     >

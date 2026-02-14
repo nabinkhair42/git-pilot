@@ -1,29 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Tag,
-  Trash2,
-  MoreHorizontal,
-  Plus,
-  BookMarked,
-} from "lucide-react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useGitMutations } from "@/hooks/use-git";
 import { useRepo } from "@/hooks/use-repo";
 import { useUnifiedTags } from "@/hooks/use-unified";
 import { PageLayout } from "@/components/shared/page-layout";
-import { formatRelativeDate, formatHash } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { TagListSkeleton } from "@/components/loaders/tag-list-skeleton";
+import { TagListItem } from "@/components/tags/tag-list-item";
 import { CreateTagDialog } from "@/components/dialog-window/create-tag-dialog";
 import { ConfirmationDialog } from "@/components/dialog-window/confirmation-dialog";
 
@@ -133,103 +120,20 @@ export function TagList() {
         ) : (
           <div>
             {filteredTags.map((tag, i) => (
-              <div
+              <TagListItem
                 key={tag.name}
-                className={`group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-muted ${
-                  i !== 0 ? "border-t border-dashed border-border" : ""
-                }`}
-              >
-                <div className="flex size-5 shrink-0 items-center justify-center">
-                  {tag.isAnnotated ? (
-                    <BookMarked size={14} className="text-git-modified" />
-                  ) : (
-                    <Tag size={14} className="text-muted-foreground" />
-                  )}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm font-medium text-foreground">
-                      {tag.name}
-                    </span>
-                    {tag.isAnnotated && (
-                      <Badge
-                        variant="outline"
-                        className="border-git-modified/30 px-1.5 py-0 text-[10px] text-git-modified"
-                      >
-                        annotated
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{formatHash(tag.hash)}</span>
-                    {tag.message && (
-                      <>
-                        <span>&middot;</span>
-                        <span className="truncate">{tag.message}</span>
-                      </>
-                    )}
-                    {tag.date && (
-                      <>
-                        <span>&middot;</span>
-                        <span>{formatRelativeDate(tag.date)}</span>
-                      </>
-                    )}
-                    {tag.tagger && (
-                      <>
-                        <span>&middot;</span>
-                        <span>{tag.tagger}</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      navigator.clipboard.writeText(tag.name);
-                      toast.success("Tag name copied");
-                    }}
-                    className="border-border text-xs opacity-0 transition-all group-hover:opacity-100 hover:bg-accent"
-                  >
-                    Copy
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
-                      >
-                        <MoreHorizontal size={14} />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => {
-                          navigator.clipboard.writeText(tag.hash);
-                          toast.success("Hash copied");
-                        }}
-                      >
-                        Copy hash
-                      </DropdownMenuItem>
-                      {!isGitHub && (
-                        <DropdownMenuItem
-                          onClick={() =>
-                            setDeleteConfirm({ open: true, name: tag.name })
-                          }
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 size={14} className="mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
+                name={tag.name}
+                hash={tag.hash}
+                message={tag.message}
+                date={tag.date}
+                tagger={tag.tagger}
+                isAnnotated={tag.isAnnotated}
+                isGitHub={isGitHub}
+                showDivider={i !== 0}
+                onDelete={() =>
+                  setDeleteConfirm({ open: true, name: tag.name })
+                }
+              />
             ))}
           </div>
         )}
