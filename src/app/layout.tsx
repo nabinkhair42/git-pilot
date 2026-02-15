@@ -21,23 +21,21 @@ const siteUrl = "https://git.nabinkhair.com.np";
 
 export const metadata: Metadata = {
   title: {
-    default:
-      "GitPilot — AI-Powered Visual Git Client for GitHub Repos",
+    default: "GitPilot — AI Chat for GitHub Repos",
     template: "%s | GitPilot",
   },
   description:
-    "Visual Git client with AI chat. Browse history, manage branches and tags, cherry-pick, revert, reset, and compare diffs via GitHub.",
+    "Chat-first AI assistant for GitHub repositories. Explore commits, branches, diffs, cherry-pick, revert, and more through conversation.",
   keywords: [
     "git",
-    "git client",
-    "git GUI",
     "AI git assistant",
+    "github chat",
+    "git AI",
     "branch manager",
     "diff viewer",
     "git history",
     "cherry-pick",
     "github browser",
-    "visual git",
     "git web UI",
   ],
   authors: [{ name: "Nabin Khair", url: siteUrl }],
@@ -48,23 +46,23 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: "GitPilot",
-    title: "GitPilot — AI-Powered Visual Git Client",
+    title: "GitPilot — AI Chat for GitHub Repos",
     description:
-      "Visual Git client with AI chat. Browse history, manage branches and tags, cherry-pick, revert, reset, and compare diffs via GitHub.",
+      "Chat-first AI assistant for GitHub repositories. Explore commits, branches, diffs, cherry-pick, revert, and more through conversation.",
     images: [
       {
         url: "/online-mode-dark.png",
         width: 1200,
         height: 630,
-        alt: "GitPilot — AI-Powered Visual Git Client",
+        alt: "GitPilot — AI Chat for GitHub Repos",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "GitPilot — AI-Powered Visual Git Client",
+    title: "GitPilot — AI Chat for GitHub Repos",
     description:
-      "Visual Git client with AI chat. Browse history, manage branches and tags, cherry-pick, revert, reset, and compare diffs via GitHub.",
+      "Chat-first AI assistant for GitHub repositories. Explore commits, branches, diffs, cherry-pick, revert, and more through conversation.",
     images: ["/online-mode-dark.png"],
   },
   icons: {
@@ -92,11 +90,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${plusJakarta.variable} ${ibmPlexMono.variable} flex h-screen flex-col overflow-hidden font-sans antialiased`}
+        className={`${plusJakarta.variable} ${ibmPlexMono.variable} font-sans antialiased`}
       >
-        <Providers>
-          {children}
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

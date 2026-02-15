@@ -46,6 +46,20 @@ An AI-powered visual Git client that works with local repositories and GitHub. B
 - Safety-tiered confirmation dialogs for destructive operations
 - Responsive design with mobile chat overlay
 
+### File Management (GitHub Mode)
+- Create or update files directly in a repository (commits to branch)
+- Delete files from a repository
+- Full approval flow for write operations
+
+### Releases (GitHub Mode)
+- Create GitHub releases with tag, title, and markdown release notes
+- Support for draft and pre-release flags
+- Target specific branches for tagging
+
+### Repository Creation
+- Create new GitHub repositories from the chat (public or private)
+- Initialize with README, .gitignore template, and license
+
 ### GitHub Mode Operations
 - All 11 API routes standardized with consistent error handling
 - Branch deletion, cherry-pick, revert, and reset via GitHub API
@@ -58,8 +72,8 @@ Operations are grouped into tiers:
 | Tier | Examples | Safeguard |
 |------|----------|-----------|
 | Safe | Log, diff, status | None |
-| Moderate | Cherry-pick, revert, merge | Confirmation dialog |
-| Dangerous | Soft/mixed reset, delete branch | Warning + confirmation |
+| Moderate | Cherry-pick, revert, merge, create file, create release | Confirmation dialog |
+| Dangerous | Soft/mixed reset, delete branch, update/delete file | Warning + confirmation |
 | Critical | Hard reset, force-delete branch, delete remote branch | Typed confirmation required |
 
 ## Getting Started

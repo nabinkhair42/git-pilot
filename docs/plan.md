@@ -4,7 +4,7 @@
 
 - Next.js app (App Router) with two modes: **Local** and **GitHub**
 - **Local mode**: Repo path in URL params (`?path=/abs/path`), stateless, bookmarkable. API routes use `simple-git` for Git operations. Runs on localhost.
-- **GitHub mode**: Authenticated via better-auth with GitHub OAuth (`repo` scope). Uses Octokit for full read/write operations (commits, branches, tags, diffs, cherry-pick, revert, reset, branch deletion). All 11 GitHub API routes use standardized `server-response.ts` helpers with async parallelization.
+- **GitHub mode**: Authenticated via better-auth with GitHub OAuth (`repo`, `delete_repo` scopes). Uses Octokit for full read/write operations (commits, branches, tags, diffs, cherry-pick, revert, reset, branch deletion). All 11 GitHub API routes use standardized `server-response.ts` helpers with async parallelization.
 - **AI Chat**: Sidebar assistant using Vercel AI SDK 6. Multi-step tool calling (up to 8 steps). Available on all pages, including without a repo selected. Inline `@` mention system for referencing repo entities.
 - SWR for client-side data fetching with cache invalidation after mutations
 - Drizzle ORM with Neon Postgres for auth persistence (user, session, account tables)
@@ -99,37 +99,53 @@ A sidebar chat assistant available on all pages, including the home page without
 
 ### Architecture
 - **API Route** (`/api/chat`): POST handler using `streamText` with multi-step tool calling (up to 8 steps). Validates repo path, creates scoped git tools, streams response.
-- **Tools Layer** (`src/lib/ai/tools.ts`): Factory function `createGitTools(repoPath)` returns 12 tools wrapping existing git service functions.
+- **Tools Layer** (`src/lib/ai/github-tools.ts`): Factory functions `createGitHubTools(owner, repo, token)` (repo-scoped) and `createGeneralTools(token)` (no repo needed) return tools wrapping GitHub client functions.
 - **System Prompt** (`src/lib/ai/system-prompt.ts`): Dynamic prompt builder with repo context, tool descriptions, behavioral guidelines.
 - **Chat Sidebar** (`src/components/chat/chat-sidebar.tsx`): Fixed sidebar on desktop, slide-in overlay on mobile. Always shows input, even without a repo.
 - **Chat Input** (`src/components/chat/chat-input.tsx`): Controlled textarea with inline `@` mention parsing, keyboard forwarding, model selector.
 - **Mention Picker** (`src/components/chat/mention-picker.tsx`): Inline dropdown with category buttons and search results.
 
-### AI Tools (12 total)
+### AI Tools
 
-**Read-only (10 tools, auto-executed):**
+**Read-only tools (auto-executed):**
 
 | Tool | Purpose | Wraps |
 |------|---------|-------|
-| `getRepoOverview` | Repo metadata, branch, remotes, clean status | `git.branchLocal()`, `git.getRemotes()`, `git.log()`, `git.status()` |
+| `getRepoOverview` | Repo metadata, branch, remotes, clean status | `getRepoInfo()`, `getStatus()` |
 | `getCommitHistory` | Search/list commits with filters | `getCommits()` |
 | `getCommitDetails` | Full commit diff + file stats | `getCommitDetail()` |
-| `listBranches` | All local + remote branches | `getBranches()` |
-| `compareDiff` | Diff between any two refs | `getDiff()` |
-| `getWorkingTreeStatus` | Staged, modified, untracked, ahead/behind | `getStatus()` |
+| `listBranches` | All branches with default indicator | `getBranches()` |
+| `compareDiff` | Diff between any two refs | `getCompare()` |
 | `listTags` | All tags with metadata | `getTags()` |
-| `listStashes` | All stashed changes | `getStashList()` |
-| `getFileContent` | Read file at any git ref | `git.show()` |
-| `listFiles` | Browse repo file tree at any ref | `git.raw(["ls-tree"])` |
+| `getFileContent` | Read file at any git ref | `getFileContent()` |
+| `listFiles` | Browse repo file tree at any ref | `getFileTree()` |
+| `listContributors` | Repo contributors with avatars and stats | `getContributors()` |
+| `getUserProfile` | Public GitHub profile for any user | `getUserProfile()` |
 
-**Write (2 creation + 2 mutation tools):**
+**Write tools (repo-scoped, need approval):**
 
 | Tool | Purpose | Wraps |
 |------|---------|-------|
-| `createNewBranch` | Create + checkout new branch | `createBranch()` |
-| `switchBranch` | Switch to a branch | `checkoutBranch()` |
-| `cherryPickCommits` | Cherry-pick commits | `cherryPickCommit()` |
-| `revertCommits` | Revert commits | `revertCommit()` |
+| `createBranch` | Create new branch from any ref | `createBranch()` |
+| `deleteBranch` | Delete a branch (irreversible) | `deleteBranch()` |
+| `mergeBranch` | Merge one branch into another | `mergeBranch()` |
+| `cherryPickCommits` | Cherry-pick a commit onto a branch | `cherryPickCommit()` |
+| `revertCommits` | Revert a commit on a branch | `revertCommit()` |
+| `resetBranch` | Force-reset branch to SHA (destructive) | `resetBranch()` |
+| `createOrUpdateFile` | Create or update a file (commits to branch) | `createOrUpdateFile()` |
+| `deleteFile` | Delete a file (irreversible) | `deleteFile()` |
+| `createRelease` | Create release with tag and notes | `createRelease()` |
+| `deleteRepository` | Permanently delete a GitHub repository (irreversible) | `deleteRepository()` |
+
+**General tools (no repo required):**
+
+| Tool | Purpose | Wraps |
+|------|---------|-------|
+| `listUserRepos` | List user's GitHub repos | `getUserRepos()` |
+| `selectRepository` | Select a repo to unlock full tools | `getRepoInfo()` |
+| `getUserProfile` | Public GitHub profile for any user | `getUserProfile()` |
+| `createRepository` | Create new GitHub repo (needs approval) | `createRepository()` |
+| `deleteRepository` | Permanently delete a GitHub repo (needs approval) | `deleteRepository()` |
 
 ### Inline Mention System
 
@@ -175,8 +191,8 @@ src/
     git.ts                # Zod schemas for validation
   lib/
     ai/
-      tools.ts            # AI tool definitions (12 tools wrapping git functions)
-      system-prompt.ts    # Dynamic system prompt builder
+      github-tools.ts     # AI tool definitions (repo-scoped + general tools wrapping GitHub client)
+      system-prompt.ts    # Dynamic system prompt builder (general + GitHub modes)
     git/                  # Git backend (types, client, modules)
       index.ts            # Barrel exports
       types.ts            # TypeScript interfaces (CommitInfo, BranchInfo, etc.)
@@ -301,12 +317,19 @@ src/
 - [x] Button asChild fix (React.Children.only crash)
 - [x] Diff line number overflow fix (CSS table-layout, min-width, padding)
 - [x] Build passes (`pnpm build` with zero errors)
+- [x] GitHub mode: Create/update/delete files via chat with approval flow
+- [x] GitHub mode: Create releases via chat with approval flow
+- [x] GitHub mode: Create repositories via chat with approval flow
+- [x] Rich tool output renderers (per-tool custom UI in chat)
+- [x] Write operation approval UI in chat (confirm/deny for destructive operations)
+- [x] Contributors and user profile tools
+- [x] GitHub mode: Delete repositories via chat with approval flow
+- [x] GitHub mode: Merge branches via chat with approval flow
 
 ### Pending / Future
 - [ ] Chat message persistence (save/restore chat history)
 - [ ] Generative UI (render commit cards, diff blocks, branch badges inline in chat)
 - [ ] Token usage tracking and display per message
-- [ ] Write operation approval UI in chat (confirm before branch create, cherry-pick, etc.)
 - [ ] Support for additional AI providers (Anthropic, Gemini)
 - [ ] Chat suggested actions based on repo state
 
@@ -328,4 +351,9 @@ src/
 14. Type `@pack` for cross-category search
 15. Chat works on home page without repo selected
 16. All pages are responsive on mobile (320px+)
-17. `pnpm build` completes without errors
+17. Without a repo: ask "Create a new private repo called test-repo" shows approval dialog then creates repo
+18. With a repo: ask "Add a README.md file" shows approval dialog then creates file
+19. With a repo: ask "Delete the old config file" shows approval dialog then deletes file
+20. With a repo: ask "Create a release v1.0.0" shows approval dialog then creates release
+21. With or without a repo: ask "Delete my old test-repo" shows approval dialog with permanent deletion warning then deletes repo
+22. `pnpm build` completes without errors

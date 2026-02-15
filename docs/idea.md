@@ -30,6 +30,11 @@ A polished dark-mode web UI that wraps Git operations with:
 - GitHub mode with full read/write operations via GitHub API
 - **AI Chat**: Natural language repo assistant with inline `@` mention system for referencing files, commits, branches, tags, stashes, and repositories
 - Chat works without a selected repo (use `@repo:` to reference any repository)
+- **File Management**: Create, update, and delete files directly in GitHub repos via chat (with approval flow)
+- **Releases**: Create GitHub releases with tags, titles, and markdown release notes from chat
+- **Repository Creation**: Create new GitHub repos (public/private) with README, .gitignore, and license from chat
+- **Repository Deletion**: Permanently delete GitHub repositories from chat (with approval flow)
+- **Branch Merging**: Merge branches in GitHub repos from chat with optional custom commit messages (with approval flow)
 - Fully responsive design across all screen sizes
 
 ## How It Works

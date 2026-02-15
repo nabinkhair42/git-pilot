@@ -2,7 +2,7 @@ import type { SVGProps } from "react";
 
 const GitManagerAppIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg {...props} viewBox="0 0 32 32" fill="none" className="size-6">
-    <rect width="32" height="32" rx="6" className="fill-foreground" />
+    <rect width="32" height="32" rx="6" className="fill-ring" />
     <g transform="translate(16,16)">
       <line
         x1="0"
@@ -26,14 +26,14 @@ const GitManagerAppIcon = (props: SVGProps<SVGSVGElement>) => (
         cx="0"
         cy="-8"
         r="2"
-        className="fill-foreground stroke-background"
+        className="fill-ring stroke-background"
         strokeWidth="1.8"
       />
       <circle
         cx="0"
         cy="-1"
         r="2"
-        className="fill-foreground stroke-background"
+        className="fill-ring stroke-background"
         strokeWidth="1.8"
       />
       <circle cx="0" cy="8" r="2" className="fill-background" />
@@ -41,7 +41,7 @@ const GitManagerAppIcon = (props: SVGProps<SVGSVGElement>) => (
         cx="5.5"
         cy="-6"
         r="2"
-        className="fill-foreground stroke-background"
+        className="fill-ring stroke-background"
         strokeWidth="1.8"
       />
     </g>

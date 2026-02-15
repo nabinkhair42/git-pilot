@@ -54,8 +54,10 @@
   --radius-4xl: calc(var(--radius) + 16px);
 
   /* Custom font sizes for fine-grained typography */
-  --font-size-2xs: 0.6875rem; /* 11px */
-  --font-size-2\.5: 0.625rem; /* 10px */
+  --font-size-2xs: 0.6875rem;
+  /* 11px */
+  --font-size-2\.5: 0.625rem;
+  /* 10px */
 }
 
 :root {
@@ -124,7 +126,7 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.006 285.885);
+  --sidebar: oklch(18.808% 0.00605 285.76);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -147,6 +149,7 @@
   position: relative;
   overflow-x: clip;
 }
+
 .page-rails::before,
 .page-rails::after {
   content: '';
@@ -158,8 +161,14 @@
   pointer-events: none;
   z-index: 1;
 }
-.page-rails::before { left: var(--rail-offset); }
-.page-rails::after { right: var(--rail-offset); }
+
+.page-rails::before {
+  left: var(--rail-offset);
+}
+
+.page-rails::after {
+  right: var(--rail-offset);
+}
 
 .rail-bounded {
   margin-left: var(--rail-offset);
@@ -171,6 +180,7 @@
   height: 1px;
   z-index: 2;
 }
+
 .section-divider::before {
   content: '';
   position: absolute;
@@ -190,29 +200,47 @@
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--foreground) 10%, transparent) transparent;
 }
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--foreground) 10%, transparent); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--foreground) 18%, transparent); }
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--foreground) 10%, transparent);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--foreground) 18%, transparent);
+}
 
 /* diff2html overrides */
 .d2h-wrapper {
   --d2h-bg-color: transparent;
   --d2h-border-color: var(--border);
 }
+
 .d2h-file-header {
   background: color-mix(in srgb, var(--foreground) 3%, transparent) !important;
   border-color: var(--border) !important;
   color: var(--foreground) !important;
 }
+
 .d2h-file-wrapper {
   border-color: var(--border) !important;
   margin-bottom: 0 !important;
 }
+
 .d2h-code-line,
 .d2h-code-side-line {
   color: var(--foreground) !important;
 }
+
 .d2h-code-linenumber {
   color: var(--muted-foreground) !important;
   border-color: var(--border) !important;
@@ -227,6 +255,7 @@
   padding-right: 0.75em !important;
   text-align: right !important;
 }
+
 .d2h-info {
   background: color-mix(in srgb, var(--foreground) 3%, transparent) !important;
   color: var(--muted-foreground) !important;
@@ -237,18 +266,23 @@
 :root .d2h-del {
   background-color: rgba(255, 220, 220, 0.5) !important;
 }
+
 :root .d2h-ins {
   background-color: rgba(200, 255, 210, 0.5) !important;
 }
+
 :root .d2h-del .d2h-code-line-ctn {
   background: transparent !important;
 }
+
 :root .d2h-ins .d2h-code-line-ctn {
   background: transparent !important;
 }
+
 :root .d2h-file-diff .d2h-del.d2h-change {
   background-color: rgba(255, 200, 200, 0.6) !important;
 }
+
 :root .d2h-file-diff .d2h-ins.d2h-change {
   background-color: rgba(180, 255, 200, 0.6) !important;
 }
@@ -257,20 +291,25 @@
 .dark .d2h-del {
   background-color: rgba(248, 81, 73, 0.15) !important;
 }
+
 .dark .d2h-ins {
   background-color: rgba(63, 185, 80, 0.15) !important;
 }
+
 .dark .d2h-del .d2h-code-line-ctn {
   background: transparent !important;
   color: var(--foreground) !important;
 }
+
 .dark .d2h-ins .d2h-code-line-ctn {
   background: transparent !important;
   color: var(--foreground) !important;
 }
+
 .dark .d2h-file-diff .d2h-del.d2h-change {
   background-color: rgba(248, 81, 73, 0.22) !important;
 }
+
 .dark .d2h-file-diff .d2h-ins.d2h-change {
   background-color: rgba(63, 185, 80, 0.22) !important;
 }
@@ -290,21 +329,26 @@
 .d2h-file-side-diff .d2h-del {
   background-color: inherit !important;
 }
+
 .d2h-file-side-diff .d2h-ins {
   background-color: inherit !important;
 }
+
 .dark .d2h-file-side-diff .d2h-code-side-linenumber.d2h-del {
   background-color: rgba(248, 81, 73, 0.15) !important;
   border-color: var(--border) !important;
 }
+
 .dark .d2h-file-side-diff .d2h-code-side-linenumber.d2h-ins {
   background-color: rgba(63, 185, 80, 0.15) !important;
   border-color: var(--border) !important;
 }
+
 :root .d2h-file-side-diff .d2h-code-side-linenumber.d2h-del {
   background-color: rgba(255, 220, 220, 0.5) !important;
   border-color: var(--border) !important;
 }
+
 :root .d2h-file-side-diff .d2h-code-side-linenumber.d2h-ins {
   background-color: rgba(200, 255, 210, 0.5) !important;
   border-color: var(--border) !important;
@@ -341,6 +385,7 @@
   border-collapse: collapse !important;
   table-layout: auto !important;
 }
+
 .d2h-diff-tbody tr td {
   border-color: var(--border) !important;
 }
@@ -360,6 +405,7 @@ html {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -369,17 +415,21 @@ html {
 .chat-markdown p {
   margin-bottom: 0.5em;
 }
+
 .chat-markdown p:last-child {
   margin-bottom: 0;
 }
+
 .chat-markdown ul,
 .chat-markdown ol {
   padding-left: 1.25em;
   margin-bottom: 0.5em;
 }
+
 .chat-markdown li {
   margin-bottom: 0.15em;
 }
+
 .chat-markdown h1,
 .chat-markdown h2,
 .chat-markdown h3 {
@@ -387,20 +437,32 @@ html {
   margin-top: 0.75em;
   margin-bottom: 0.35em;
 }
-.chat-markdown h1 { font-size: 1.1em; }
-.chat-markdown h2 { font-size: 1em; }
-.chat-markdown h3 { font-size: 0.95em; }
+
+.chat-markdown h1 {
+  font-size: 1.1em;
+}
+
+.chat-markdown h2 {
+  font-size: 1em;
+}
+
+.chat-markdown h3 {
+  font-size: 0.95em;
+}
+
 .chat-markdown table {
   border-collapse: collapse;
   width: 100%;
   margin-bottom: 0.5em;
 }
+
 .chat-markdown th,
 .chat-markdown td {
   border: 1px solid var(--border);
   padding: 0.25em 0.5em;
   text-align: left;
 }
+
 .chat-markdown blockquote {
   border-left: 2px solid var(--border);
   padding-left: 0.75em;

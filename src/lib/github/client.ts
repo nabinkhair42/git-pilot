@@ -201,6 +201,29 @@ export async function createBranch(
   return { success: true, message: `Branch "${branchName}" created from ${fromRef || "default branch"} (${sha.substring(0, 7)})` };
 }
 
+export async function mergeBranch(
+  token: string,
+  owner: string,
+  repo: string,
+  base: string,
+  head: string,
+  options: { commitMessage?: string } = {}
+) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.repos.merge({
+    owner,
+    repo,
+    base,
+    head,
+    commit_message: options.commitMessage,
+  });
+
+  return {
+    success: true,
+    message: `Merged "${head}" into "${base}" (${data.sha.substring(0, 7)})`,
+  };
+}
+
 export async function resetBranch(
   token: string,
   owner: string,
@@ -412,6 +435,200 @@ export async function getTags(
     tagger: "",
     isAnnotated: false,
   }));
+}
+
+// ─── Contributors ────────────────────────────────────────────────────────────
+
+export async function getContributors(
+  token: string,
+  owner: string,
+  repo: string,
+  options: { maxCount?: number } = {}
+) {
+  const octokit = createGitHubClient(token);
+  const perPage = Math.min(options.maxCount || 30, 100);
+  const { data } = await octokit.rest.repos.listContributors({
+    owner,
+    repo,
+    per_page: perPage,
+  });
+
+  return (data || []).map((contributor) => ({
+    username: contributor.login || "Unknown",
+    avatarUrl: contributor.avatar_url || "",
+    contributions: contributor.contributions,
+    type: contributor.type || "User",
+    profileUrl: contributor.html_url || `https://github.com/${contributor.login || "ghost"}`,
+  }));
+}
+
+// ─── User Profiles ───────────────────────────────────────────────────────────
+
+export async function getUserProfile(token: string, username: string) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.users.getByUsername({ username });
+
+  return {
+    username: data.login,
+    name: data.name || null,
+    avatarUrl: data.avatar_url,
+    bio: data.bio || null,
+    company: data.company || null,
+    location: data.location || null,
+    blog: data.blog || null,
+    twitterUsername: data.twitter_username || null,
+    publicRepos: data.public_repos,
+    publicGists: data.public_gists,
+    followers: data.followers,
+    following: data.following,
+    createdAt: data.created_at,
+    profileUrl: data.html_url,
+    type: data.type,
+  };
+}
+
+// ─── Repository Management ──────────────────────────────────────────────────
+
+export async function createRepository(
+  token: string,
+  name: string,
+  options: {
+    description?: string;
+    isPrivate?: boolean;
+    autoInit?: boolean;
+    gitignoreTemplate?: string;
+    license?: string;
+  } = {}
+) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.repos.createForAuthenticatedUser({
+    name,
+    description: options.description,
+    private: options.isPrivate ?? false,
+    auto_init: options.autoInit ?? true,
+    gitignore_template: options.gitignoreTemplate,
+    license_template: options.license,
+  });
+
+  return {
+    success: true,
+    message: `Repository "${data.full_name}" created successfully`,
+    owner: data.owner.login,
+    name: data.name,
+    fullName: data.full_name,
+    url: data.html_url,
+    defaultBranch: data.default_branch,
+    isPrivate: data.private,
+  };
+}
+
+export async function deleteRepository(token: string, owner: string, repo: string) {
+  const octokit = createGitHubClient(token);
+  await octokit.rest.repos.delete({ owner, repo });
+  return {
+    success: true,
+    message: `Repository "${owner}/${repo}" has been permanently deleted`,
+  };
+}
+
+// ─── File Management ────────────────────────────────────────────────────────
+
+export async function createOrUpdateFile(
+  token: string,
+  owner: string,
+  repo: string,
+  path: string,
+  content: string,
+  message: string,
+  options: { branch?: string; sha?: string } = {}
+) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.repos.createOrUpdateFileContents({
+    owner,
+    repo,
+    path,
+    message,
+    content: Buffer.from(content).toString("base64"),
+    branch: options.branch,
+    sha: options.sha,
+  });
+
+  return {
+    success: true,
+    message: options.sha
+      ? `File "${path}" updated successfully`
+      : `File "${path}" created successfully`,
+    path,
+    sha: data.content?.sha ?? "",
+    commitSha: data.commit.sha ?? "",
+    commitUrl: data.commit.html_url ?? "",
+  };
+}
+
+export async function deleteFile(
+  token: string,
+  owner: string,
+  repo: string,
+  path: string,
+  message: string,
+  sha: string,
+  options: { branch?: string } = {}
+) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.repos.deleteFile({
+    owner,
+    repo,
+    path,
+    message,
+    sha,
+    branch: options.branch,
+  });
+
+  return {
+    success: true,
+    message: `File "${path}" deleted successfully`,
+    path,
+    commitSha: data.commit.sha ?? "",
+  };
+}
+
+// ─── Releases ───────────────────────────────────────────────────────────────
+
+export async function createRelease(
+  token: string,
+  owner: string,
+  repo: string,
+  tagName: string,
+  options: {
+    name?: string;
+    body?: string;
+    draft?: boolean;
+    prerelease?: boolean;
+    targetBranch?: string;
+  } = {}
+) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.repos.createRelease({
+    owner,
+    repo,
+    tag_name: tagName,
+    name: options.name,
+    body: options.body,
+    draft: options.draft ?? false,
+    prerelease: options.prerelease ?? false,
+    target_commitish: options.targetBranch,
+  });
+
+  return {
+    success: true,
+    message: `Release "${tagName}" created successfully`,
+    tagName: data.tag_name,
+    name: data.name ?? "",
+    url: data.html_url,
+    id: data.id,
+    draft: data.draft,
+    prerelease: data.prerelease,
+  };
 }
 
 // ─── Diff ───────────────────────────────────────────────────────────────────

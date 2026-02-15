@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { getGitHubToken } from "@/lib/auth-helpers";
+import { getGitHubToken } from "@/lib/auth/auth-helpers";
 import { getUserRepos, getRepoInfo } from "@/lib/github/client";
 import { successResponse, errorResponse } from "@/lib/response/server-response";
 

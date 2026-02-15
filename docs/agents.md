@@ -43,8 +43,9 @@ The AI Chat feature uses Vercel AI SDK 6 with a tool-calling architecture.
 - Factory pattern: `createGitHubTools(owner, repo, token)` returns all tools scoped to that GitHub repo.
 - Each tool uses `tool()` from `ai` with zod schemas for parameter validation.
 - Tools wrap existing GitHub client functions from `src/lib/github/client.ts`.
-- Read-only tools: `getRepoOverview`, `getCommitHistory`, `getCommitDetails`, `listBranches`, `compareDiff`, `listTags`, `getFileContent`, `listFiles`.
-- Write tools: `createBranch`, `deleteBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`.
+- Read-only tools: `getRepoOverview`, `getCommitHistory`, `getCommitDetails`, `listBranches`, `compareDiff`, `listTags`, `getFileContent`, `listFiles`, `listContributors`, `getUserProfile`.
+- Write tools (repo-scoped, need approval): `createBranch`, `deleteBranch`, `mergeBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createOrUpdateFile`, `deleteFile`, `createRelease`, `deleteRepository`.
+- General tools (no repo needed): `listUserRepos`, `selectRepository`, `getUserProfile`, `createRepository` (needs approval), `deleteRepository` (needs approval).
 - Large outputs are truncated (diffs to 8000 chars, file content to 6000 chars).
 
 ### Frontend (Chat UI)
@@ -57,11 +58,17 @@ The AI Chat feature uses Vercel AI SDK 6 with a tool-calling architecture.
 
 ### Adding New AI Tools
 
-1. Add the tool definition in `src/lib/ai/github-tools.ts` inside the `createGitHubTools` function.
-2. Use `tool()` from `ai` with a zod schema for parameters and an `execute` function.
+1. Add the GitHub client function in `src/lib/github/client.ts`.
+2. Add the tool definition in `src/lib/ai/github-tools.ts`:
+   - Repo-scoped tools go in `createGitHubTools()`.
+   - General tools (no repo needed) go in `createGeneralTools()`.
+   - Use `tool()` from `ai` with a zod schema for parameters and an `execute` function.
+   - For write operations, set `needsApproval: true`.
 3. Add the tool name to `TOOL_LABELS` map in `chat-message.tsx`.
-4. Update the system prompt in `src/lib/ai/system-prompt.ts` if the tool needs special instructions.
-5. No changes needed to the API route (tools are auto-discovered from the tools object).
+4. Register a renderer in `src/components/chat/tool-renderers/registry.tsx` (use `WriteResultRenderer` for tools returning `{ success, message }`).
+5. For tools with `needsApproval`, add label and description in `src/components/chat/tool-renderers/approval-renderer.tsx`.
+6. Update the system prompt in `src/lib/ai/system-prompt.ts` with tool description and examples.
+7. No changes needed to the API route (tools are auto-discovered from the tools object).
 
 ## Mention/Reference System
 

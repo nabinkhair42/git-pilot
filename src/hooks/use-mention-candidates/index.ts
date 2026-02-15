@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import useSWR from "swr";
 import { useRepo } from "@/hooks/use-repo";
 import type { MentionCategory, MentionItem } from "@/lib/mentions/types";
@@ -7,30 +8,44 @@ import { MENTION_MAX_ITEMS_PER_CATEGORY } from "@/config/constants";
 import * as githubService from "@/services/frontend/github.services";
 import * as mentionService from "@/services/frontend/mention.services";
 
+function useDebouncedValue<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debounced;
+}
+
 export function useMentionCandidates(category: MentionCategory | null, search: string) {
   const { githubOwner, githubRepoName } = useRepo();
   const owner = githubOwner;
   const repo = githubRepoName;
 
+  // Debounce search to avoid flooding API on every keystroke (rerender-use-ref-transient-values)
+  const debouncedSearch = useDebouncedValue(search, 300);
+
   // Allow fetching when: specific category selected, OR cross-category search with non-empty query
-  const shouldFetch = category !== null || search.length > 0;
+  const shouldFetch = category !== null || debouncedSearch.length > 0;
 
   const key = shouldFetch
-    ? ["mention-candidates", category ?? "all", owner, repo, search]
+    ? ["mention-candidates", category ?? "all", owner, repo, debouncedSearch]
     : null;
 
   const { data, isLoading, error } = useSWR<MentionItem[]>(
     key,
     async () => {
-      // Cross-category search: fetch from all categories in parallel
-      if (category === null && search) {
+      const s = debouncedSearch;
+
+      // Cross-category search: fetch from all categories in parallel (async-parallel)
+      if (category === null && s) {
         const limit = 10;
         const fetchers: Promise<MentionItem[]>[] = [
-          fetchFiles(owner, repo, search).then((r) => r.slice(0, limit)),
-          fetchCommits(owner, repo, search).then((r) => r.slice(0, limit)),
-          fetchBranches(owner, repo, search).then((r) => r.slice(0, limit)),
-          fetchTags(owner, repo, search).then((r) => r.slice(0, limit)),
-          fetchRepositories(search).then((r) => r.slice(0, limit)),
+          fetchFiles(owner, repo, s).then((r) => r.slice(0, limit)),
+          fetchCommits(owner, repo, s).then((r) => r.slice(0, limit)),
+          fetchBranches(owner, repo, s).then((r) => r.slice(0, limit)),
+          fetchTags(owner, repo, s).then((r) => r.slice(0, limit)),
+          fetchRepositories(s).then((r) => r.slice(0, limit)),
         ];
         const results = await Promise.allSettled(fetchers);
         return results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
@@ -40,15 +55,15 @@ export function useMentionCandidates(category: MentionCategory | null, search: s
 
       switch (category) {
         case "file":
-          return fetchFiles(owner, repo, search);
+          return fetchFiles(owner, repo, s);
         case "commit":
-          return fetchCommits(owner, repo, search);
+          return fetchCommits(owner, repo, s);
         case "branch":
-          return fetchBranches(owner, repo, search);
+          return fetchBranches(owner, repo, s);
         case "tag":
-          return fetchTags(owner, repo, search);
+          return fetchTags(owner, repo, s);
         case "repository":
-          return fetchRepositories(search);
+          return fetchRepositories(s);
         default:
           return [];
       }
@@ -140,10 +155,18 @@ async function fetchTags(
   }));
 }
 
+// Module-level cache for repos list (js-cache-function-results)
+let reposCachePromise: Promise<Awaited<ReturnType<typeof githubService.getGitHubRepos>>> | null = null;
+
 async function fetchRepositories(
   search: string
 ): Promise<MentionItem[]> {
-  const repos = await githubService.getGitHubRepos();
+  if (!reposCachePromise) {
+    reposCachePromise = githubService.getGitHubRepos();
+    // Invalidate cache after 60s so fresh data is fetched on next search
+    setTimeout(() => { reposCachePromise = null; }, 60_000);
+  }
+  const repos = await reposCachePromise;
   const filtered = search
     ? repos.filter((r) => r.fullName.toLowerCase().includes(search.toLowerCase()))
     : repos;
