@@ -41,11 +41,36 @@ export const MENTION_CATEGORY_SHORTCUTS: Record<string, MentionCategory> = {
 };
 
 export const MENTION_CATEGORIES = [
-  { id: "file" as const, label: "File", icon: "FileText", placeholder: "Search files..." },
-  { id: "commit" as const, label: "Commit", icon: "GitCommitHorizontal", placeholder: "Search commits..." },
-  { id: "branch" as const, label: "Branch", icon: "GitBranch", placeholder: "Search branches..." },
-  { id: "tag" as const, label: "Tag", icon: "Tag", placeholder: "Search tags..." },
-  { id: "repository" as const, label: "Repository", icon: "FolderGit2", placeholder: "Search repos..." },
+  {
+    id: "file" as const,
+    label: "File",
+    icon: "FileText",
+    placeholder: "Search files...",
+  },
+  {
+    id: "commit" as const,
+    label: "Commit",
+    icon: "GitCommitHorizontal",
+    placeholder: "Search commits...",
+  },
+  {
+    id: "branch" as const,
+    label: "Branch",
+    icon: "GitBranch",
+    placeholder: "Search branches...",
+  },
+  {
+    id: "tag" as const,
+    label: "Tag",
+    icon: "Tag",
+    placeholder: "Search tags...",
+  },
+  {
+    id: "repository" as const,
+    label: "Repository",
+    icon: "FolderGit2",
+    placeholder: "Search repos...",
+  },
 ] as const;
 
 // ─── AI Models ────────────────────────────────────────────────────────────
@@ -54,14 +79,49 @@ const modelLogo = (provider: string) =>
   `https://models.dev/logos/${provider}.svg`;
 
 export const AI_MODELS = [
-  { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", provider: "google", logo: modelLogo("google") },
-  { id: "gpt-4o", name: "GPT-4o", provider: "openai", logo: modelLogo("openai") },
-  { id: "claude-sonnet-4-5-20250929", name: "Claude Sonnet 4.5", provider: "anthropic", logo: modelLogo("anthropic") },
-  { id: "claude-opus-4-6", name: "Claude Opus 4.6", provider: "anthropic", logo: modelLogo("anthropic") },
+  {
+    id: "gemini-2.5-flash",
+    name: "Gemini 2.5 Flash",
+    provider: "google",
+    logo: "/ai/gemini.svg",
+  },
+  {
+    id: "gpt-4o",
+    name: "GPT-4o",
+    provider: "openai",
+    logo: modelLogo("openai"),
+  },
+  {
+    id: "claude-sonnet-4-5-20250929",
+    name: "Claude Sonnet 4.5",
+    provider: "anthropic",
+    logo: modelLogo("anthropic"),
+  },
+  {
+    id: "claude-opus-4-6",
+    name: "Claude Opus 4.6",
+    provider: "anthropic",
+    logo: modelLogo("anthropic"),
+  },
   { id: "grok-3", name: "Grok 3", provider: "xai", logo: modelLogo("xai") },
-  { id: "lmstudio-local", name: "LM Studio (Local)", provider: "lmstudio", logo: modelLogo("lmstudio") },
-  { id: "sonar-pro", name: "Sonar Pro", provider: "perplexity", logo: modelLogo("perplexity") },
-  { id: "sonar", name: "Sonar", provider: "perplexity", logo: modelLogo("perplexity") },
+  {
+    id: "lmstudio-local",
+    name: "LM Studio (Local)",
+    provider: "lmstudio",
+    logo: "/ai/lm-studio.svg",
+  },
+  {
+    id: "sonar-pro",
+    name: "Sonar Pro",
+    provider: "perplexity",
+    logo: "/ai/perplexity.svg",
+  },
+  {
+    id: "sonar",
+    name: "Sonar",
+    provider: "perplexity",
+    logo: "/ai/perplexity.svg",
+  },
 ] as const;
 
 export type AIModel = (typeof AI_MODELS)[number];

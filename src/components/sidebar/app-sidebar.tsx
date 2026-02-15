@@ -16,6 +16,7 @@ import { useSession } from "@/lib/auth/auth-client";
 import { useTheme } from "next-themes";
 import { SquarePen, Sun, Moon, PanelLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChatHistoryList } from "./chat-history-list";
 
@@ -58,6 +59,7 @@ function ThemeToggle() {
 export function AppSidebar() {
   const { data: session } = useSession();
   const { state, toggleSidebar } = useSidebar();
+  const router = useRouter();
   const isCollapsed = state === "collapsed";
 
   return (
@@ -87,11 +89,15 @@ export function AppSidebar() {
             )}
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="New chat">
-              <Link href="/">
-                <SquarePen className="size-4" />
-                <span>New chat</span>
-              </Link>
+            <SidebarMenuButton
+              tooltip="New chat"
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("new-chat"));
+                router.push("/");
+              }}
+            >
+              <SquarePen className="size-4" />
+              <span>New chat</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

@@ -21,10 +21,20 @@ import {
   DefaultChatTransport,
   lastAssistantMessageIsCompleteWithApprovalResponses,
 } from "ai";
-import { useMemo, useRef, useEffect, useCallback } from "react";
+import { useMemo, useRef, useEffect, useCallback, useState } from "react";
 
 export function ChatApp({ chatId }: { chatId: string | null }) {
   const { chat: activeChat, isLoading: chatLoading } = useActiveChat(chatId);
+  const [resetKey, setResetKey] = useState(0);
+
+  // Listen for "new-chat" events from the sidebar button.
+  // This handles the case where replaceState desynchronized the URL from
+  // the Next.js router, so a Link to "/" would be a no-op.
+  useEffect(() => {
+    const handler = () => setResetKey((k) => k + 1);
+    window.addEventListener("new-chat", handler);
+    return () => window.removeEventListener("new-chat", handler);
+  }, []);
 
   const isLoadingChat = !!chatId && chatLoading;
 
@@ -37,7 +47,7 @@ export function ChatApp({ chatId }: { chatId: string | null }) {
         </div>
       ) : (
         <ChatAppInner
-          key={chatId || "new"}
+          key={chatId || `new-${resetKey}`}
           activeChatId={chatId}
           initialMessages={activeChat?.messages as UIMessage[] | undefined}
         />
@@ -83,7 +93,7 @@ function ChatAppInner({
     useChat({
       id: activeChatId || "new-chat",
       transport,
-      messages: initialMessages,
+      messages: initialMessages ?? [],
       sendAutomaticallyWhen:
         lastAssistantMessageIsCompleteWithApprovalResponses,
     });
