@@ -37,6 +37,7 @@ const TOOL_LABELS: Record<string, string> = {
   selectRepository: "Select Repository",
   createBranch: "Create Branch",
   deleteBranch: "Delete Branch",
+  mergeBranch: "Merge Branch",
   cherryPickCommits: "Cherry Pick",
   revertCommits: "Revert Commits",
   resetBranch: "Reset Branch",

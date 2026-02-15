@@ -13,6 +13,7 @@ import {
   getFileContent,
   createBranch,
   deleteBranch,
+  mergeBranch,
   cherryPickCommit,
   revertCommit,
   resetBranch,
@@ -310,6 +311,27 @@ export function createGitHubTools(
           return {
             success: false,
             message: `Failed to delete branch: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    mergeBranch: tool({
+      description:
+        "Merge one branch into another. Creates a merge commit on the target (base) branch with changes from the source (head) branch.",
+      inputSchema: z.object({
+        base: z.string().describe("Target branch to merge into (e.g. 'main')."),
+        head: z.string().describe("Source branch to merge from (e.g. 'feature/auth')."),
+        commitMessage: z.string().optional().describe("Custom merge commit message. Defaults to GitHub's standard message."),
+      }),
+      needsApproval: true,
+      execute: async ({ base, head, commitMessage }) => {
+        try {
+          return await mergeBranch(token, owner, repo, base, head, { commitMessage });
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to merge: ${error instanceof Error ? error.message : "Unknown error"}`,
           };
         }
       },

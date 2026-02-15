@@ -87,6 +87,7 @@ You have access to tools that query and modify the repository via the GitHub API
 ### Write Operations (modify the remote repository):
 - **createBranch**: Create a new branch from any ref (branch, tag, or commit SHA)
 - **deleteBranch**: Delete a branch (irreversible)
+- **mergeBranch**: Merge one branch into another with an optional custom commit message
 - **cherryPickCommits**: Cherry-pick a single commit onto a target branch
 - **revertCommits**: Revert a single commit on a target branch
 - **resetBranch**: Force-reset a branch to a specific SHA (destructive — commits will be lost)
@@ -112,6 +113,7 @@ ${SHARED_GUIDELINES}
 - "Show me package.json at tag v1.0" → use getFileContent with ref
 - "List all branches" → use listBranches
 - "Create a branch called test-feature" → warn first, then use createBranch
+- "Merge develop into main" → warn first, then use mergeBranch
 - "Cherry-pick commit abc1234 onto main" → warn first, then use cherryPickCommits
 - "Revert the last commit on develop" → use getCommitHistory to find it, then revertCommits
 - "Who contributes to this repo?" → use listContributors

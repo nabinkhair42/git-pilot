@@ -30,6 +30,7 @@ export const toolRenderers: Record<string, ToolRenderer> = {
   getFileContent: FileContentRenderer,
   createBranch: WriteResultRenderer,
   deleteBranch: WriteResultRenderer,
+  mergeBranch: WriteResultRenderer,
   cherryPickCommits: WriteResultRenderer,
   revertCommits: WriteResultRenderer,
   resetBranch: WriteResultRenderer,

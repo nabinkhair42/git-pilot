@@ -128,6 +128,7 @@ A sidebar chat assistant available on all pages, including the home page without
 |------|---------|-------|
 | `createBranch` | Create new branch from any ref | `createBranch()` |
 | `deleteBranch` | Delete a branch (irreversible) | `deleteBranch()` |
+| `mergeBranch` | Merge one branch into another | `mergeBranch()` |
 | `cherryPickCommits` | Cherry-pick a commit onto a branch | `cherryPickCommit()` |
 | `revertCommits` | Revert a commit on a branch | `revertCommit()` |
 | `resetBranch` | Force-reset branch to SHA (destructive) | `resetBranch()` |
@@ -323,6 +324,7 @@ src/
 - [x] Write operation approval UI in chat (confirm/deny for destructive operations)
 - [x] Contributors and user profile tools
 - [x] GitHub mode: Delete repositories via chat with approval flow
+- [x] GitHub mode: Merge branches via chat with approval flow
 
 ### Pending / Future
 - [ ] Chat message persistence (save/restore chat history)

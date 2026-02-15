@@ -34,6 +34,7 @@ A polished dark-mode web UI that wraps Git operations with:
 - **Releases**: Create GitHub releases with tags, titles, and markdown release notes from chat
 - **Repository Creation**: Create new GitHub repos (public/private) with README, .gitignore, and license from chat
 - **Repository Deletion**: Permanently delete GitHub repositories from chat (with approval flow)
+- **Branch Merging**: Merge branches in GitHub repos from chat with optional custom commit messages (with approval flow)
 - Fully responsive design across all screen sizes
 
 ## How It Works

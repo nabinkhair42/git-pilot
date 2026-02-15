@@ -123,11 +123,11 @@ const { messages, sendMessage, status, stop, setMessages } = useChat({
 - `CompareDiffRenderer` - diff between two refs
 - `FileListRenderer` - directory listing
 - `FileContentRenderer` - file content viewer
-- `WriteResultRenderer` - success/failure for write operations (used by `createBranch`, `deleteBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createRepository`, `createOrUpdateFile`, `deleteFile`, `createRelease`)
+- `WriteResultRenderer` - success/failure for write operations (used by `createBranch`, `deleteBranch`, `mergeBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createRepository`, `createOrUpdateFile`, `deleteFile`, `createRelease`)
 - `ContributorListRenderer` - contributor avatars and stats
 - `UserProfileRenderer` - GitHub user profile card
 
-**Approval renderer** (`approval-renderer.tsx`): Shows warning banner with description and approve/deny buttons for write operations. Covers: `deleteBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createRepository`, `createOrUpdateFile`, `deleteFile`, `createRelease`.
+**Approval renderer** (`approval-renderer.tsx`): Shows warning banner with description and approve/deny buttons for write operations. Covers: `deleteBranch`, `mergeBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createRepository`, `createOrUpdateFile`, `deleteFile`, `createRelease`.
 
 ## Hooks
 

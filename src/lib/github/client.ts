@@ -201,6 +201,29 @@ export async function createBranch(
   return { success: true, message: `Branch "${branchName}" created from ${fromRef || "default branch"} (${sha.substring(0, 7)})` };
 }
 
+export async function mergeBranch(
+  token: string,
+  owner: string,
+  repo: string,
+  base: string,
+  head: string,
+  options: { commitMessage?: string } = {}
+) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.repos.merge({
+    owner,
+    repo,
+    base,
+    head,
+    commit_message: options.commitMessage,
+  });
+
+  return {
+    success: true,
+    message: `Merged "${head}" into "${base}" (${data.sha.substring(0, 7)})`,
+  };
+}
+
 export async function resetBranch(
   token: string,
   owner: string,

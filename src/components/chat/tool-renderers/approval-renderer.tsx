@@ -3,6 +3,7 @@ import { AlertTriangle } from "lucide-react";
 
 const LABELS: Record<string, string> = {
   deleteBranch: "Delete Branch",
+  mergeBranch: "Merge Branch",
   cherryPickCommits: "Cherry Pick Commit",
   revertCommits: "Revert Commit",
   resetBranch: "Reset Branch",
@@ -16,6 +17,8 @@ const LABELS: Record<string, string> = {
 const DESCRIPTIONS: Record<string, (input: Record<string, unknown>) => string> = {
   deleteBranch: (input) =>
     `This will permanently delete branch "${input.branch}". This cannot be undone.`,
+  mergeBranch: (input) =>
+    `This will merge "${input.head}" into "${input.base}"${input.commitMessage ? ` with message: "${input.commitMessage}"` : ""}.`,
   cherryPickCommits: (input) =>
     `This will cherry-pick commit ${String(input.hash).slice(0, 7)} onto "${input.branch}".`,
   revertCommits: (input) =>

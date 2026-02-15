@@ -170,7 +170,7 @@ function ChatAppInner({
           </div>
         </div>
       ) : (
-        <div>
+        <>
           <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col min-h-0">
             <ChatMessages
               messages={messages}
@@ -180,11 +180,10 @@ function ChatAppInner({
               addToolApprovalResponse={addToolApprovalResponse}
             />
           </div>
-          {/* faded ui element  to create a sense of depth and separate the input from the messages */}
-          <div className="mx-auto w-full max-w-3xl sticky bottom-0 bg-background/80 backdrop-blur">
+          <div className="mx-auto w-full max-w-3xl">
             <ChatInput onSend={handleSend} onStop={stop} status={status} />
           </div>
-        </div>
+        </>
       )}
     </div>
   );
