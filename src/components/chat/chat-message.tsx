@@ -1,7 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
-import { type UIMessage, isToolUIPart, getToolName } from "ai";
+import {
+  Conversation,
+  ConversationContent,
+  ConversationEmptyState,
+  ConversationScrollButton,
+} from "@/components/ai-elements/conversation";
 import {
   Message,
   MessageContent,
@@ -9,22 +13,16 @@ import {
 } from "@/components/ai-elements/message";
 import {
   Tool,
-  ToolHeader,
   ToolContent,
+  ToolHeader,
   ToolInput,
   ToolOutput,
 } from "@/components/ai-elements/tool";
-import {
-  Conversation,
-  ConversationContent,
-  ConversationEmptyState,
-  ConversationScrollButton,
-} from "@/components/ai-elements/conversation";
-import { Suggestion } from "@/components/ai-elements/suggestion";
 import { Spinner } from "@/components/ui/spinner";
-import { GitManagerAppIcon } from "@/components/icons/git-manager";
-import { toolRenderers } from "./tool-renderers/registry";
+import { type UIMessage, getToolName, isToolUIPart } from "ai";
+import { useMemo } from "react";
 import { ApprovalRenderer } from "./tool-renderers/approval-renderer";
+import { toolRenderers } from "./tool-renderers/registry";
 
 const TOOL_LABELS: Record<string, string> = {
   getRepoOverview: "Repository Overview",
@@ -62,7 +60,6 @@ interface ChatMessagesProps {
 export function ChatMessages({
   messages: rawMessages,
   status,
-  onSuggestionClick,
   onAction,
   addToolApprovalResponse,
 }: ChatMessagesProps) {
@@ -81,35 +78,7 @@ export function ChatMessages({
   }, [rawMessages]);
 
   if (messages.length === 0) {
-    return (
-      <ConversationEmptyState>
-        <div className="flex flex-col items-center gap-3 p-8 text-center">
-          <div className="text-muted-foreground">
-            <GitManagerAppIcon className="size-12" />
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-sm font-medium">Chat with your Repo</h3>
-            <p className="text-sm text-muted-foreground">
-              Ask me anything about your repository — commits, branches, diffs, file history, and more.
-            </p>
-          </div>
-          <div className="mt-2 flex flex-wrap justify-center gap-2">
-            {[
-              "Summarize recent commits",
-              "What branches exist?",
-              "What files changed recently?",
-              "Compare main vs HEAD",
-            ].map((s) => (
-              <Suggestion
-                key={s}
-                suggestion={s}
-                onClick={onSuggestionClick}
-              />
-            ))}
-          </div>
-        </div>
-      </ConversationEmptyState>
-    );
+    return <ConversationEmptyState />;
   }
 
   return (
@@ -122,11 +91,22 @@ export function ChatMessages({
                 if (part.type === "text" && part.text.trim()) {
                   if (message.role === "user") {
                     // Strip the mention context block from display
-                    const displayText = part.text.replace(/\n\n---\n\n## User-Referenced Context[\s\S]*$/, "").trim();
+                    const displayText = part.text
+                      .replace(
+                        /\n\n---\n\n## User-Referenced Context[\s\S]*$/,
+                        "",
+                      )
+                      .trim();
                     if (!displayText) return null;
-                    return <p key={index} className="whitespace-pre-wrap">{displayText}</p>;
+                    return (
+                      <p key={index} className="whitespace-pre-wrap">
+                        {displayText}
+                      </p>
+                    );
                   }
-                  return <MessageResponse key={index}>{part.text}</MessageResponse>;
+                  return (
+                    <MessageResponse key={index}>{part.text}</MessageResponse>
+                  );
                 }
 
                 if (isToolUIPart(part)) {
@@ -147,48 +127,68 @@ export function ChatMessages({
                         <ToolInput input={part.input} />
 
                         {/* Approval requested — show confirm/deny UI */}
-                        {part.state === "approval-requested" && addToolApprovalResponse && (
-                          <ApprovalRenderer
-                            toolName={name}
-                            input={part.input}
-                            onApprove={() =>
-                              addToolApprovalResponse({
-                                id: (part as unknown as { approval: { id: string } }).approval.id,
-                                approved: true,
-                              })
-                            }
-                            onDeny={() =>
-                              addToolApprovalResponse({
-                                id: (part as unknown as { approval: { id: string } }).approval.id,
-                                approved: false,
-                              })
-                            }
-                          />
-                        )}
+                        {part.state === "approval-requested" &&
+                          addToolApprovalResponse && (
+                            <ApprovalRenderer
+                              toolName={name}
+                              input={part.input}
+                              onApprove={() =>
+                                addToolApprovalResponse({
+                                  id: (
+                                    part as unknown as {
+                                      approval: { id: string };
+                                    }
+                                  ).approval.id,
+                                  approved: true,
+                                })
+                              }
+                              onDeny={() =>
+                                addToolApprovalResponse({
+                                  id: (
+                                    part as unknown as {
+                                      approval: { id: string };
+                                    }
+                                  ).approval.id,
+                                  approved: false,
+                                })
+                              }
+                            />
+                          )}
 
                         {/* Denied — show denial message */}
                         {part.state === "output-denied" && (
-                          <div className="text-sm text-muted-foreground">Action was denied by user.</div>
+                          <div className="text-sm text-muted-foreground">
+                            Action was denied by user.
+                          </div>
                         )}
 
                         {/* Output available — use rich renderer or JSON fallback */}
-                        {part.state === "output-available" && (() => {
-                          const Renderer = toolRenderers[name];
-                          if (Renderer) {
+                        {part.state === "output-available" &&
+                          (() => {
+                            const Renderer = toolRenderers[name];
+                            if (Renderer) {
+                              return (
+                                <Renderer
+                                  output={part.output}
+                                  input={part.input}
+                                  onAction={onAction ?? (() => {})}
+                                />
+                              );
+                            }
                             return (
-                              <Renderer
+                              <ToolOutput
                                 output={part.output}
-                                input={part.input}
-                                onAction={onAction ?? (() => {})}
+                                errorText={undefined}
                               />
                             );
-                          }
-                          return <ToolOutput output={part.output} errorText={undefined} />;
-                        })()}
+                          })()}
 
                         {/* Error */}
                         {part.state === "output-error" && (
-                          <ToolOutput output={undefined} errorText={part.errorText} />
+                          <ToolOutput
+                            output={undefined}
+                            errorText={part.errorText}
+                          />
                         )}
                       </ToolContent>
                     </Tool>
@@ -205,7 +205,6 @@ export function ChatMessages({
                     </div>
                   );
                 }
-
                 return null;
               })}
             </MessageContent>

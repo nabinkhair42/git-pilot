@@ -4,7 +4,7 @@
 
 - Next.js app (App Router) with two modes: **Local** and **GitHub**
 - **Local mode**: Repo path in URL params (`?path=/abs/path`), stateless, bookmarkable. API routes use `simple-git` for Git operations. Runs on localhost.
-- **GitHub mode**: Authenticated via better-auth with GitHub OAuth (`repo` scope). Uses Octokit for full read/write operations (commits, branches, tags, diffs, cherry-pick, revert, reset, branch deletion). All 11 GitHub API routes use standardized `server-response.ts` helpers with async parallelization.
+- **GitHub mode**: Authenticated via better-auth with GitHub OAuth (`repo`, `delete_repo` scopes). Uses Octokit for full read/write operations (commits, branches, tags, diffs, cherry-pick, revert, reset, branch deletion). All 11 GitHub API routes use standardized `server-response.ts` helpers with async parallelization.
 - **AI Chat**: Sidebar assistant using Vercel AI SDK 6. Multi-step tool calling (up to 8 steps). Available on all pages, including without a repo selected. Inline `@` mention system for referencing repo entities.
 - SWR for client-side data fetching with cache invalidation after mutations
 - Drizzle ORM with Neon Postgres for auth persistence (user, session, account tables)
@@ -134,6 +134,7 @@ A sidebar chat assistant available on all pages, including the home page without
 | `createOrUpdateFile` | Create or update a file (commits to branch) | `createOrUpdateFile()` |
 | `deleteFile` | Delete a file (irreversible) | `deleteFile()` |
 | `createRelease` | Create release with tag and notes | `createRelease()` |
+| `deleteRepository` | Permanently delete a GitHub repository (irreversible) | `deleteRepository()` |
 
 **General tools (no repo required):**
 
@@ -143,6 +144,7 @@ A sidebar chat assistant available on all pages, including the home page without
 | `selectRepository` | Select a repo to unlock full tools | `getRepoInfo()` |
 | `getUserProfile` | Public GitHub profile for any user | `getUserProfile()` |
 | `createRepository` | Create new GitHub repo (needs approval) | `createRepository()` |
+| `deleteRepository` | Permanently delete a GitHub repo (needs approval) | `deleteRepository()` |
 
 ### Inline Mention System
 
@@ -320,6 +322,7 @@ src/
 - [x] Rich tool output renderers (per-tool custom UI in chat)
 - [x] Write operation approval UI in chat (confirm/deny for destructive operations)
 - [x] Contributors and user profile tools
+- [x] GitHub mode: Delete repositories via chat with approval flow
 
 ### Pending / Future
 - [ ] Chat message persistence (save/restore chat history)
@@ -350,4 +353,5 @@ src/
 18. With a repo: ask "Add a README.md file" shows approval dialog then creates file
 19. With a repo: ask "Delete the old config file" shows approval dialog then deletes file
 20. With a repo: ask "Create a release v1.0.0" shows approval dialog then creates release
-21. `pnpm build` completes without errors
+21. With or without a repo: ask "Delete my old test-repo" shows approval dialog with permanent deletion warning then deletes repo
+22. `pnpm build` completes without errors

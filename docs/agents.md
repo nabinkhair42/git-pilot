@@ -44,8 +44,8 @@ The AI Chat feature uses Vercel AI SDK 6 with a tool-calling architecture.
 - Each tool uses `tool()` from `ai` with zod schemas for parameter validation.
 - Tools wrap existing GitHub client functions from `src/lib/github/client.ts`.
 - Read-only tools: `getRepoOverview`, `getCommitHistory`, `getCommitDetails`, `listBranches`, `compareDiff`, `listTags`, `getFileContent`, `listFiles`, `listContributors`, `getUserProfile`.
-- Write tools (repo-scoped, need approval): `createBranch`, `deleteBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createOrUpdateFile`, `deleteFile`, `createRelease`.
-- General tools (no repo needed): `listUserRepos`, `selectRepository`, `getUserProfile`, `createRepository` (needs approval).
+- Write tools (repo-scoped, need approval): `createBranch`, `deleteBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createOrUpdateFile`, `deleteFile`, `createRelease`, `deleteRepository`.
+- General tools (no repo needed): `listUserRepos`, `selectRepository`, `getUserProfile`, `createRepository` (needs approval), `deleteRepository` (needs approval).
 - Large outputs are truncated (diffs to 8000 chars, file content to 6000 chars).
 
 ### Frontend (Chat UI)
