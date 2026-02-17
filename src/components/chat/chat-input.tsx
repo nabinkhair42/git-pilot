@@ -353,7 +353,7 @@ function ChatInputInner({ onSend, onStop, status, disabled }: ChatInputProps) {
                   <img
                     src={currentModel.logo}
                     alt=""
-                    className="size-5 dark:invert"
+                    className="size-5"
                     width={12}
                     height={12}
                   />
@@ -372,7 +372,7 @@ function ChatInputInner({ onSend, onStop, status, disabled }: ChatInputProps) {
                     <img
                       src={model.logo}
                       alt=""
-                      className="size-5 dark:invert"
+                      className="size-5"
                       width={12}
                       height={12}
                     />

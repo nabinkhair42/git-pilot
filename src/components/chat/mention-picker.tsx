@@ -96,7 +96,7 @@ export function MentionPicker({
     >
       {query.mode === "categories" ? (
         /* ── Category buttons ── */
-        <div className="grid grid-cols-3 gap-1 p-2">
+        <div className="grid grid-cols-3 gap-1 p-2 bg-background backdrop-blur-3xl bg-opacity-80">
           {visibleCategories.map((cat) => {
             const Icon = CATEGORY_ICONS[cat.id];
             return (

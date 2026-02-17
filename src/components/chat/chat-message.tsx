@@ -48,6 +48,10 @@ const TOOL_LABELS: Record<string, string> = {
   createOrUpdateFile: "Create/Update File",
   deleteFile: "Delete File",
   createRelease: "Create Release",
+  listPullRequests: "Pull Requests",
+  getPullRequestDetail: "PR Details",
+  createPullRequest: "Create Pull Request",
+  mergePullRequest: "Merge Pull Request",
 };
 
 interface ChatMessagesProps {

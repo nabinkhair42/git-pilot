@@ -10,6 +10,8 @@ import { FileContentRenderer } from "./file-content-renderer";
 import { WriteResultRenderer } from "./write-result-renderer";
 import { ContributorListRenderer } from "./contributor-list-renderer";
 import { UserProfileRenderer } from "./user-profile-renderer";
+import { PRListRenderer } from "./pr-list-renderer";
+import { PRDetailRenderer } from "./pr-detail-renderer";
 
 export interface ToolRendererProps {
   output: unknown;
@@ -41,4 +43,8 @@ export const toolRenderers: Record<string, ToolRenderer> = {
   createOrUpdateFile: WriteResultRenderer,
   deleteFile: WriteResultRenderer,
   createRelease: WriteResultRenderer,
+  listPullRequests: PRListRenderer,
+  getPullRequestDetail: PRDetailRenderer,
+  createPullRequest: WriteResultRenderer,
+  mergePullRequest: WriteResultRenderer,
 };

@@ -631,6 +631,150 @@ export async function createRelease(
   };
 }
 
+// ─── Pull Requests ──────────────────────────────────────────────────────────
+
+export async function listPullRequests(
+  token: string,
+  owner: string,
+  repo: string,
+  options: { state?: "open" | "closed" | "all"; maxCount?: number } = {}
+) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.pulls.list({
+    owner,
+    repo,
+    state: options.state || "open",
+    sort: "updated",
+    direction: "desc",
+    per_page: Math.min(options.maxCount || 30, 100),
+  });
+
+  return data.map((pr) => ({
+    number: pr.number,
+    title: pr.title,
+    state: pr.merged_at ? "merged" : pr.state,
+    author: pr.user?.login || "unknown",
+    createdAt: pr.created_at,
+    updatedAt: pr.updated_at,
+    draft: pr.draft || false,
+    labels: pr.labels.map((l) => (typeof l === "string" ? l : l.name || "")),
+    head: pr.head.ref,
+    base: pr.base.ref,
+    url: pr.html_url,
+  }));
+}
+
+export async function getPullRequestDetail(
+  token: string,
+  owner: string,
+  repo: string,
+  pullNumber: number
+) {
+  const octokit = createGitHubClient(token);
+
+  // async-parallel: all three requests are independent
+  const [{ data: pr }, { data: reviews }, { data: files }] = await Promise.all([
+    octokit.rest.pulls.get({ owner, repo, pull_number: pullNumber }),
+    octokit.rest.pulls.listReviews({ owner, repo, pull_number: pullNumber }),
+    octokit.rest.pulls.listFiles({ owner, repo, pull_number: pullNumber }),
+  ]);
+
+  return {
+    number: pr.number,
+    title: pr.title,
+    body: pr.body || "",
+    state: pr.merged_at ? "merged" : pr.state,
+    merged: pr.merged,
+    mergeable: pr.mergeable,
+    draft: pr.draft || false,
+    author: pr.user?.login || "unknown",
+    authorAvatarUrl: pr.user?.avatar_url || "",
+    createdAt: pr.created_at,
+    updatedAt: pr.updated_at,
+    mergedAt: pr.merged_at,
+    mergedBy: pr.merged_by?.login || null,
+    commits: pr.commits,
+    additions: pr.additions,
+    deletions: pr.deletions,
+    changedFiles: pr.changed_files,
+    head: pr.head.ref,
+    base: pr.base.ref,
+    labels: pr.labels.map((l) => l.name || ""),
+    reviews: reviews.map((r) => ({
+      user: r.user?.login || "unknown",
+      avatarUrl: r.user?.avatar_url || "",
+      state: r.state,
+      submittedAt: r.submitted_at || "",
+    })),
+    files: files.map((f) => ({
+      filename: f.filename,
+      status: f.status,
+      additions: f.additions,
+      deletions: f.deletions,
+      changes: f.changes,
+    })),
+    url: pr.html_url,
+  };
+}
+
+export async function createPullRequest(
+  token: string,
+  owner: string,
+  repo: string,
+  title: string,
+  head: string,
+  base: string,
+  options: { body?: string; draft?: boolean } = {}
+) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.pulls.create({
+    owner,
+    repo,
+    title,
+    head,
+    base,
+    body: options.body,
+    draft: options.draft ?? false,
+  });
+
+  return {
+    success: true,
+    message: `Pull request #${data.number} "${data.title}" created successfully`,
+    number: data.number,
+    title: data.title,
+    url: data.html_url,
+    draft: data.draft,
+  };
+}
+
+export async function mergePullRequest(
+  token: string,
+  owner: string,
+  repo: string,
+  pullNumber: number,
+  options: {
+    mergeMethod?: "merge" | "squash" | "rebase";
+    commitTitle?: string;
+    commitMessage?: string;
+  } = {}
+) {
+  const octokit = createGitHubClient(token);
+  const { data } = await octokit.rest.pulls.merge({
+    owner,
+    repo,
+    pull_number: pullNumber,
+    merge_method: options.mergeMethod || "merge",
+    commit_title: options.commitTitle,
+    commit_message: options.commitMessage,
+  });
+
+  return {
+    success: data.merged,
+    message: data.message,
+    sha: data.sha,
+  };
+}
+
 // ─── Diff ───────────────────────────────────────────────────────────────────
 
 export async function getCompare(

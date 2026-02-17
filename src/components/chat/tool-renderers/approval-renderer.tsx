@@ -12,6 +12,8 @@ const LABELS: Record<string, string> = {
   createOrUpdateFile: "Create/Update File",
   deleteFile: "Delete File",
   createRelease: "Create Release",
+  createPullRequest: "Create Pull Request",
+  mergePullRequest: "Merge Pull Request",
 };
 
 const DESCRIPTIONS: Record<string, (input: Record<string, unknown>) => string> = {
@@ -35,6 +37,10 @@ const DESCRIPTIONS: Record<string, (input: Record<string, unknown>) => string> =
     `This will permanently delete "${input.path}" from ${input.branch || "the default branch"}.`,
   createRelease: (input) =>
     `This will create release "${input.tagName}"${input.name ? ` (${input.name})` : ""} on this repository.`,
+  createPullRequest: (input) =>
+    `This will create a pull request "${input.title}" from "${input.head}" into "${input.base}"${input.draft ? " as a draft" : ""}.`,
+  mergePullRequest: (input) =>
+    `This will merge pull request #${input.pullNumber} using the ${input.mergeMethod || "merge"} strategy.`,
 };
 
 interface ApprovalRendererProps {

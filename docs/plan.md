@@ -121,6 +121,8 @@ A sidebar chat assistant available on all pages, including the home page without
 | `listFiles` | Browse repo file tree at any ref | `getFileTree()` |
 | `listContributors` | Repo contributors with avatars and stats | `getContributors()` |
 | `getUserProfile` | Public GitHub profile for any user | `getUserProfile()` |
+| `listPullRequests` | List pull requests filtered by state | `listPullRequests()` |
+| `getPullRequestDetail` | Full PR details including reviews, files, merge status | `getPullRequestDetail()` |
 
 **Write tools (repo-scoped, need approval):**
 
@@ -136,6 +138,8 @@ A sidebar chat assistant available on all pages, including the home page without
 | `deleteFile` | Delete a file (irreversible) | `deleteFile()` |
 | `createRelease` | Create release with tag and notes | `createRelease()` |
 | `deleteRepository` | Permanently delete a GitHub repository (irreversible) | `deleteRepository()` |
+| `createPullRequest` | Create a new pull request | `createPullRequest()` |
+| `mergePullRequest` | Merge a pull request (merge/squash/rebase) | `mergePullRequest()` |
 
 **General tools (no repo required):**
 
@@ -325,6 +329,7 @@ src/
 - [x] Contributors and user profile tools
 - [x] GitHub mode: Delete repositories via chat with approval flow
 - [x] GitHub mode: Merge branches via chat with approval flow
+- [x] GitHub mode: Pull request management (list, view details, create, merge) via chat with approval flow
 
 ### Pending / Future
 - [ ] Chat message persistence (save/restore chat history)
@@ -357,3 +362,7 @@ src/
 20. With a repo: ask "Create a release v1.0.0" shows approval dialog then creates release
 21. With or without a repo: ask "Delete my old test-repo" shows approval dialog with permanent deletion warning then deletes repo
 22. `pnpm build` completes without errors
+23. "List open PRs" shows pull request list with state badges, clickable items
+24. Click a PR shows detail view with reviews, files, description, action buttons
+25. "Create a PR from feature/x to main" shows approval dialog then creates PR
+26. "Merge PR #42 using squash" shows approval dialog then merges PR

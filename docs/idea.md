@@ -35,6 +35,7 @@ A polished dark-mode web UI that wraps Git operations with:
 - **Repository Creation**: Create new GitHub repos (public/private) with README, .gitignore, and license from chat
 - **Repository Deletion**: Permanently delete GitHub repositories from chat (with approval flow)
 - **Branch Merging**: Merge branches in GitHub repos from chat with optional custom commit messages (with approval flow)
+- **Pull Request Management**: List, view, create, and merge pull requests from chat with spam detection (with approval flow)
 - Fully responsive design across all screen sizes
 
 ## How It Works

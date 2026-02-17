@@ -24,6 +24,10 @@ import {
   createOrUpdateFile,
   deleteFile,
   createRelease,
+  listPullRequests,
+  getPullRequestDetail,
+  createPullRequest,
+  mergePullRequest,
 } from "@/lib/github/client";
 
 /**
@@ -553,6 +557,104 @@ export function createGitHubTools(
           return {
             success: false,
             message: `Failed to create release: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    listPullRequests: tool({
+      description:
+        "List pull requests in the repository. Filter by state (open, closed, all). Returns PR number, title, state, author, branches, and labels.",
+      inputSchema: z.object({
+        state: z
+          .enum(["open", "closed", "all"])
+          .optional()
+          .default("open")
+          .describe("Filter by PR state (default: open)."),
+        maxCount: z
+          .number()
+          .optional()
+          .default(30)
+          .describe("Maximum number of PRs to return (default 30, max 100)."),
+      }),
+      execute: async ({ state, maxCount }) => {
+        const prs = await listPullRequests(token, owner, repo, {
+          state: state ?? "open",
+          maxCount: Math.min(maxCount ?? 30, 100),
+        });
+        return { count: prs.length, pullRequests: prs };
+      },
+    }),
+
+    getPullRequestDetail: tool({
+      description:
+        "Get full details of a specific pull request including description, reviews, changed files, merge status, and diff stats. Use this to examine a PR in depth.",
+      inputSchema: z.object({
+        pullNumber: z
+          .number()
+          .describe("The pull request number to examine."),
+      }),
+      execute: async ({ pullNumber }) => {
+        try {
+          const detail = await getPullRequestDetail(token, owner, repo, pullNumber);
+          return {
+            ...detail,
+            body: detail.body.length > 4000
+              ? detail.body.slice(0, 4000) + "\n\n... [body truncated, showing first 4000 chars]"
+              : detail.body,
+          };
+        } catch (error) {
+          return {
+            error: `Failed to get PR #${pullNumber}: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    createPullRequest: tool({
+      description:
+        "Create a new pull request. Specify the head (source) and base (target) branches, a title, and optionally a body and draft flag.",
+      inputSchema: z.object({
+        title: z.string().describe("Pull request title."),
+        head: z.string().describe("Source branch (e.g. 'feature/auth')."),
+        base: z.string().describe("Target branch (e.g. 'main')."),
+        body: z.string().optional().describe("Pull request description (markdown)."),
+        draft: z.boolean().optional().default(false).describe("Create as draft PR."),
+      }),
+      needsApproval: true,
+      execute: async ({ title, head, base, body, draft }) => {
+        try {
+          return await createPullRequest(token, owner, repo, title, head, base, { body, draft });
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to create pull request: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    mergePullRequest: tool({
+      description:
+        "Merge a pull request. Choose merge method: merge (default), squash, or rebase. Optionally set a custom commit title and message.",
+      inputSchema: z.object({
+        pullNumber: z.number().describe("The pull request number to merge."),
+        mergeMethod: z
+          .enum(["merge", "squash", "rebase"])
+          .optional()
+          .default("merge")
+          .describe("Merge strategy (default: merge)."),
+        commitTitle: z.string().optional().describe("Custom commit title for the merge."),
+        commitMessage: z.string().optional().describe("Custom commit message for the merge."),
+      }),
+      needsApproval: true,
+      execute: async ({ pullNumber, mergeMethod, commitTitle, commitMessage }) => {
+        try {
+          return await mergePullRequest(token, owner, repo, pullNumber, { mergeMethod, commitTitle, commitMessage });
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to merge PR #${pullNumber}: ${error instanceof Error ? error.message : "Unknown error"}`,
           };
         }
       },
