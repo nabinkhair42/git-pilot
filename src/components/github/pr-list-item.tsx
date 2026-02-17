@@ -63,16 +63,16 @@ export function PRListItem({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="truncate text-sm font-medium">{title}</span>
-          <Badge variant={badge.variant} className="shrink-0 px-1.5 py-0 text-[10px]">
+          <Badge variant={badge.variant} className="shrink-0 px-1.5 py-0 text-2xs">
             {badge.label}
           </Badge>
           {draft ? (
-            <Badge variant="outline" className="shrink-0 px-1.5 py-0 text-[10px]">
+            <Badge variant="outline" className="shrink-0 px-1.5 py-0 text-2xs">
               Draft
             </Badge>
           ) : null}
           {labels.map((label) => (
-            <Badge key={label} variant="outline" className="shrink-0 px-1.5 py-0 text-[10px]">
+            <Badge key={label} variant="outline" className="shrink-0 px-1.5 py-0 text-2xs">
               {label}
             </Badge>
           ))}
@@ -80,7 +80,7 @@ export function PRListItem({
         <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
           <span>#{number}</span>
           <span>by {author}</span>
-          <span className="font-mono text-[11px]">
+          <span className="font-mono text-2xs">
             {head} &rarr; {base}
           </span>
           {relativeDate ? <span>{relativeDate}</span> : null}

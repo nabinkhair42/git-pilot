@@ -1,7 +1,7 @@
 import { convertToModelMessages, streamText, UIMessage, stepCountIs } from "ai";
-import { createGitHubTools, createGeneralTools } from "@/lib/ai/github-tools";
+import { createAllTools } from "@/lib/ai/github-tools";
 import { getModelInstance, validateModelKey, getCheapModel } from "@/lib/ai/models";
-import { buildGitHubSystemPrompt, buildGeneralSystemPrompt } from "@/lib/ai/system-prompt";
+import { buildSystemPrompt } from "@/lib/ai/system-prompt";
 import { getGitHubToken } from "@/lib/auth/auth-helpers";
 import { errorResponse } from "@/lib/response/server-response";
 
@@ -82,13 +82,8 @@ export async function POST(req: Request) {
       convertToModelMessages(messages),
     ]);
 
-    const tools = owner && repo
-      ? createGitHubTools(owner, repo, token)
-      : createGeneralTools(token);
-
-    const systemPrompt = owner && repo
-      ? buildGitHubSystemPrompt(owner, repo)
-      : buildGeneralSystemPrompt();
+    const tools = createAllTools(token, owner, repo);
+    const systemPrompt = buildSystemPrompt(owner, repo);
 
     const result = streamText({
       model: model ? getModelInstance(model) : getCheapModel(),

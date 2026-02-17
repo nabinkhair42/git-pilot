@@ -129,17 +129,17 @@ export function PRDetailRenderer({ output, onAction }: ToolRendererProps) {
           <div className="min-w-0 flex-1">
             <h3 className="text-sm font-semibold">{data.title}</h3>
             <div className="mt-1 flex flex-wrap items-center gap-1.5">
-              <Badge variant={badge.variant} className="px-1.5 py-0 text-[10px]">
+              <Badge variant={badge.variant} className="px-1.5 py-0 text-2xs">
                 {badge.label}
               </Badge>
               {data.draft ? (
-                <Badge variant="outline" className="px-1.5 py-0 text-[10px]">
+                <Badge variant="outline" className="px-1.5 py-0 text-2xs">
                   Draft
                 </Badge>
               ) : null}
               <span className="text-xs text-muted-foreground">#{data.number}</span>
               {data.labels.map((label) => (
-                <Badge key={label} variant="outline" className="px-1.5 py-0 text-[10px]">
+                <Badge key={label} variant="outline" className="px-1.5 py-0 text-2xs">
                   {label}
                 </Badge>
               ))}
@@ -172,7 +172,7 @@ export function PRDetailRenderer({ output, onAction }: ToolRendererProps) {
             <Minus size={12} className="ml-1 text-red-500" />
             {data.deletions}
           </span>
-          <span className="font-mono text-[11px]">
+          <span className="font-mono text-2xs">
             {data.head} &rarr; {data.base}
           </span>
         </div>
@@ -199,7 +199,7 @@ export function PRDetailRenderer({ output, onAction }: ToolRendererProps) {
                   ) : null}
                   <span>{review.user}</span>
                   <Icon size={12} className={color} />
-                  <span className={`${color} text-[11px]`}>{label}</span>
+                  <span className={`${color} text-2xs`}>{label}</span>
                 </div>
               );
             })}

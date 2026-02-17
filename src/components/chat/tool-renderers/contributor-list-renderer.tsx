@@ -43,7 +43,7 @@ export function ContributorListRenderer({ output, onAction }: ToolRendererProps)
                 {contributor.username}
               </span>
               {contributor.type === "Bot" && (
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                <Badge variant="secondary" className="text-2xs px-1.5 py-0">
                   bot
                 </Badge>
               )}

@@ -31,24 +31,205 @@ import {
 } from "@/lib/github/client";
 
 /**
- * Creates a set of GitHub-aware AI tools scoped to a specific repo.
- * Includes read operations (safe) and write operations (modify remote repo).
+ * Creates ALL AI tools in a single set with a mutable repo context.
+ * General tools (listUserRepos, selectRepository, createRepository, etc.) are always functional.
+ * Repo-scoped tools read from `ctx` and return an error if no repo is selected.
+ * `selectRepository` and `createRepository` update `ctx` mid-chain so repo tools
+ * become functional within the same multi-step stream.
  */
-export function createGitHubTools(
-  owner: string,
-  repo: string,
+export function createAllTools(
   token: string,
+  initialOwner?: string,
+  initialRepo?: string,
 ) {
+  // Mutable context — updated by selectRepository and createRepository
+  const ctx = {
+    owner: initialOwner ?? "",
+    repo: initialRepo ?? "",
+  };
+
+  /** Guard: returns an error object if no repo is selected, otherwise null. */
+  function requireRepo(toolName: string) {
+    if (!ctx.owner || !ctx.repo) {
+      return {
+        error: `No repository selected. Use "selectRepository" or "createRepository" first before calling "${toolName}".`,
+      };
+    }
+    return null;
+  }
+
   return {
+    // ──────────────────────────────────────────────
+    // General tools (always functional)
+    // ──────────────────────────────────────────────
+
+    listUserRepos: tool({
+      description:
+        "List the authenticated user's GitHub repositories. Returns repos sorted by most recently updated. Use this when the user asks to see their repos, find a project, or hasn't selected a repository yet.",
+      inputSchema: z.object({
+        query: z
+          .string()
+          .optional()
+          .describe("Optional search term to filter repos by name."),
+      }),
+      execute: async ({ query }) => {
+        const repos = await getUserRepos(token);
+        const filtered = query
+          ? repos.filter((r) =>
+              r.fullName.toLowerCase().includes(query.toLowerCase()) ||
+              (r.description?.toLowerCase().includes(query.toLowerCase()) ?? false)
+            )
+          : repos;
+        return {
+          total: filtered.length,
+          repos: filtered.slice(0, 50).map((r) => ({
+            fullName: r.fullName,
+            owner: r.owner,
+            name: r.name,
+            description: r.description,
+            language: r.language,
+            isPrivate: r.isPrivate,
+            defaultBranch: r.defaultBranch,
+            stars: r.stargazersCount,
+            updatedAt: r.updatedAt,
+            url: r.url,
+          })),
+        };
+      },
+    }),
+
+    selectRepository: tool({
+      description:
+        "Select a repository to work with. Call this when the user wants to explore a specific repo (e.g. 'select web-sense', 'use that repo', 'open nabinkhair42/pest-js'). After calling this, all repo-scoped tools become available in the same conversation turn.",
+      inputSchema: z.object({
+        owner: z.string().describe("Repository owner (e.g. 'nabinkhair42')."),
+        repo: z.string().describe("Repository name (e.g. 'web-sense')."),
+      }),
+      execute: async ({ owner, repo }) => {
+        try {
+          const info = await getRepoInfo(token, owner, repo);
+          // Update mutable context so repo-scoped tools work immediately
+          ctx.owner = owner;
+          ctx.repo = repo;
+          return {
+            success: true,
+            message: `Repository ${owner}/${repo} selected. You now have full access to explore its branches, commits, files, and more.`,
+            defaultBranch: info.currentBranch,
+            headCommit: info.headCommit,
+          };
+        } catch {
+          return {
+            success: false,
+            message: `Repository ${owner}/${repo} not found or not accessible.`,
+          };
+        }
+      },
+    }),
+
+    createRepository: tool({
+      description:
+        "Create a new GitHub repository for the authenticated user. Can set visibility, initialize with README, add .gitignore, and choose a license. After creation, the new repo is automatically selected for subsequent tool calls.",
+      inputSchema: z.object({
+        name: z
+          .string()
+          .describe("Repository name."),
+        description: z
+          .string()
+          .optional()
+          .describe("Repository description."),
+        isPrivate: z
+          .boolean()
+          .optional()
+          .default(false)
+          .describe("Whether the repository should be private."),
+        autoInit: z
+          .boolean()
+          .optional()
+          .default(true)
+          .describe("Initialize with a README."),
+        gitignoreTemplate: z
+          .string()
+          .optional()
+          .describe("Gitignore template name, e.g. 'Node', 'Python'."),
+        license: z
+          .string()
+          .optional()
+          .describe("License template, e.g. 'mit', 'apache-2.0'."),
+      }),
+      needsApproval: true,
+      execute: async ({ name, description, isPrivate, autoInit, gitignoreTemplate, license }) => {
+        try {
+          const result = await createRepository(token, name, { description, isPrivate, autoInit, gitignoreTemplate, license });
+          // Update mutable context so repo-scoped tools work immediately
+          if (result.success && result.owner && result.name) {
+            ctx.owner = result.owner;
+            ctx.repo = result.name;
+          }
+          return result;
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to create repository: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    getUserProfile: tool({
+      description:
+        "Get the public GitHub profile for a user by username. Returns bio, stats, company, location, and links. Use this when the user asks about a specific GitHub user.",
+      inputSchema: z.object({
+        username: z
+          .string()
+          .describe("The GitHub username to look up."),
+      }),
+      execute: async ({ username }) => {
+        try {
+          return await getUserProfile(token, username);
+        } catch (error) {
+          return {
+            error: `Failed to fetch profile for "${username}": ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    deleteRepository: tool({
+      description:
+        "Permanently delete a GitHub repository. This is irreversible — all code, issues, PRs, and settings will be lost.",
+      inputSchema: z.object({
+        owner: z.string().describe("Repository owner."),
+        repo: z.string().describe("Repository name to delete."),
+      }),
+      needsApproval: true,
+      execute: async ({ owner: targetOwner, repo: targetRepo }) => {
+        try {
+          return await deleteRepository(token, targetOwner, targetRepo);
+        } catch (error) {
+          return {
+            success: false,
+            message: `Failed to delete repository: ${error instanceof Error ? error.message : "Unknown error"}`,
+          };
+        }
+      },
+    }),
+
+    // ──────────────────────────────────────────────
+    // Repo-scoped tools (require ctx.owner/ctx.repo)
+    // ──────────────────────────────────────────────
+
     getRepoOverview: tool({
       description:
         "Get an overview of the repository including default branch, remotes, and status. Always call this first to understand the repo context.",
       inputSchema: z.object({}),
       execute: async () => {
-        const info = await getRepoInfo(token, owner, repo);
-        const status = await getStatus(token, owner, repo);
+        const guard = requireRepo("getRepoOverview");
+        if (guard) return guard;
+
+        const info = await getRepoInfo(token, ctx.owner, ctx.repo);
+        const status = await getStatus(token, ctx.owner, ctx.repo);
         return {
-          path: `${owner}/${repo}`,
+          path: `${ctx.owner}/${ctx.repo}`,
           currentBranch: info.currentBranch,
           remotes: info.remotes.map((r) => ({
             name: r.name,
@@ -78,7 +259,10 @@ export function createGitHubTools(
           .describe("Maximum number of commits to return (default 20, max 50)."),
       }),
       execute: async ({ branch, maxCount }) => {
-        const commits = await getCommits(token, owner, repo, {
+        const guard = requireRepo("getCommitHistory");
+        if (guard) return guard;
+
+        const commits = await getCommits(token, ctx.owner, ctx.repo, {
           branch,
           maxCount: Math.min(maxCount ?? 20, 50),
         });
@@ -106,7 +290,10 @@ export function createGitHubTools(
           .describe("The commit hash (full or abbreviated) to examine."),
       }),
       execute: async ({ hash }) => {
-        const detail = await getCommitDetail(token, owner, repo, hash);
+        const guard = requireRepo("getCommitDetails");
+        if (guard) return guard;
+
+        const detail = await getCommitDetail(token, ctx.owner, ctx.repo, hash);
         const maxDiffLength = 8000;
         const truncatedDiff =
           detail.diff.length > maxDiffLength
@@ -139,7 +326,10 @@ export function createGitHubTools(
         "List all branches with their latest commit. Shows which branch is the default.",
       inputSchema: z.object({}),
       execute: async () => {
-        const branches = await getBranches(token, owner, repo);
+        const guard = requireRepo("listBranches");
+        if (guard) return guard;
+
+        const branches = await getBranches(token, ctx.owner, ctx.repo);
         return {
           current:
             branches.find((b) => b.current)?.name ?? "unknown",
@@ -164,7 +354,10 @@ export function createGitHubTools(
           .describe("The target ref (branch name, commit hash, or tag) to compare to."),
       }),
       execute: async ({ from, to }) => {
-        const result = await getCompare(token, owner, repo, from, to);
+        const guard = requireRepo("compareDiff");
+        if (guard) return guard;
+
+        const result = await getCompare(token, ctx.owner, ctx.repo, from, to);
         const maxDiffLength = 8000;
         const truncatedDiff =
           result.diff.length > maxDiffLength
@@ -185,7 +378,10 @@ export function createGitHubTools(
         "List all tags in the repository with their hash.",
       inputSchema: z.object({}),
       execute: async () => {
-        const tags = await getTags(token, owner, repo);
+        const guard = requireRepo("listTags");
+        if (guard) return guard;
+
+        const tags = await getTags(token, ctx.owner, ctx.repo);
         return {
           count: tags.length,
           tags: tags.slice(0, 50).map((t) => ({
@@ -211,11 +407,14 @@ export function createGitHubTools(
           .describe("Git ref to list files at (default: default branch)."),
       }),
       execute: async ({ directory, ref }) => {
+        const guard = requireRepo("listFiles");
+        if (guard) return guard;
+
         try {
           const files = await getFileTree(
             token,
-            owner,
-            repo,
+            ctx.owner,
+            ctx.repo,
             directory || "",
             ref,
           );
@@ -253,8 +452,11 @@ export function createGitHubTools(
           .describe("Git ref to read the file at (branch, tag, or commit hash). Defaults to default branch."),
       }),
       execute: async ({ filePath, ref }) => {
+        const guard = requireRepo("getFileContent");
+        if (guard) return guard;
+
         try {
-          const result = await getFileContent(token, owner, repo, filePath, ref);
+          const result = await getFileContent(token, ctx.owner, ctx.repo, filePath, ref);
           const maxLength = 6000;
           const truncated =
             result.content.length > maxLength
@@ -288,8 +490,11 @@ export function createGitHubTools(
           .describe("Branch, tag, or commit SHA to create the branch from. Defaults to default branch."),
       }),
       execute: async ({ name, fromRef }) => {
+        const guard = requireRepo("createBranch");
+        if (guard) return guard;
+
         try {
-          return await createBranch(token, owner, repo, name, fromRef);
+          return await createBranch(token, ctx.owner, ctx.repo, name, fromRef);
         } catch (error) {
           return {
             success: false,
@@ -309,8 +514,11 @@ export function createGitHubTools(
       }),
       needsApproval: true,
       execute: async ({ branch }) => {
+        const guard = requireRepo("deleteBranch");
+        if (guard) return guard;
+
         try {
-          return await deleteBranch(token, owner, repo, branch);
+          return await deleteBranch(token, ctx.owner, ctx.repo, branch);
         } catch (error) {
           return {
             success: false,
@@ -330,8 +538,11 @@ export function createGitHubTools(
       }),
       needsApproval: true,
       execute: async ({ base, head, commitMessage }) => {
+        const guard = requireRepo("mergeBranch");
+        if (guard) return guard;
+
         try {
-          return await mergeBranch(token, owner, repo, base, head, { commitMessage });
+          return await mergeBranch(token, ctx.owner, ctx.repo, base, head, { commitMessage });
         } catch (error) {
           return {
             success: false,
@@ -354,8 +565,11 @@ export function createGitHubTools(
       }),
       needsApproval: true,
       execute: async ({ branch, hash }) => {
+        const guard = requireRepo("cherryPickCommits");
+        if (guard) return guard;
+
         try {
-          return await cherryPickCommit(token, owner, repo, branch, hash);
+          return await cherryPickCommit(token, ctx.owner, ctx.repo, branch, hash);
         } catch (error) {
           return {
             success: false,
@@ -378,8 +592,11 @@ export function createGitHubTools(
       }),
       needsApproval: true,
       execute: async ({ branch, hash }) => {
+        const guard = requireRepo("revertCommits");
+        if (guard) return guard;
+
         try {
-          return await revertCommit(token, owner, repo, branch, hash);
+          return await revertCommit(token, ctx.owner, ctx.repo, branch, hash);
         } catch (error) {
           return {
             success: false,
@@ -402,8 +619,11 @@ export function createGitHubTools(
       }),
       needsApproval: true,
       execute: async ({ branch, sha }) => {
+        const guard = requireRepo("resetBranch");
+        if (guard) return guard;
+
         try {
-          return await resetBranch(token, owner, repo, branch, sha);
+          return await resetBranch(token, ctx.owner, ctx.repo, branch, sha);
         } catch (error) {
           return {
             success: false,
@@ -424,32 +644,16 @@ export function createGitHubTools(
           .describe("Maximum number of contributors to return (default 30, max 100)."),
       }),
       execute: async ({ maxCount }) => {
-        const contributors = await getContributors(token, owner, repo, {
+        const guard = requireRepo("listContributors");
+        if (guard) return guard;
+
+        const contributors = await getContributors(token, ctx.owner, ctx.repo, {
           maxCount: Math.min(maxCount ?? 30, 100),
         });
         return {
           count: contributors.length,
           contributors,
         };
-      },
-    }),
-
-    getUserProfile: tool({
-      description:
-        "Get the public GitHub profile for a user by username. Returns bio, stats, company, location, and links. Use this when the user asks about a specific GitHub user.",
-      inputSchema: z.object({
-        username: z
-          .string()
-          .describe("The GitHub username to look up."),
-      }),
-      execute: async ({ username }) => {
-        try {
-          return await getUserProfile(token, username);
-        } catch (error) {
-          return {
-            error: `Failed to fetch profile for "${username}": ${error instanceof Error ? error.message : "Unknown error"}`,
-          };
-        }
       },
     }),
 
@@ -477,8 +681,11 @@ export function createGitHubTools(
       }),
       needsApproval: true,
       execute: async ({ path, content, message, branch, sha }) => {
+        const guard = requireRepo("createOrUpdateFile");
+        if (guard) return guard;
+
         try {
-          return await createOrUpdateFile(token, owner, repo, path, content, message, { branch, sha });
+          return await createOrUpdateFile(token, ctx.owner, ctx.repo, path, content, message, { branch, sha });
         } catch (error) {
           return {
             success: false,
@@ -508,8 +715,11 @@ export function createGitHubTools(
       }),
       needsApproval: true,
       execute: async ({ path, message, sha, branch }) => {
+        const guard = requireRepo("deleteFile");
+        if (guard) return guard;
+
         try {
-          return await deleteFile(token, owner, repo, path, message, sha, { branch });
+          return await deleteFile(token, ctx.owner, ctx.repo, path, message, sha, { branch });
         } catch (error) {
           return {
             success: false,
@@ -551,8 +761,11 @@ export function createGitHubTools(
       }),
       needsApproval: true,
       execute: async ({ tagName, name, body, draft, prerelease, targetBranch }) => {
+        const guard = requireRepo("createRelease");
+        if (guard) return guard;
+
         try {
-          return await createRelease(token, owner, repo, tagName, { name, body, draft, prerelease, targetBranch });
+          return await createRelease(token, ctx.owner, ctx.repo, tagName, { name, body, draft, prerelease, targetBranch });
         } catch (error) {
           return {
             success: false,
@@ -578,7 +791,10 @@ export function createGitHubTools(
           .describe("Maximum number of PRs to return (default 30, max 100)."),
       }),
       execute: async ({ state, maxCount }) => {
-        const prs = await listPullRequests(token, owner, repo, {
+        const guard = requireRepo("listPullRequests");
+        if (guard) return guard;
+
+        const prs = await listPullRequests(token, ctx.owner, ctx.repo, {
           state: state ?? "open",
           maxCount: Math.min(maxCount ?? 30, 100),
         });
@@ -595,8 +811,11 @@ export function createGitHubTools(
           .describe("The pull request number to examine."),
       }),
       execute: async ({ pullNumber }) => {
+        const guard = requireRepo("getPullRequestDetail");
+        if (guard) return guard;
+
         try {
-          const detail = await getPullRequestDetail(token, owner, repo, pullNumber);
+          const detail = await getPullRequestDetail(token, ctx.owner, ctx.repo, pullNumber);
           return {
             ...detail,
             body: detail.body.length > 4000
@@ -623,8 +842,11 @@ export function createGitHubTools(
       }),
       needsApproval: true,
       execute: async ({ title, head, base, body, draft }) => {
+        const guard = requireRepo("createPullRequest");
+        if (guard) return guard;
+
         try {
-          return await createPullRequest(token, owner, repo, title, head, base, { body, draft });
+          return await createPullRequest(token, ctx.owner, ctx.repo, title, head, base, { body, draft });
         } catch (error) {
           return {
             success: false,
@@ -649,182 +871,15 @@ export function createGitHubTools(
       }),
       needsApproval: true,
       execute: async ({ pullNumber, mergeMethod, commitTitle, commitMessage }) => {
+        const guard = requireRepo("mergePullRequest");
+        if (guard) return guard;
+
         try {
-          return await mergePullRequest(token, owner, repo, pullNumber, { mergeMethod, commitTitle, commitMessage });
+          return await mergePullRequest(token, ctx.owner, ctx.repo, pullNumber, { mergeMethod, commitTitle, commitMessage });
         } catch (error) {
           return {
             success: false,
             message: `Failed to merge PR #${pullNumber}: ${error instanceof Error ? error.message : "Unknown error"}`,
-          };
-        }
-      },
-    }),
-
-    deleteRepository: tool({
-      description:
-        "Permanently delete a GitHub repository. This is irreversible — all code, issues, PRs, and settings will be lost.",
-      inputSchema: z.object({
-        owner: z.string().describe("Repository owner."),
-        repo: z.string().describe("Repository name to delete."),
-      }),
-      needsApproval: true,
-      execute: async ({ owner: targetOwner, repo: targetRepo }) => {
-        try {
-          return await deleteRepository(token, targetOwner, targetRepo);
-        } catch (error) {
-          return {
-            success: false,
-            message: `Failed to delete repository: ${error instanceof Error ? error.message : "Unknown error"}`,
-          };
-        }
-      },
-    }),
-  };
-}
-
-/**
- * Creates general GitHub tools that don't require a specific repo.
- * Used when the user hasn't selected a repository yet.
- */
-export function createGeneralTools(token: string) {
-  return {
-    listUserRepos: tool({
-      description:
-        "List the authenticated user's GitHub repositories. Returns repos sorted by most recently updated. Use this when the user asks to see their repos, find a project, or hasn't selected a repository yet.",
-      inputSchema: z.object({
-        query: z
-          .string()
-          .optional()
-          .describe("Optional search term to filter repos by name."),
-      }),
-      execute: async ({ query }) => {
-        const repos = await getUserRepos(token);
-        const filtered = query
-          ? repos.filter((r) =>
-              r.fullName.toLowerCase().includes(query.toLowerCase()) ||
-              (r.description?.toLowerCase().includes(query.toLowerCase()) ?? false)
-            )
-          : repos;
-        return {
-          total: filtered.length,
-          repos: filtered.slice(0, 50).map((r) => ({
-            fullName: r.fullName,
-            owner: r.owner,
-            name: r.name,
-            description: r.description,
-            language: r.language,
-            isPrivate: r.isPrivate,
-            defaultBranch: r.defaultBranch,
-            stars: r.stargazersCount,
-            updatedAt: r.updatedAt,
-            url: r.url,
-          })),
-        };
-      },
-    }),
-
-    selectRepository: tool({
-      description:
-        "Select a repository to work with. Call this when the user wants to explore a specific repo (e.g. 'select web-sense', 'use that repo', 'open nabinkhair42/pest-js'). After calling this, the next message will have full repo tools (branches, commits, files, etc.).",
-      inputSchema: z.object({
-        owner: z.string().describe("Repository owner (e.g. 'nabinkhair42')."),
-        repo: z.string().describe("Repository name (e.g. 'web-sense')."),
-      }),
-      execute: async ({ owner, repo }) => {
-        try {
-          const info = await getRepoInfo(token, owner, repo);
-          return {
-            success: true,
-            message: `Repository ${owner}/${repo} selected. You now have full access to explore its branches, commits, files, and more.`,
-            defaultBranch: info.currentBranch,
-            headCommit: info.headCommit,
-          };
-        } catch {
-          return {
-            success: false,
-            message: `Repository ${owner}/${repo} not found or not accessible.`,
-          };
-        }
-      },
-    }),
-
-    getUserProfile: tool({
-      description:
-        "Get the public GitHub profile for a user by username. Returns bio, stats, company, location, and links. Use this when the user asks about a specific GitHub user.",
-      inputSchema: z.object({
-        username: z
-          .string()
-          .describe("The GitHub username to look up."),
-      }),
-      execute: async ({ username }) => {
-        try {
-          return await getUserProfile(token, username);
-        } catch (error) {
-          return {
-            error: `Failed to fetch profile for "${username}": ${error instanceof Error ? error.message : "Unknown error"}`,
-          };
-        }
-      },
-    }),
-
-    deleteRepository: tool({
-      description:
-        "Permanently delete a GitHub repository. This is irreversible — all code, issues, PRs, and settings will be lost.",
-      inputSchema: z.object({
-        owner: z.string().describe("Repository owner."),
-        repo: z.string().describe("Repository name to delete."),
-      }),
-      needsApproval: true,
-      execute: async ({ owner, repo }) => {
-        try {
-          return await deleteRepository(token, owner, repo);
-        } catch (error) {
-          return {
-            success: false,
-            message: `Failed to delete repository: ${error instanceof Error ? error.message : "Unknown error"}`,
-          };
-        }
-      },
-    }),
-
-    createRepository: tool({
-      description:
-        "Create a new GitHub repository for the authenticated user. Can set visibility, initialize with README, add .gitignore, and choose a license.",
-      inputSchema: z.object({
-        name: z
-          .string()
-          .describe("Repository name."),
-        description: z
-          .string()
-          .optional()
-          .describe("Repository description."),
-        isPrivate: z
-          .boolean()
-          .optional()
-          .default(false)
-          .describe("Whether the repository should be private."),
-        autoInit: z
-          .boolean()
-          .optional()
-          .default(true)
-          .describe("Initialize with a README."),
-        gitignoreTemplate: z
-          .string()
-          .optional()
-          .describe("Gitignore template name, e.g. 'Node', 'Python'."),
-        license: z
-          .string()
-          .optional()
-          .describe("License template, e.g. 'mit', 'apache-2.0'."),
-      }),
-      needsApproval: true,
-      execute: async ({ name, description, isPrivate, autoInit, gitignoreTemplate, license }) => {
-        try {
-          return await createRepository(token, name, { description, isPrivate, autoInit, gitignoreTemplate, license });
-        } catch (error) {
-          return {
-            success: false,
-            message: `Failed to create repository: ${error instanceof Error ? error.message : "Unknown error"}`,
           };
         }
       },

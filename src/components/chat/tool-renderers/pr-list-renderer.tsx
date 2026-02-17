@@ -1,3 +1,4 @@
+import { GitPullRequest } from "lucide-react";
 import { PRListItem } from "@/components/github/pr-list-item";
 import type { ToolRendererProps } from "./registry";
 
@@ -20,7 +21,14 @@ interface PRListOutput {
 
 export function PRListRenderer({ output, onAction }: ToolRendererProps) {
   const data = output as PRListOutput;
-  if (!data?.pullRequests?.length) return null;
+  if (!data?.pullRequests?.length) {
+    return (
+      <div className="flex items-center gap-2.5 rounded-md border border-border p-4 text-sm text-muted-foreground">
+        <GitPullRequest size={16} />
+        No pull requests found.
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-md border border-border overflow-hidden">

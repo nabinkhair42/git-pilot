@@ -50,7 +50,7 @@ export function UserProfileRenderer({ output, onAction }: ToolRendererProps) {
             )}
             <span className="text-sm text-muted-foreground truncate">@{data.username}</span>
             {data.type === "Organization" && (
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+              <Badge variant="secondary" className="text-2xs px-1.5 py-0">
                 org
               </Badge>
             )}
@@ -71,7 +71,7 @@ export function UserProfileRenderer({ output, onAction }: ToolRendererProps) {
         ].map((stat) => (
           <div key={stat.label} className="px-3 py-2.5 text-center">
             <div className="text-sm font-semibold">{stat.value}</div>
-            <div className="text-[11px] text-muted-foreground">{stat.label}</div>
+            <div className="text-2xs text-muted-foreground">{stat.label}</div>
           </div>
         ))}
       </div>
