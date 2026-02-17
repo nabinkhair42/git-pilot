@@ -123,11 +123,13 @@ const { messages, sendMessage, status, stop, setMessages } = useChat({
 - `CompareDiffRenderer` - diff between two refs
 - `FileListRenderer` - directory listing
 - `FileContentRenderer` - file content viewer
-- `WriteResultRenderer` - success/failure for write operations (used by `createBranch`, `deleteBranch`, `mergeBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createRepository`, `createOrUpdateFile`, `deleteFile`, `createRelease`)
+- `WriteResultRenderer` - success/failure for write operations (used by `createBranch`, `deleteBranch`, `mergeBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createRepository`, `createOrUpdateFile`, `deleteFile`, `createRelease`, `createPullRequest`, `mergePullRequest`)
 - `ContributorListRenderer` - contributor avatars and stats
 - `UserProfileRenderer` - GitHub user profile card
+- `PRListRenderer` - pull request list with state badges
+- `PRDetailRenderer` - full PR detail with reviews, files, actions
 
-**Approval renderer** (`approval-renderer.tsx`): Shows warning banner with description and approve/deny buttons for write operations. Covers: `deleteBranch`, `mergeBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createRepository`, `createOrUpdateFile`, `deleteFile`, `createRelease`.
+**Approval renderer** (`approval-renderer.tsx`): Shows warning banner with description and approve/deny buttons for write operations. Covers: `deleteBranch`, `mergeBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createRepository`, `createOrUpdateFile`, `deleteFile`, `createRelease`, `createPullRequest`, `mergePullRequest`.
 
 ## Hooks
 
@@ -187,6 +189,8 @@ src/components/chat/
     file-content-renderer.tsx   # File content viewer
     contributor-list-renderer.tsx # Contributor avatars
     user-profile-renderer.tsx   # GitHub user profile card
+    pr-list-renderer.tsx        # Pull request list
+    pr-detail-renderer.tsx      # Pull request detail view
 
 src/hooks/
   use-mention-query/index.ts      # Textarea mention parser

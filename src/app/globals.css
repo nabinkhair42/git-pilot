@@ -469,3 +469,10 @@ html {
   color: var(--muted-foreground);
   margin: 0.5em 0;
 }
+
+/* Streamdown link styling */
+[data-streamdown="link"] {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}

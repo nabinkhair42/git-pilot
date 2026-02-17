@@ -4,7 +4,6 @@ import { google } from "@ai-sdk/google";
 import { anthropic } from "@ai-sdk/anthropic";
 import { xai } from "@ai-sdk/xai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { perplexity } from "@ai-sdk/perplexity";
 import { AI_MODELS } from "@/config/constants";
 
 const lmstudio = createOpenAICompatible({
@@ -24,7 +23,6 @@ const PROVIDERS: Record<string, {
   anthropic: { create: (id) => anthropic(id), env: "ANTHROPIC_API_KEY", label: "Anthropic" },
   xai: { create: (id) => xai(id), env: "XAI_API_KEY", label: "xAI" },
   lmstudio: { create: () => lmstudio("lm-studio"), env: "LMSTUDIO_BASE_URL", label: "LM Studio" },
-  perplexity: { create: (id) => perplexity(id), env: "PERPLEXITY_API_KEY", label: "Perplexity" },
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

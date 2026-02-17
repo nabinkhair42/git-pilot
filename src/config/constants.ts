@@ -110,18 +110,6 @@ export const AI_MODELS = [
     provider: "lmstudio",
     logo: "/ai/lm-studio.svg",
   },
-  {
-    id: "sonar-pro",
-    name: "Sonar Pro",
-    provider: "perplexity",
-    logo: "/ai/perplexity.svg",
-  },
-  {
-    id: "sonar",
-    name: "Sonar",
-    provider: "perplexity",
-    logo: "/ai/perplexity.svg",
-  },
 ] as const;
 
 export type AIModel = (typeof AI_MODELS)[number];

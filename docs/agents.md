@@ -28,24 +28,26 @@ The AI Chat feature uses Vercel AI SDK 6 with a tool-calling architecture.
 ### Backend (API Route)
 
 - Route: `src/app/api/chat/route.ts`
-- Uses `streamText` from `ai` package with OpenAI GPT-4o model.
+- Uses `streamText` from `ai` package with configurable model providers.
 - Multi-step tool calling with `stopWhen: stepCountIs(8)`.
-- Tools are created per-request via `createGitHubTools(owner, repo, token)` from `src/lib/ai/github-tools.ts`.
-- System prompt is built dynamically via `buildGitHubSystemPrompt(owner, repo)` from `src/lib/ai/system-prompt.ts`.
-- The route checks for `OPENAI_API_KEY` and validates `owner`/`repo` params.
-- GitHub token fetched via `getGitHubToken()` from `src/lib/auth-helpers.ts`.
+- All tools are created per-request via `createAllTools(token, owner?, repo?)` from `src/lib/ai/github-tools.ts`.
+- System prompt is built dynamically via `buildSystemPrompt(owner?, repo?)` from `src/lib/ai/system-prompt.ts`.
+- Both general and repo-scoped tools are available in every request.
+- GitHub token fetched via `getGitHubToken()` from `src/lib/auth/auth-helpers.ts`.
 - Messages are converted with `convertToModelMessages(messages)` from `ai`.
 - Response streamed via `result.toUIMessageStreamResponse()`.
 - Error branches use `errorResponse()` from `src/lib/response/server-response.ts`.
 
 ### Tools Layer
 
-- Factory pattern: `createGitHubTools(owner, repo, token)` returns all tools scoped to that GitHub repo.
+- Unified factory: `createAllTools(token, initialOwner?, initialRepo?)` returns all tools (general + repo-scoped) in a single object.
+- Uses a **mutable context object** (`ctx = { owner, repo }`) inside the closure. `selectRepository` and `createRepository` update `ctx` mid-chain, so repo-scoped tools become functional within the same multi-step stream.
+- Repo-scoped tools use a `requireRepo(toolName)` guard that returns an error if `ctx` is empty.
 - Each tool uses `tool()` from `ai` with zod schemas for parameter validation.
 - Tools wrap existing GitHub client functions from `src/lib/github/client.ts`.
-- Read-only tools: `getRepoOverview`, `getCommitHistory`, `getCommitDetails`, `listBranches`, `compareDiff`, `listTags`, `getFileContent`, `listFiles`, `listContributors`, `getUserProfile`.
-- Write tools (repo-scoped, need approval): `createBranch`, `deleteBranch`, `mergeBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createOrUpdateFile`, `deleteFile`, `createRelease`, `deleteRepository`.
-- General tools (no repo needed): `listUserRepos`, `selectRepository`, `getUserProfile`, `createRepository` (needs approval), `deleteRepository` (needs approval).
+- General tools (always functional): `listUserRepos`, `selectRepository`, `getUserProfile`, `createRepository` (needs approval), `deleteRepository` (needs approval).
+- Read-only repo tools: `getRepoOverview`, `getCommitHistory`, `getCommitDetails`, `listBranches`, `compareDiff`, `listTags`, `getFileContent`, `listFiles`, `listContributors`, `listPullRequests`, `getPullRequestDetail`.
+- Write repo tools (need approval): `createBranch`, `deleteBranch`, `mergeBranch`, `cherryPickCommits`, `revertCommits`, `resetBranch`, `createOrUpdateFile`, `deleteFile`, `createRelease`, `createPullRequest`, `mergePullRequest`.
 - Large outputs are truncated (diffs to 8000 chars, file content to 6000 chars).
 
 ### Frontend (Chat UI)
@@ -59,14 +61,14 @@ The AI Chat feature uses Vercel AI SDK 6 with a tool-calling architecture.
 ### Adding New AI Tools
 
 1. Add the GitHub client function in `src/lib/github/client.ts`.
-2. Add the tool definition in `src/lib/ai/github-tools.ts`:
-   - Repo-scoped tools go in `createGitHubTools()`.
-   - General tools (no repo needed) go in `createGeneralTools()`.
+2. Add the tool definition in `src/lib/ai/github-tools.ts` inside `createAllTools()`:
+   - General tools: add alongside `listUserRepos`, `selectRepository`, etc.
+   - Repo-scoped tools: use `ctx.owner`/`ctx.repo` for the owner and repo, and add a `requireRepo` guard at the top of the `execute` function.
    - Use `tool()` from `ai` with a zod schema for parameters and an `execute` function.
    - For write operations, set `needsApproval: true`.
 3. Add the tool name to `TOOL_LABELS` map in `chat-message.tsx`.
 4. Register a renderer in `src/components/chat/tool-renderers/registry.tsx` (use `WriteResultRenderer` for tools returning `{ success, message }`).
-5. For tools with `needsApproval`, add label and description in `src/components/chat/tool-renderers/approval-renderer.tsx`.
+5. For tools with `needsApproval`, add a description entry in the `APPROVAL_DESCRIPTIONS` map in `chat-message.tsx`.
 6. Update the system prompt in `src/lib/ai/system-prompt.ts` with tool description and examples.
 7. No changes needed to the API route (tools are auto-discovered from the tools object).
 

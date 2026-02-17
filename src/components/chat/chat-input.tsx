@@ -166,12 +166,15 @@ function ChatInputInner({ onSend, onStop, status, disabled }: ChatInputProps) {
   const { textInput } = usePromptInputController();
   const [selectedModel, setSelectedModel] = useState<
     (typeof AI_MODELS)[number]["id"]
-  >(() => {
-    if (typeof window === "undefined") return AI_MODELS[0].id;
+  >(AI_MODELS[0].id);
+
+  // Sync from localStorage after hydration to avoid SSR mismatch
+  useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEYS.selectedModel);
-    const valid = AI_MODELS.some((m) => m.id === stored);
-    return valid ? (stored as (typeof AI_MODELS)[number]["id"]) : AI_MODELS[0].id;
-  });
+    if (stored && AI_MODELS.some((m) => m.id === stored)) {
+      setSelectedModel(stored as (typeof AI_MODELS)[number]["id"]);
+    }
+  }, []);
 
   const { mentions, addMention, removeMention, clearMentions } = useMentions();
   const { query, updateQuery, clearQuery } = useMentionQuery();
@@ -353,7 +356,7 @@ function ChatInputInner({ onSend, onStop, status, disabled }: ChatInputProps) {
                   <img
                     src={currentModel.logo}
                     alt=""
-                    className="size-5 dark:invert"
+                    className="size-5"
                     width={12}
                     height={12}
                   />
@@ -372,7 +375,7 @@ function ChatInputInner({ onSend, onStop, status, disabled }: ChatInputProps) {
                     <img
                       src={model.logo}
                       alt=""
-                      className="size-5 dark:invert"
+                      className="size-5"
                       width={12}
                       height={12}
                     />

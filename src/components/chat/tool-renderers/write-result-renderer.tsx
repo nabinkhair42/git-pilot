@@ -1,9 +1,10 @@
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, ExternalLink, XCircle } from "lucide-react";
 import type { ToolRendererProps } from "./registry";
 
 interface WriteResult {
   success: boolean;
   message: string;
+  url?: string;
 }
 
 export function WriteResultRenderer({ output }: ToolRendererProps) {
@@ -23,7 +24,20 @@ export function WriteResultRenderer({ output }: ToolRendererProps) {
       ) : (
         <XCircle className="mt-0.5 size-4 shrink-0 text-red-600" />
       )}
-      <p className="text-sm">{data.message}</p>
+      <div className="text-sm">
+        <p>{data.message}</p>
+        {data.url ? (
+          <a
+            href={data.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ExternalLink size={12} />
+            View on GitHub
+          </a>
+        ) : null}
+      </div>
     </div>
   );
 }
