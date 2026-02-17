@@ -120,7 +120,10 @@ export function ChatMessages({
                   const isDynamic = part.type === "dynamic-tool";
 
                   return (
-                    <Tool key={`${part.toolCallId}-${index}`}>
+                    <Tool
+                      key={`${part.toolCallId}-${index}`}
+                      defaultOpen={part.state === "approval-requested"}
+                    >
                       <ToolHeader
                         title={label}
                         state={part.state}

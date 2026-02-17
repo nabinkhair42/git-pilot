@@ -474,4 +474,5 @@ html {
 [data-streamdown="link"] {
   text-decoration: underline;
   text-underline-offset: 2px;
+  cursor: pointer;
 }
