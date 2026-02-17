@@ -65,13 +65,15 @@ function ChatAppInner({
 }) {
   const { githubOwner, githubRepoName } = useRepo();
   const { mutate: mutateChatHistory } = useChatHistory();
-  const modelRef = useRef(
-    (() => {
-      if (typeof window === "undefined") return AI_MODELS[0].id;
-      const stored = localStorage.getItem(STORAGE_KEYS.selectedModel);
-      return AI_MODELS.some((m) => m.id === stored) ? stored! : AI_MODELS[0].id;
-    })(),
-  );
+  const modelRef = useRef<string>(AI_MODELS[0].id);
+
+  // Sync from localStorage after mount
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEYS.selectedModel);
+    if (stored && AI_MODELS.some((m) => m.id === stored)) {
+      modelRef.current = stored;
+    }
+  }, []);
 
   const createdChatIdRef = useRef<string | null>(activeChatId);
   const prevStatusRef = useRef<string>("ready");

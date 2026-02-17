@@ -68,7 +68,7 @@ The AI Chat feature uses Vercel AI SDK 6 with a tool-calling architecture.
    - For write operations, set `needsApproval: true`.
 3. Add the tool name to `TOOL_LABELS` map in `chat-message.tsx`.
 4. Register a renderer in `src/components/chat/tool-renderers/registry.tsx` (use `WriteResultRenderer` for tools returning `{ success, message }`).
-5. For tools with `needsApproval`, add label and description in `src/components/chat/tool-renderers/approval-renderer.tsx`.
+5. For tools with `needsApproval`, add a description entry in the `APPROVAL_DESCRIPTIONS` map in `chat-message.tsx`.
 6. Update the system prompt in `src/lib/ai/system-prompt.ts` with tool description and examples.
 7. No changes needed to the API route (tools are auto-discovered from the tools object).
 

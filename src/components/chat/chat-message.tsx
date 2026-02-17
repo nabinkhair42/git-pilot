@@ -11,17 +11,19 @@ import {
   MessageContent,
   MessageResponse,
 } from "@/components/ai-elements/message";
+import { Tool, ToolContent, ToolHeader, ToolOutput } from "@/components/ai-elements/tool";
 import {
-  Tool,
-  ToolContent,
-  ToolHeader,
-  ToolInput,
-  ToolOutput,
-} from "@/components/ai-elements/tool";
+  Confirmation,
+  ConfirmationRequest,
+  ConfirmationAccepted,
+  ConfirmationRejected,
+  ConfirmationActions,
+  ConfirmationAction,
+} from "@/components/ai-elements/confirmation";
 import { Spinner } from "@/components/ui/spinner";
-import { type UIMessage, getToolName, isToolUIPart } from "ai";
+import { type UIMessage, type ToolUIPart, getToolName, isToolUIPart } from "ai";
+import { CheckIcon, XIcon } from "lucide-react";
 import { useMemo } from "react";
-import { ApprovalRenderer } from "./tool-renderers/approval-renderer";
 import { toolRenderers } from "./tool-renderers/registry";
 
 const TOOL_LABELS: Record<string, string> = {
@@ -54,6 +56,26 @@ const TOOL_LABELS: Record<string, string> = {
   mergePullRequest: "Merge Pull Request",
 };
 
+const APPROVAL_DESCRIPTIONS: Record<string, (input: Record<string, unknown>) => string> = {
+  deleteBranch: (i) => `Permanently delete branch "${i.branch}".`,
+  mergeBranch: (i) => `Merge "${i.head}" into "${i.base}".`,
+  cherryPickCommits: (i) => `Cherry-pick ${String(i.hash).slice(0, 7)} onto "${i.branch}".`,
+  revertCommits: (i) => `Revert ${String(i.hash).slice(0, 7)} on "${i.branch}".`,
+  resetBranch: (i) => `Force-reset "${i.branch}" to ${String(i.sha).slice(0, 7)}. Commits after this will be lost.`,
+  createRepository: (i) => `Create ${i.isPrivate ? "private" : "public"} repository "${i.name}".`,
+  deleteRepository: (i) => `PERMANENTLY delete "${i.owner}/${i.repo}".`,
+  createOrUpdateFile: (i) => `${i.sha ? "Update" : "Create"} "${i.path}" on ${i.branch || "default branch"}.`,
+  deleteFile: (i) => `Delete "${i.path}" from ${i.branch || "default branch"}.`,
+  createRelease: (i) => `Create release "${i.tagName}".`,
+  createPullRequest: (i) => `Create PR "${i.title}" from "${i.head}" to "${i.base}".`,
+  mergePullRequest: (i) => `Merge PR #${i.pullNumber} (${i.mergeMethod || "merge"}).`,
+};
+
+function getApprovalDescription(toolName: string, input: unknown): string {
+  const fn = APPROVAL_DESCRIPTIONS[toolName];
+  return fn ? fn((input ?? {}) as Record<string, unknown>) : "This action requires your approval.";
+}
+
 interface ChatMessagesProps {
   messages: UIMessage[];
   status: string;
@@ -68,8 +90,6 @@ export function ChatMessages({
   onAction,
   addToolApprovalResponse,
 }: ChatMessagesProps) {
-  // Deduplicate messages by ID — useChat can produce duplicates when
-  // initialMessages overlap with streamed messages. Keep the last occurrence.
   const messages = useMemo(() => {
     const seen = new Set<string>();
     const deduped: UIMessage[] = [];
@@ -82,9 +102,7 @@ export function ChatMessages({
     return deduped.reverse();
   }, [rawMessages]);
 
-  if (messages.length === 0) {
-    return <ConversationEmptyState />;
-  }
+  if (messages.length === 0) return <ConversationEmptyState />;
 
   return (
     <Conversation>
@@ -92,111 +110,65 @@ export function ChatMessages({
         {messages.map((message) => (
           <Message key={message.id} from={message.role}>
             <MessageContent>
-              {message.parts.map((part, index) => {
+              {message.parts.map((part, i) => {
                 if (part.type === "text" && part.text.trim()) {
                   if (message.role === "user") {
-                    // Strip the mention context block from display
-                    const displayText = part.text
-                      .replace(
-                        /\n\n---\n\n## User-Referenced Context[\s\S]*$/,
-                        "",
-                      )
-                      .trim();
-                    if (!displayText) return null;
-                    return (
-                      <p key={index} className="whitespace-pre-wrap">
-                        {displayText}
-                      </p>
-                    );
+                    const text = part.text.replace(/\n\n---\n\n## User-Referenced Context[\s\S]*$/, "").trim();
+                    return text ? <p key={i} className="whitespace-pre-wrap">{text}</p> : null;
                   }
-                  return (
-                    <MessageResponse key={index}>{part.text}</MessageResponse>
-                  );
+                  return <MessageResponse key={i}>{part.text}</MessageResponse>;
                 }
 
                 if (isToolUIPart(part)) {
                   const name = getToolName(part);
-                  const label = TOOL_LABELS[name] ?? name;
-                  const isDynamic = part.type === "dynamic-tool";
+                  const toolPart = part as unknown as ToolUIPart;
+                  const Renderer = toolRenderers[name];
 
                   return (
-                    <Tool
-                      key={`${part.toolCallId}-${index}`}
-                      defaultOpen={part.state === "approval-requested"}
-                    >
+                    <Tool key={part.toolCallId} defaultOpen={part.state === "approval-requested"}>
                       <ToolHeader
-                        title={label}
+                        title={TOOL_LABELS[name] ?? name}
                         state={part.state}
-                        {...(isDynamic
+                        {...(part.type === "dynamic-tool"
                           ? { type: "dynamic-tool" as const, toolName: name }
                           : { type: part.type as `tool-${string}` })}
                       />
                       <ToolContent>
-                        <ToolInput input={part.input} />
-
-                        {/* Approval requested — show confirm/deny UI */}
-                        {part.state === "approval-requested" &&
-                          addToolApprovalResponse && (
-                            <ApprovalRenderer
-                              toolName={name}
-                              input={part.input}
-                              onApprove={() =>
-                                addToolApprovalResponse({
-                                  id: (
-                                    part as unknown as {
-                                      approval: { id: string };
-                                    }
-                                  ).approval.id,
-                                  approved: true,
-                                })
-                              }
-                              onDeny={() =>
-                                addToolApprovalResponse({
-                                  id: (
-                                    part as unknown as {
-                                      approval: { id: string };
-                                    }
-                                  ).approval.id,
-                                  approved: false,
-                                })
-                              }
-                            />
-                          )}
-
-                        {/* Denied — show denial message */}
-                        {part.state === "output-denied" && (
-                          <div className="text-sm text-muted-foreground">
-                            Action was denied by user.
-                          </div>
+                        {toolPart.approval && addToolApprovalResponse && (
+                          <Confirmation approval={toolPart.approval} state={part.state}>
+                            <ConfirmationRequest>
+                              {getApprovalDescription(name, part.input)}
+                            </ConfirmationRequest>
+                            <ConfirmationAccepted>
+                              <CheckIcon className="size-4" /> Approved
+                            </ConfirmationAccepted>
+                            <ConfirmationRejected>
+                              <XIcon className="size-4" /> Denied
+                            </ConfirmationRejected>
+                            <ConfirmationActions>
+                              <ConfirmationAction
+                                variant="outline"
+                                onClick={() => addToolApprovalResponse({ id: toolPart.approval!.id, approved: false })}
+                              >
+                                Deny
+                              </ConfirmationAction>
+                              <ConfirmationAction
+                                onClick={() => addToolApprovalResponse({ id: toolPart.approval!.id, approved: true })}
+                              >
+                                Approve
+                              </ConfirmationAction>
+                            </ConfirmationActions>
+                          </Confirmation>
                         )}
 
-                        {/* Output available — use rich renderer or JSON fallback */}
-                        {part.state === "output-available" &&
-                          (() => {
-                            const Renderer = toolRenderers[name];
-                            if (Renderer) {
-                              return (
-                                <Renderer
-                                  output={part.output}
-                                  input={part.input}
-                                  onAction={onAction ?? (() => {})}
-                                />
-                              );
-                            }
-                            return (
-                              <ToolOutput
-                                output={part.output}
-                                errorText={undefined}
-                              />
-                            );
-                          })()}
+                        {part.state === "output-available" && (
+                          Renderer
+                            ? <Renderer output={part.output} input={part.input} onAction={onAction ?? (() => {})} />
+                            : <ToolOutput output={part.output} errorText={undefined} />
+                        )}
 
-                        {/* Error */}
                         {part.state === "output-error" && (
-                          <ToolOutput
-                            output={undefined}
-                            errorText={part.errorText}
-                          />
+                          <ToolOutput output={undefined} errorText={part.errorText} />
                         )}
                       </ToolContent>
                     </Tool>
@@ -205,21 +177,18 @@ export function ChatMessages({
 
                 if (part.type === "reasoning" && "text" in part) {
                   return (
-                    <div
-                      key={index}
-                      className="rounded-md border border-dashed border-muted-foreground/20 px-3 py-2 text-xs italic text-muted-foreground"
-                    >
+                    <pre key={i} className="rounded-md border border-dashed border-muted-foreground/20 px-3 py-2 text-xs italic text-muted-foreground">
                       {part.text}
-                    </div>
+                    </pre>
                   );
                 }
+
                 return null;
               })}
             </MessageContent>
           </Message>
         ))}
 
-        {/* Thinking indicator */}
         {status === "submitted" ? (
           <Message from="assistant">
             <MessageContent>

@@ -20,35 +20,9 @@ import {
 } from "lucide-react";
 import { isValidElement } from "react";
 
-// Simple code display for tool input/output (JSON only)
-const CodeBlock = ({ code }: { code: string; language?: string }) => (
-  <pre className="overflow-x-auto p-3 font-mono text-xs">
-    <code>{code}</code>
-  </pre>
-);
-
-export type ToolProps = ComponentProps<typeof Collapsible>;
-
-export const Tool = ({ className, ...props }: ToolProps) => (
-  <Collapsible
-    className={cn("group not-prose mb-4 w-full rounded-md border", className)}
-    {...props}
-  />
-);
-
 export type ToolPart = ToolUIPart | DynamicToolUIPart;
 
-export type ToolHeaderProps = {
-  title?: string;
-  className?: string;
-} & (
-  | { type: ToolUIPart["type"]; state: ToolUIPart["state"]; toolName?: never }
-  | {
-      type: DynamicToolUIPart["type"];
-      state: DynamicToolUIPart["state"];
-      toolName: string;
-    }
-);
+// ─── Status maps ──────────────────────────────────────────────────────────
 
 const statusLabels: Record<ToolPart["state"], string> = {
   "approval-requested": "Awaiting Approval",
@@ -77,28 +51,31 @@ export const getStatusBadge = (status: ToolPart["state"]) => (
   </Badge>
 );
 
-export const ToolHeader = ({
-  className,
-  title,
-  type,
-  state,
-  toolName,
-  ...props
-}: ToolHeaderProps) => {
-  const derivedName =
-    type === "dynamic-tool" ? toolName : type.split("-").slice(1).join("-");
+// ─── Components ───────────────────────────────────────────────────────────
+
+export const Tool = ({ className, ...props }: ComponentProps<typeof Collapsible>) => (
+  <Collapsible
+    className={cn("group not-prose mb-4 w-full rounded-md border", className)}
+    {...props}
+  />
+);
+
+export type ToolHeaderProps = {
+  title?: string;
+  className?: string;
+} & (
+  | { type: ToolUIPart["type"]; state: ToolUIPart["state"]; toolName?: never }
+  | { type: DynamicToolUIPart["type"]; state: DynamicToolUIPart["state"]; toolName: string }
+);
+
+export const ToolHeader = ({ className, title, type, state, toolName }: ToolHeaderProps) => {
+  const name = type === "dynamic-tool" ? toolName : type.split("-").slice(1).join("-");
 
   return (
-    <CollapsibleTrigger
-      className={cn(
-        "flex w-full items-center justify-between gap-4 p-3",
-        className
-      )}
-      {...props}
-    >
+    <CollapsibleTrigger className={cn("flex w-full items-center justify-between gap-4 p-3", className)}>
       <div className="flex items-center gap-2">
         <WrenchIcon className="size-4 text-muted-foreground" />
-        <span className="font-medium text-sm">{title ?? derivedName}</span>
+        <span className="text-sm font-medium">{title ?? name}</span>
         {getStatusBadge(state)}
       </div>
       <ChevronDownIcon className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
@@ -106,73 +83,40 @@ export const ToolHeader = ({
   );
 };
 
-export type ToolContentProps = ComponentProps<typeof CollapsibleContent>;
-
-export const ToolContent = ({ className, ...props }: ToolContentProps) => (
-  <CollapsibleContent
-    className={cn(
-      "data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 space-y-4 p-4 text-popover-foreground outline-none data-[state=closed]:animate-out data-[state=open]:animate-in w-full",
-      className
-    )}
-    {...props}
-  />
+export const ToolContent = ({ className, ...props }: ComponentProps<typeof CollapsibleContent>) => (
+  <CollapsibleContent className={cn("space-y-4 p-4", className)} {...props} />
 );
 
-export type ToolInputProps = ComponentProps<"div"> & {
-  input: ToolPart["input"];
-};
-
-export const ToolInput = ({ className, input, ...props }: ToolInputProps) => (
+export const ToolInput = ({ className, input, ...props }: ComponentProps<"div"> & { input: ToolPart["input"] }) => (
   <div className={cn("space-y-2 overflow-hidden", className)} {...props}>
-    <h4 className="font-medium text-muted-foreground">
-      Parameters
-    </h4>
-    <div className="rounded-md bg-muted/50">
-      <CodeBlock code={JSON.stringify(input, null, 2)} language="json" />
-    </div>
+    <h4 className="text-muted-foreground font-medium">Parameters</h4>
+    <pre className="overflow-x-auto rounded-md bg-muted/50 p-3 font-mono text-xs">
+      <code>{JSON.stringify(input, null, 2)}</code>
+    </pre>
   </div>
 );
-
-export type ToolOutputProps = ComponentProps<"div"> & {
-  output: ToolPart["output"];
-  errorText: ToolPart["errorText"];
-};
 
 export const ToolOutput = ({
   className,
   output,
   errorText,
   ...props
-}: ToolOutputProps) => {
-  if (!(output || errorText)) {
-    return null;
-  }
+}: ComponentProps<"div"> & { output: ToolPart["output"]; errorText: ToolPart["errorText"] }) => {
+  if (!output && !errorText) return null;
 
-  let Output = <div>{output as ReactNode}</div>;
-
-  if (typeof output === "object" && !isValidElement(output)) {
-    Output = (
-      <CodeBlock code={JSON.stringify(output, null, 2)} language="json" />
-    );
-  } else if (typeof output === "string") {
-    Output = <CodeBlock code={output} language="json" />;
-  }
+  const content = errorText
+    ? <div>{errorText}</div>
+    : typeof output === "object" && !isValidElement(output)
+      ? <pre className="overflow-x-auto p-3 font-mono text-xs"><code>{JSON.stringify(output, null, 2)}</code></pre>
+      : typeof output === "string"
+        ? <pre className="overflow-x-auto p-3 font-mono text-xs"><code>{output}</code></pre>
+        : <div>{output as ReactNode}</div>;
 
   return (
     <div className={cn("space-y-2", className)} {...props}>
-      <h4 className="font-medium text-muted-foreground">
-        {errorText ? "Error" : "Result"}
-      </h4>
-      <div
-        className={cn(
-          "overflow-x-auto rounded-md text-xs [&_table]:w-full",
-          errorText
-            ? "bg-destructive/10 text-destructive"
-            : "bg-muted/50 text-foreground"
-        )}
-      >
-        {errorText && <div>{errorText}</div>}
-        {Output}
+      <h4 className="text-muted-foreground font-medium">{errorText ? "Error" : "Result"}</h4>
+      <div className={cn("overflow-x-auto rounded-md text-xs", errorText ? "bg-destructive/10 text-destructive" : "bg-muted/50")}>
+        {content}
       </div>
     </div>
   );
