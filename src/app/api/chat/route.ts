@@ -90,7 +90,8 @@ export async function POST(req: Request) {
       system: systemPrompt,
       messages: convertedMessages,
       tools,
-      stopWhen: stepCountIs(8),
+      stopWhen: stepCountIs(16),
+      timeout: { totalMs: 55000, stepMs: 15000 },
       onStepFinish({ toolCalls, finishReason }) {
         if (toolCalls.length > 0) {
           console.log(

@@ -190,7 +190,7 @@ function ChatAppInner({
               addToolApprovalResponse={addToolApprovalResponse}
             />
           </div>
-          <div className="mx-auto w-full max-w-3xl">
+          <div className="mx-auto w-full max-w-3xl backdrop-blur">
             <ChatInput onSend={handleSend} onStop={stop} status={status} />
           </div>
         </>
