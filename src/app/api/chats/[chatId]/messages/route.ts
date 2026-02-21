@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { chat, chatMessage } from "@/lib/db/schema";
 import { getAuthSession } from "@/lib/auth/auth-helpers";
 import { successResponse, errorResponse } from "@/lib/response/server-response";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import type { UIMessage } from "ai";
 
 export async function POST(
@@ -39,7 +39,7 @@ export async function POST(
         .onConflictDoUpdate({
           target: chatMessage.id,
           set: {
-            parts: chatMessage.parts,
+            parts: sql`excluded.parts`,
           },
         });
 

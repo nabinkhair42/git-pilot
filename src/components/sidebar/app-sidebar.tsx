@@ -17,7 +17,7 @@ import { useTheme } from "next-themes";
 import { SquarePen, Sun, Moon, PanelLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChatHistoryList } from "./chat-history-list";
 
 function ThemeToggle() {
@@ -61,6 +61,8 @@ export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
   const router = useRouter();
   const isCollapsed = state === "collapsed";
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   return (
     <Sidebar collapsible="icon">
@@ -115,7 +117,7 @@ export function AppSidebar() {
               className="flex w-full justify-between"
             >
               <div className="flex items-center gap-2">
-                {session?.user.image ? (
+                {mounted && session?.user.image ? (
                   <img
                     src={session.user.image}
                     alt=""
@@ -125,7 +127,7 @@ export function AppSidebar() {
                   <div className="size-5 shrink-0 rounded-full bg-sidebar-accent" />
                 )}
                 <span className="truncate text-xs font-medium">
-                  {session?.user.name ?? "Guest"}
+                  {mounted ? (session?.user.name ?? "Guest") : "Guest"}
                 </span>
               </div>
               <ThemeToggle />

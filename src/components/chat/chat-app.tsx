@@ -76,6 +76,7 @@ function ChatAppInner({
   }, []);
 
   const createdChatIdRef = useRef<string | null>(activeChatId);
+  const chatCreationRef = useRef<Promise<string> | null>(null);
   const prevStatusRef = useRef<string>("ready");
 
   const transport = useMemo(
@@ -105,16 +106,18 @@ function ChatAppInner({
     const prevStatus = prevStatusRef.current;
     prevStatusRef.current = status;
 
-    if (
-      prevStatus !== "ready" &&
-      status === "ready" &&
-      createdChatIdRef.current &&
-      messages.length > 0
-    ) {
-      chatService
-        .saveMessages(createdChatIdRef.current, messages)
-        .catch(console.error);
-      mutateChatHistory();
+    if (prevStatus !== "ready" && status === "ready" && messages.length > 0) {
+      const save = (chatId: string) => {
+        chatService.saveMessages(chatId, messages).catch(console.error);
+        mutateChatHistory();
+      };
+
+      if (createdChatIdRef.current) {
+        save(createdChatIdRef.current);
+      } else if (chatCreationRef.current) {
+        // Chat creation in progress — wait for it, then save
+        chatCreationRef.current.then(save).catch(console.error);
+      }
     }
   }, [status, messages, mutateChatHistory]);
 
@@ -140,8 +143,8 @@ function ChatAppInner({
       sendMessage({ text: messageText });
 
       // Create chat in background if this is a new conversation
-      if (!createdChatIdRef.current) {
-        chatService
+      if (!createdChatIdRef.current && !chatCreationRef.current) {
+        chatCreationRef.current = chatService
           .createChat()
           .then((newChat) => {
             createdChatIdRef.current = newChat.id;
@@ -149,12 +152,32 @@ function ChatAppInner({
             mutateChatHistory();
 
             // Generate title in background
-            chatService
-              .generateChatTitle(newChat.id, messageText, model)
-              .then(() => mutateChatHistory())
-              .catch(console.error);
-          })
-          .catch(console.error);
+            // Skip AI title gen for local models (LM Studio can only handle one request at a time)
+            const isLocalModel = model.startsWith("lmstudio");
+            if (isLocalModel) {
+              const fallback = messageText.slice(0, 50).trim() || "New chat";
+              chatService
+                .updateChat(newChat.id, { title: fallback })
+                .then(() => mutateChatHistory())
+                .catch(console.error);
+            } else {
+              chatService
+                .generateChatTitle(newChat.id, messageText, model)
+                .then(() => mutateChatHistory())
+                .catch(() => {
+                  // Silently fallback — title gen may timeout
+                  const fallback = messageText.slice(0, 50).trim() || "New chat";
+                  chatService
+                    .updateChat(newChat.id, { title: fallback })
+                    .then(() => mutateChatHistory())
+                    .catch(console.error);
+                });
+            }
+
+            return newChat.id;
+          });
+
+        chatCreationRef.current.catch(console.error);
       }
     },
     [githubOwner, githubRepoName, sendMessage, mutateChatHistory],

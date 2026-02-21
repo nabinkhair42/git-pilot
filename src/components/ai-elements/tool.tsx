@@ -3,7 +3,6 @@
 import type { DynamicToolUIPart, ToolUIPart } from "ai";
 import type { ComponentProps, ReactNode } from "react";
 
-import { Badge } from "@/components/ui/badge";
 import {
   Collapsible,
   CollapsibleContent,
@@ -11,10 +10,12 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import {
-  CheckCircleIcon,
+  CheckCircle2Icon,
   ChevronDownIcon,
-  CircleIcon,
-  ClockIcon,
+  CircleDotIcon,
+  CircleXIcon,
+  LoaderCircleIcon,
+  ShieldAlertIcon,
   WrenchIcon,
   XCircleIcon,
 } from "lucide-react";
@@ -22,34 +23,55 @@ import { isValidElement } from "react";
 
 export type ToolPart = ToolUIPart | DynamicToolUIPart;
 
-// ─── Status maps ──────────────────────────────────────────────────────────
+// ─── GitHub Actions–style status indicators ───────────────────────────────
 
-const statusLabels: Record<ToolPart["state"], string> = {
-  "approval-requested": "Awaiting Approval",
-  "approval-responded": "Responded",
-  "input-available": "Running",
-  "input-streaming": "Pending",
-  "output-available": "Completed",
-  "output-denied": "Denied",
-  "output-error": "Error",
+const statusConfig: Record<ToolPart["state"], { icon: ReactNode; label: string; className: string }> = {
+  "input-streaming": {
+    icon: <CircleDotIcon className="size-3.5" />,
+    label: "Queued",
+    className: "text-muted-foreground",
+  },
+  "input-available": {
+    icon: <LoaderCircleIcon className="size-3.5 animate-spin" />,
+    label: "Running",
+    className: "text-yellow-500",
+  },
+  "approval-requested": {
+    icon: <ShieldAlertIcon className="size-3.5" />,
+    label: "Waiting",
+    className: "text-yellow-500",
+  },
+  "approval-responded": {
+    icon: <CheckCircle2Icon className="size-3.5" />,
+    label: "Responded",
+    className: "text-blue-500",
+  },
+  "output-available": {
+    icon: <CheckCircle2Icon className="size-3.5" />,
+    label: "Completed",
+    className: "text-green-500",
+  },
+  "output-denied": {
+    icon: <CircleXIcon className="size-3.5" />,
+    label: "Skipped",
+    className: "text-muted-foreground",
+  },
+  "output-error": {
+    icon: <XCircleIcon className="size-3.5" />,
+    label: "Failed",
+    className: "text-red-500",
+  },
 };
 
-const statusIcons: Record<ToolPart["state"], ReactNode> = {
-  "approval-requested": <ClockIcon className="size-4 text-yellow-600" />,
-  "approval-responded": <CheckCircleIcon className="size-4 text-blue-600" />,
-  "input-available": <ClockIcon className="size-4 animate-pulse" />,
-  "input-streaming": <CircleIcon className="size-4" />,
-  "output-available": <CheckCircleIcon className="size-4 text-green-600" />,
-  "output-denied": <XCircleIcon className="size-4 text-orange-600" />,
-  "output-error": <XCircleIcon className="size-4 text-red-600" />,
+export const getStatusIndicator = (state: ToolPart["state"]) => {
+  const config = statusConfig[state];
+  return (
+    <span className={cn("inline-flex items-center gap-1 text-xs", config.className)}>
+      {config.icon}
+      {config.label}
+    </span>
+  );
 };
-
-export const getStatusBadge = (status: ToolPart["state"]) => (
-  <Badge className="gap-1.5 rounded-full text-xs" variant="secondary">
-    {statusIcons[status]}
-    {statusLabels[status]}
-  </Badge>
-);
 
 // ─── Components ───────────────────────────────────────────────────────────
 
@@ -76,7 +98,7 @@ export const ToolHeader = ({ className, title, type, state, toolName }: ToolHead
       <div className="flex items-center gap-2">
         <WrenchIcon className="size-4 text-muted-foreground" />
         <span className="text-sm font-medium">{title ?? name}</span>
-        {getStatusBadge(state)}
+        {getStatusIndicator(state)}
       </div>
       <ChevronDownIcon className="size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
     </CollapsibleTrigger>
