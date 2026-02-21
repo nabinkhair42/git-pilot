@@ -78,8 +78,8 @@ export async function POST(req: Request) {
     if (!owner || !repo) {
       const mentioned = extractRepoFromHistory(messages);
       if (mentioned) {
-        owner = mentioned.owner;
-        repo = mentioned.repo;
+        owner = mentioned!.owner;
+        repo = mentioned!.repo;
       }
     }
 
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
     const systemPrompt = buildSystemPrompt(owner, repo);
 
     const result = streamText({
-      model: model ? getModelInstance(model) : getCheapModel(),
+      model: model ? getModelInstance(model as string) : getCheapModel(),
       system: systemPrompt,
       messages: convertedMessages,
       tools,
@@ -119,8 +119,6 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error("[Chat API Error]", error);
-    return errorResponse(
-      error instanceof Error ? error.message : "Internal server error"
-    );
+    return errorResponse((error as Error)?.message ?? "Internal server error");
   }
 }
