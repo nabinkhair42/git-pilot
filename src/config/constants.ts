@@ -92,18 +92,11 @@ export const AI_MODELS = [
     logo: modelLogo("openai"),
   },
   {
-    id: "claude-sonnet-4-5-20250929",
-    name: "Claude Sonnet 4.5",
+    id: "claude-sonnet-4-6",
+    name: "Claude Sonnet 4.6",
     provider: "anthropic",
     logo: modelLogo("anthropic"),
   },
-  {
-    id: "claude-opus-4-6",
-    name: "Claude Opus 4.6",
-    provider: "anthropic",
-    logo: modelLogo("anthropic"),
-  },
-  { id: "grok-3", name: "Grok 3", provider: "xai", logo: modelLogo("xai") },
   {
     id: "lmstudio-local",
     name: "LM Studio (Local)",

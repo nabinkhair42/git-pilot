@@ -44,7 +44,7 @@ export function LoginDialog() {
             size="lg"
             className="w-full py-6 gap-2 w-full"
           >
-            <GitHub className="size-4" />
+            {!loading && <GitHub className="size-4" />}
             Sign in with GitHub
           </Button>
         </AlertDialogFooter>

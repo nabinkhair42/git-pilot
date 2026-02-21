@@ -25,6 +25,7 @@ import { type UIMessage, type ToolUIPart, getToolName, isToolUIPart } from "ai";
 import { CheckIcon, XIcon } from "lucide-react";
 import { useMemo } from "react";
 import { toolRenderers } from "./tool-renderers/registry";
+import { EnrichedText } from "@/components/chat/enriched-text";
 
 const TOOL_LABELS: Record<string, string> = {
   getRepoOverview: "Repository Overview",
@@ -114,7 +115,7 @@ export function ChatMessages({
                 if (part.type === "text" && part.text.trim()) {
                   if (message.role === "user") {
                     const text = part.text.replace(/\n\n---\n\n## User-Referenced Context[\s\S]*$/, "").trim();
-                    return text ? <p key={i} className="whitespace-pre-wrap">{text}</p> : null;
+                    return text ? <EnrichedText key={i} text={text} /> : null;
                   }
                   return <MessageResponse key={i}>{part.text}</MessageResponse>;
                 }

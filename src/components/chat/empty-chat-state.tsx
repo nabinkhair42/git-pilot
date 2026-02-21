@@ -19,9 +19,16 @@ export function EmptyChatState({ onSuggestionClick }: EmptyChatStateProps) {
   const firstName = session?.user.name?.split(" ")[0];
 
   return (
-    <div className="flex flex-col items-center gap-6 text-center">
-      <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-        {firstName ? `What's on the agenda, ${firstName}?` : "What's on the agenda today?"}
+    <div className="flex flex-col items-center gap-8 text-center">
+      <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+        {firstName ? (
+          <p>
+            What's on your mind,{" "}
+            <span className="font-medium text-foreground">{firstName}</span>?
+          </p>
+        ) : (
+          "What's on the agenda today?"
+        )}
       </h2>
       <div className="flex flex-wrap justify-center gap-2">
         {SUGGESTIONS.map((s) => (

@@ -19,6 +19,7 @@ import {
 import { MentionChips } from "@/components/chat/mention-chips";
 import { MentionPicker } from "@/components/chat/mention-picker";
 import { Button } from "@/components/ui/button";
+import { Anthropic, OpenAI, LMStudioIcon } from "@/components/icons";
 import { AI_MODELS, MENTION_CATEGORY_SHORTCUTS, STORAGE_KEYS } from "@/config/constants";
 import { useMentionQuery } from "@/hooks/use-mention-query";
 import { useMentions } from "@/hooks/use-mentions";
@@ -35,6 +36,18 @@ import {
   type KeyboardEvent,
 } from "react";
 
+const PROVIDER_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  anthropic: Anthropic,
+  openai: OpenAI,
+  lmstudio: LMStudioIcon,
+};
+
+function ModelIcon({ model }: { model: typeof AI_MODELS[number] }) {
+  const Icon = PROVIDER_ICONS[model.provider];
+  if (Icon) return <Icon className="size-4 shrink-0" />;
+  return <img src={model.logo} alt="" className="size-4 shrink-0" width={16} height={16} />;
+}
+
 interface ChatInputProps {
   onSend: (text: string, mentions: MentionItem[], model: string) => void;
   onStop: () => void;
@@ -50,9 +63,18 @@ for (const [shortcut, cat] of Object.entries(MENTION_CATEGORY_SHORTCUTS)) {
 
 // ── Highlight overlay helpers ──
 
+const CATEGORY_COLORS: Record<string, string> = {
+  file: "bg-blue-500/15",
+  commit: "bg-orange-500/15",
+  branch: "bg-green-500/15",
+  tag: "bg-purple-500/15",
+  repository: "bg-pink-500/15",
+};
+
 interface TextSegment {
   text: string;
   highlight: boolean;
+  category?: string;
 }
 
 function buildHighlightSegments(
@@ -65,15 +87,15 @@ function buildHighlightSegments(
   // Build exact search strings from confirmed mentions
   const patterns = mentions.map((m) => {
     const shortcut = CATEGORY_TO_SHORTCUT[m.category] ?? m.category;
-    return `@${shortcut}:${m.label}`;
+    return { pattern: `@${shortcut}:${m.label}`, category: m.category };
   });
 
   // Find all occurrences
-  const ranges: { start: number; end: number }[] = [];
-  for (const pattern of patterns) {
+  const ranges: { start: number; end: number; category: string }[] = [];
+  for (const { pattern, category } of patterns) {
     let idx = text.indexOf(pattern);
     while (idx !== -1) {
-      ranges.push({ start: idx, end: idx + pattern.length });
+      ranges.push({ start: idx, end: idx + pattern.length, category });
       idx = text.indexOf(pattern, idx + 1);
     }
   }
@@ -91,6 +113,7 @@ function buildHighlightSegments(
     segments.push({
       text: text.slice(range.start, range.end),
       highlight: true,
+      category: range.category,
     });
     pos = range.end;
   }
@@ -141,7 +164,7 @@ function MentionHighlightOverlay({
     >
       {segments.map((seg, i) =>
         seg.highlight ? (
-          <mark key={i} className="rounded-sm bg-sky-500/15 text-transparent">
+          <mark key={i} className={`rounded-sm text-transparent ${seg.category ? CATEGORY_COLORS[seg.category] ?? "bg-sky-500/15" : "bg-sky-500/15"}`}>
             {seg.text}
           </mark>
         ) : (
@@ -353,13 +376,7 @@ function ChatInputInner({ onSend, onStop, status, disabled }: ChatInputProps) {
                   className="h-7 gap-1.5 px-2 text-xs"
                   type="button"
                 >
-                  <img
-                    src={currentModel.logo}
-                    alt=""
-                    className="size-5"
-                    width={12}
-                    height={12}
-                  />
+                  <ModelIcon model={currentModel} />
                   {currentModel.name}
                 </Button>
               </DropdownMenuTrigger>
@@ -372,13 +389,7 @@ function ChatInputInner({ onSend, onStop, status, disabled }: ChatInputProps) {
                       localStorage.setItem(STORAGE_KEYS.selectedModel, model.id);
                     }}
                   >
-                    <img
-                      src={model.logo}
-                      alt=""
-                      className="size-5"
-                      width={12}
-                      height={12}
-                    />
+                    <ModelIcon model={model} />
                     {model.name}
                   </DropdownMenuItem>
                 ))}

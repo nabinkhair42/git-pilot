@@ -1,23 +1,9 @@
 "use client";
 
-import type { MentionItem, MentionCategory } from "@/lib/mentions/types";
+import type { MentionItem } from "@/lib/mentions/types";
+import { CATEGORY_ICONS } from "@/lib/mentions/icons";
 import { Badge } from "@/components/ui/badge";
-import {
-  FileText,
-  GitCommitHorizontal,
-  GitBranch,
-  Tag,
-  FolderGit2,
-  X,
-} from "lucide-react";
-
-const CATEGORY_ICONS: Record<MentionCategory, React.ComponentType<{ className?: string }>> = {
-  file: FileText,
-  commit: GitCommitHorizontal,
-  branch: GitBranch,
-  tag: Tag,
-  repository: FolderGit2,
-};
+import { X } from "lucide-react";
 
 interface MentionChipsProps {
   mentions: MentionItem[];

@@ -144,38 +144,36 @@ function ChatAppInner({
 
       // Create chat in background if this is a new conversation
       if (!createdChatIdRef.current && !chatCreationRef.current) {
-        chatCreationRef.current = chatService
-          .createChat()
-          .then((newChat) => {
-            createdChatIdRef.current = newChat.id;
-            window.history.replaceState(null, "", `/chats/${newChat.id}`);
-            mutateChatHistory();
+        chatCreationRef.current = chatService.createChat().then((newChat) => {
+          createdChatIdRef.current = newChat.id;
+          window.history.replaceState(null, "", `/chats/${newChat.id}`);
+          mutateChatHistory();
 
-            // Generate title in background
-            // Skip AI title gen for local models (LM Studio can only handle one request at a time)
-            const isLocalModel = model.startsWith("lmstudio");
-            if (isLocalModel) {
-              const fallback = messageText.slice(0, 50).trim() || "New chat";
-              chatService
-                .updateChat(newChat.id, { title: fallback })
-                .then(() => mutateChatHistory())
-                .catch(console.error);
-            } else {
-              chatService
-                .generateChatTitle(newChat.id, messageText, model)
-                .then(() => mutateChatHistory())
-                .catch(() => {
-                  // Silently fallback — title gen may timeout
-                  const fallback = messageText.slice(0, 50).trim() || "New chat";
-                  chatService
-                    .updateChat(newChat.id, { title: fallback })
-                    .then(() => mutateChatHistory())
-                    .catch(console.error);
-                });
-            }
+          // Generate title in background
+          // Skip AI title gen for local models (LM Studio can only handle one request at a time)
+          const isLocalModel = model.startsWith("lmstudio");
+          if (isLocalModel) {
+            const fallback = messageText.slice(0, 50).trim() || "New chat";
+            chatService
+              .updateChat(newChat.id, { title: fallback })
+              .then(() => mutateChatHistory())
+              .catch(console.error);
+          } else {
+            chatService
+              .generateChatTitle(newChat.id, messageText, model)
+              .then(() => mutateChatHistory())
+              .catch(() => {
+                // Silently fallback — title gen may timeout
+                const fallback = messageText.slice(0, 50).trim() || "New chat";
+                chatService
+                  .updateChat(newChat.id, { title: fallback })
+                  .then(() => mutateChatHistory())
+                  .catch(console.error);
+              });
+          }
 
-            return newChat.id;
-          });
+          return newChat.id;
+        });
 
         chatCreationRef.current.catch(console.error);
       }
@@ -198,15 +196,15 @@ function ChatAppInner({
         /* ChatGPT-style: greeting + input centered vertically */
         <div className="flex flex-1 flex-col items-center justify-center px-4">
           <div className="w-full max-w-3xl">
-            <EmptyChatState onSuggestionClick={handleSuggestionClick} />
-            <div className="mt-8">
+            <EmptyChatState />
+            <div className="mt-8 px-4">
               <ChatInput onSend={handleSend} onStop={stop} status={status} />
             </div>
           </div>
         </div>
       ) : (
         <>
-          <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col min-h-0">
+          <div className="flex flex-1 flex-col min-h-0">
             <ChatMessages
               messages={messages}
               status={status}
@@ -215,8 +213,10 @@ function ChatAppInner({
               addToolApprovalResponse={addToolApprovalResponse}
             />
           </div>
-          <div className="mx-auto w-full max-w-3xl backdrop-blur">
-            <ChatInput onSend={handleSend} onStop={stop} status={status} />
+          <div className="shrink-0">
+            <div className="mx-auto w-full max-w-3xl px-4 pb-4 pt-2">
+              <ChatInput onSend={handleSend} onStop={stop} status={status} />
+            </div>
           </div>
         </>
       )}

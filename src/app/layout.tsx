@@ -21,7 +21,7 @@ const siteUrl = "https://git.nabinkhair.com.np";
 
 export const metadata: Metadata = {
   title: {
-    default: "GitPilot — AI Chat for GitHub Repos",
+    default: "GitPilot | AI Chat for GitHub Repos",
     template: "%s | GitPilot",
   },
   description:
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: "GitPilot",
-    title: "GitPilot — AI Chat for GitHub Repos",
+    title: "GitPilot | AI Chat for GitHub Repos",
     description:
       "Chat-first AI assistant for GitHub repositories. Explore commits, branches, diffs, cherry-pick, revert, and more through conversation.",
     images: [
@@ -54,13 +54,13 @@ export const metadata: Metadata = {
         url: "/online-mode-dark.png",
         width: 1200,
         height: 630,
-        alt: "GitPilot — AI Chat for GitHub Repos",
+        alt: "GitPilot | AI Chat for GitHub Repos",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "GitPilot — AI Chat for GitHub Repos",
+    title: "GitPilot | AI Chat for GitHub Repos",
     description:
       "Chat-first AI assistant for GitHub repositories. Explore commits, branches, diffs, cherry-pick, revert, and more through conversation.",
     images: ["/online-mode-dark.png"],

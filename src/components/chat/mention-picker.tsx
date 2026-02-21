@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { MentionItem, MentionCategory } from "@/lib/mentions/types";
 import type { MentionQuery } from "@/hooks/use-mention-query";
+import { CATEGORY_ICONS } from "@/lib/mentions/icons";
 import { MENTION_CATEGORIES } from "@/config/constants";
 import { useRepo } from "@/hooks/use-repo";
 import { useMentionCandidates } from "@/hooks/use-mention-candidates";
@@ -14,21 +15,6 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  FileText,
-  GitCommitHorizontal,
-  GitBranch,
-  Tag,
-  FolderGit2,
-} from "lucide-react";
-
-const CATEGORY_ICONS: Record<MentionCategory, React.ComponentType<{ className?: string }>> = {
-  file: FileText,
-  commit: GitCommitHorizontal,
-  branch: GitBranch,
-  tag: Tag,
-  repository: FolderGit2,
-};
 
 interface MentionPickerProps {
   query: MentionQuery;
