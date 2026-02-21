@@ -56,13 +56,20 @@ function extractRepoFromHistory(
 }
 
 export async function POST(req: Request) {
+  // Temporary: service paused — no AI credits available
+  return errorResponse(
+    "GitPilot is currently paused. We're an unfunded side project and have run out of AI credits. " +
+    "Self-host with your own API keys to keep using it — the code is open source.",
+    503
+  );
+
   try {
     const { messages, owner: bodyOwner, repo: bodyRepo, model }: ChatRequestBody = await req.json();
 
     // Validate API key for the selected model's provider
     if (model) {
-      const keyError = validateModelKey(model);
-      if (keyError) return errorResponse(keyError);
+      const keyError = validateModelKey(model as string);
+      if (keyError) return errorResponse(keyError as string);
     }
 
     // Use body owner/repo first, fall back to extracting from @repo mentions

@@ -22,6 +22,7 @@ import {
   lastAssistantMessageIsCompleteWithApprovalResponses,
 } from "ai";
 import { useMemo, useRef, useEffect, useCallback, useState } from "react";
+import { toast } from "sonner";
 
 export function ChatApp({ chatId }: { chatId: string | null }) {
   const { chat: activeChat, isLoading: chatLoading } = useActiveChat(chatId);
@@ -99,6 +100,13 @@ function ChatAppInner({
       messages: initialMessages ?? [],
       sendAutomaticallyWhen:
         lastAssistantMessageIsCompleteWithApprovalResponses,
+      onError: () => {
+        toast.error("GitPilot is currently paused", {
+          description:
+            "We're an unfunded side project and have run out of AI credits. Self-host with your own API keys to keep using it — the code is open source.",
+          duration: 8000,
+        });
+      },
     });
 
   // Save messages when AI response completes (any non-ready → ready)
