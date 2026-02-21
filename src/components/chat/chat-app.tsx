@@ -5,7 +5,7 @@ import { ChatMessages } from "@/components/chat/chat-message";
 import { EmptyChatState } from "@/components/chat/empty-chat-state";
 import { LoginDialog } from "@/components/auth/login-dialog";
 import { Spinner } from "@/components/ui/spinner";
-import { AI_MODELS, STORAGE_KEYS } from "@/config/constants";
+import { AI_MODELS, SERVICE_STATUS, STORAGE_KEYS } from "@/config/constants";
 import { useRepo } from "@/hooks/use-repo";
 import { useChatHistory } from "@/hooks/use-chat-history";
 import { useActiveChat } from "@/hooks/use-active-chat";
@@ -101,9 +101,8 @@ function ChatAppInner({
       sendAutomaticallyWhen:
         lastAssistantMessageIsCompleteWithApprovalResponses,
       onError: () => {
-        toast.error("GitPilot is currently paused", {
-          description:
-            "We're an unfunded side project and have run out of AI credits. Self-host with your own API keys to keep using it — the code is open source.",
+        toast.error(SERVICE_STATUS.title, {
+          description: SERVICE_STATUS.message,
           duration: 8000,
         });
       },

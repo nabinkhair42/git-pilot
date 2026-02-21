@@ -4,6 +4,7 @@ import { getModelInstance, validateModelKey, getCheapModel } from "@/lib/ai/mode
 import { buildSystemPrompt } from "@/lib/ai/system-prompt";
 import { getGitHubToken } from "@/lib/auth/auth-helpers";
 import { errorResponse } from "@/lib/response/server-response";
+import { SERVICE_STATUS } from "@/config/constants";
 
 export const maxDuration = 60;
 
@@ -56,12 +57,9 @@ function extractRepoFromHistory(
 }
 
 export async function POST(req: Request) {
-  // Temporary: service paused — no AI credits available
-  return errorResponse(
-    "GitPilot is currently paused. We're an unfunded side project and have run out of AI credits. " +
-    "Self-host with your own API keys to keep using it — the code is open source.",
-    503
-  );
+  if (!SERVICE_STATUS.enabled) {
+    return errorResponse(SERVICE_STATUS.message, 503);
+  }
 
   try {
     const { messages, owner: bodyOwner, repo: bodyRepo, model }: ChatRequestBody = await req.json();

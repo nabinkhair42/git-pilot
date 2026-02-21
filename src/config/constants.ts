@@ -113,6 +113,17 @@ export const STORAGE_KEYS = {
   selectedModel: "gitpilot:selected-model",
 } as const;
 
+// ─── Service Status ───────────────────────────────────────────────────────────
+// Set `enabled: false` to block all chat requests and surface the message as a toast.
+
+export const SERVICE_STATUS = {
+  enabled: false,
+  title: "GitPilot is currently paused",
+  message:
+    "We're an unfunded side project and have run out of AI credits. " +
+    "Self-host with your own API keys to keep using it — the code is open source.",
+} as const;
+
 export const FILE_STATUS_COLORS: Record<string, string> = {
   A: "text-git-added",
   M: "text-git-modified",
